@@ -57,7 +57,7 @@ namespace eCAL
         umask(previous_umask);            // reset umask to previous permissions
         if (mem_file_info_.memfile == -1)
         {
-          std::cout << "shm_open failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
+          std::cerr << "shm_open failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
           mem_file_info_.memfile = 0;
           mem_file_info_.name = "";
           return(false);
@@ -97,7 +97,7 @@ namespace eCAL
             // truncate file
             if (::ftruncate(mem_file_info_.memfile, mem_file_info_.size) != 0)
             {
-              std::cout << "ftruncate failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
+              std::cerr << "ftruncate failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
             }
           }
 
@@ -109,7 +109,7 @@ namespace eCAL
           if (mem_file_info_.mem_address == MAP_FAILED)
           {
             mem_file_info_.mem_address = nullptr;
-            std::cout << "mmap failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
+            std::cerr << "mmap failed : " << mem_file_info_.name << " errno: " << strerror(errno) << std::endl;
             return(false);
           }
         }

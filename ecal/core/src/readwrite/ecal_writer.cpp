@@ -289,7 +289,8 @@ namespace eCAL
   {
     m_qos = qos_;
     bool ret = true;
-    ret &= m_writer_shm.SetQOS(qos_);
+    ret = m_writer_shm.SetQOS(qos_) && ret;
+    ret = m_writer_tcp.SetQOS(qos_) && ret;
     return ret;
   }
 

@@ -84,7 +84,7 @@ namespace eCAL
     void Create();
     void Destroy();
 
-    bool ObserveFile(const std::string& memfile_name_, const std::string& memfile_event_, const std::string& topic_name_, const std::string& topic_id_);
+    bool ObserveFile(const std::string& memfile_name_, const std::string& memfile_event_, const std::string& topic_name_, const std::string& topic_id_, const std::string& writer_process_id_);
 
   protected:
     void CleanupPool();

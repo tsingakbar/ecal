@@ -83,7 +83,12 @@ namespace eCAL
     }
 
     // create publisher
-    m_publisher = std::make_shared<tcp_pubsub::Publisher>(g_tcp_writer_executor);
+    tcp_pubsub::PublisherTransientLocalSetting setting;
+    if (m_qos.durability == QOS::transient_local_durability_qos) {
+      setting.buffer_max_count_ = m_qos.history_kind_depth;
+      setting.lifespan_ = m_qos.lifespan;
+    }
+    m_publisher = std::make_shared<tcp_pubsub::Publisher>(g_tcp_writer_executor, setting);
     m_port      = m_publisher->getPort();
 
     // writer parameter

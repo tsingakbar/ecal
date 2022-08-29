@@ -249,6 +249,10 @@ namespace eCAL
             std::make_pair(v, it)
           )
         );
+        if (!ret.second) {
+          _key_tracker.erase(ret.first->second.second);
+          ret.first->second.second = it;
+        }
         // return iterator to newly inserted element.
         return ret;
       }

@@ -77,7 +77,7 @@ namespace eCAL
      * @param topic_type_   Type name (optional). 
      * @param topic_desc_   Type description (optional). 
     **/
-    CPublisher(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "");
+    CPublisher(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const QOS::SWriterQOS& qos = QOS::SWriterQOS());
 
     /**
      * @brief Destructor. 
@@ -344,7 +344,6 @@ namespace eCAL
     std::string Dump(const std::string& indent_ = "") const;
 
   protected:
-    void InitializeQOS();
     void InitializeTLayer();
 
     // class members

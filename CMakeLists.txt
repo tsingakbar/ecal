@@ -75,14 +75,14 @@ endif()
 # command line build options
 # use it that way cmake .. -DBUILD_APPS=ON -DBUILD_SAMPLES=ON
 # --------------------------------------------------------
-option(HAS_HDF5                                "Platform supports HDF5 library"                                    ON)
-option(HAS_QT5                                 "Platform supports Qt 5 library"                                    ON)
+option(HAS_HDF5                                "Platform supports HDF5 library"                                   OFF)
+option(HAS_QT5                                 "Platform supports Qt 5 library"                                   OFF)
 option(HAS_CURL                                "Build with CURL (i.e. upload support in the recorder app)"         ON)
 option(HAS_CAPNPROTO                           "Platform supports Cap'n Proto library"                            OFF)
 
 option(BUILD_DOCS                              "Build the eCAL documentation"                                     OFF)
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
-option(BUILD_SAMPLES                           "Build the eCAL samples"                                            ON)
+option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
 option(BUILD_TIME                              "Build the eCAL time interfaces"                                    ON)
 option(BUILD_PY_BINDING                        "Build eCAL python binding"                                        OFF)
 option(BUILD_STANDALONE_PY_WHEEL               "Build eCAL python binding as standalone wheel"                    OFF)
@@ -92,7 +92,7 @@ option(BUILD_ECAL_TESTS                        "Build the eCAL google tests"    
 option(ECAL_LAYER_ICEORYX                      "Use iceoryx shared memory as local communication layer"           OFF)
 
 option(ECAL_INCLUDE_PY_SAMPLES                 "Include python language sample projects into CMake"               OFF)
-option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                               ON)
+option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
 option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug Workaround"                        OFF)
 option(ECAL_NPCAP_SUPPORT                      "Enable the eCAL Npcap Receiver (i.e. the Win10 performance fix)"  OFF)
@@ -122,9 +122,9 @@ else()
 endif()
 
 # This should be ON, unless build ecal hdf5 for Matlab usage
-option(ECAL_LINK_HDF5_SHARED                   "Link shared libs of HDF5"                                          ON)
+option(ECAL_LINK_HDF5_SHARED                   "Link shared libs of HDF5"                                         OFF)
 
-option(CPACK_PACK_WITH_INNOSETUP               "Create Innosetup installer for the Windows build"                  ON)
+option(CPACK_PACK_WITH_INNOSETUP               "Create Innosetup installer for the Windows build"                 OFF)
 
 set(ECAL_INSTALL_PYTHON_DIR "bin" CACHE PATH "Location to install the Python extension modules. Might be set by setupdtools install.")
 

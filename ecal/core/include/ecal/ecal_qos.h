@@ -26,6 +26,8 @@
 
 #include "ecal_os.h"
 
+#include <stdint.h>
+
 namespace eCAL
 {
   namespace QOS
@@ -49,6 +51,15 @@ namespace eCAL
     };
 
     /**
+     * @brief eCAL QOS durability mode, only meanningfull for publishers
+     **/
+    enum eQOSPolicy_Durability
+    {
+      volatile_durability_qos,        //!< sampls are not persistent (default for Publishers)
+      transient_local_durability_qos, //!< publisher is responsible for persisting samples for “late-joining” subscribers, only available in TCP transport
+    };
+
+    /**
      * @brief eCAL data writer QOS settings.
     **/
     struct ECAL_API SWriterQOS
@@ -58,10 +69,14 @@ namespace eCAL
         history_kind       = keep_last_history_qos;
         history_kind_depth = 8;
         reliability        = reliable_reliability_qos;
+        durability         = volatile_durability_qos;
+        lifespan           = 0;
       }
       eQOSPolicy_HistoryKind  history_kind;              //!< qos history kind mode
       int                     history_kind_depth;        //!< qos history kind mode depth
       eQOSPolicy_Reliability  reliability;               //!< qos reliability mode
+      eQOSPolicy_Durability   durability;                //!< qos durability mode
+      int64_t                 lifespan;                  //!< qos sample beyond lifespan nano seconds is considered expired, 0 means never expired
     };
 
     /**

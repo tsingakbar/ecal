@@ -94,7 +94,7 @@ namespace eCAL
       {
         std::string process_id = std::to_string(Process::GetProcessID());
         std::string memfile_event = memfile_name + "_" + process_id;
-        g_memfile_pool()->ObserveFile(memfile_name, memfile_event, par_.topic_name, par_.topic_id);
+        g_memfile_pool()->ObserveFile(memfile_name, memfile_event, par_.topic_name, par_.topic_id, par_.process_id);
       }
     }
   }

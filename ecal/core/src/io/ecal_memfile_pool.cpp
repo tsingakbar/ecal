@@ -67,7 +67,7 @@ namespace eCAL
     }
 
     // create memory file access
-    m_memfile.Create(memfile_name_.c_str(), false);
+    if (!m_memfile.Create(memfile_name_.c_str(), false)) return false;
 
     m_created = true;
 
@@ -331,7 +331,7 @@ namespace eCAL
     m_created = false;
   }
 
-  bool CMemFileThreadPool::ObserveFile(const std::string& memfile_name_, const std::string& memfile_event_, const std::string& topic_name_, const std::string& topic_id_)
+  bool CMemFileThreadPool::ObserveFile(const std::string& memfile_name_, const std::string& memfile_event_, const std::string& topic_name_, const std::string& topic_id_, const std::string& writer_process_id_)
   {
     if(!m_created)            return(false);
     if(memfile_name_.empty()) return(false);
@@ -368,6 +368,10 @@ namespace eCAL
       auto observer = std::make_shared<CMemFileObserver>();
       observer->Create(memfile_name_, memfile_event_);
       observer->Start(topic_name_, topic_id_, Config::GetRegistrationTimeoutMs());
+      if (!observer->IsObserving())
+      {
+        Logging::Log(log_level_error, std::string("CMemFileThreadPool::ObserveFile failed to observe " + memfile_name_ + " created by process " + writer_process_id_));
+      }
       m_observer_pool[memfile_name_] = observer;
 #ifndef NDEBUG
       // log it

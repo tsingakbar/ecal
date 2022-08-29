@@ -44,16 +44,15 @@ namespace eCAL
                 m_created(false),
                 m_initialized(false)
   {
-    InitializeQOS();
     InitializeTLayer();
   }
 
-  CPublisher::CPublisher(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */) :
+  CPublisher::CPublisher(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */, const QOS::SWriterQOS& qos) :
                 m_datawriter(nullptr),
+                m_qos(qos),
                 m_created(false),
                 m_initialized(false)
   {
-    InitializeQOS();
     InitializeTLayer();
 
     Create(topic_name_, topic_type_, topic_desc_);
@@ -74,7 +73,6 @@ namespace eCAL
                 m_created(rhs.m_created),
                 m_initialized(rhs.m_initialized)
   {
-    InitializeQOS();
     InitializeTLayer();
 
     rhs.m_created     = false;
@@ -93,7 +91,6 @@ namespace eCAL
     m_created         = rhs.m_created;
     m_initialized     = rhs.m_initialized;
 
-    InitializeQOS();
     InitializeTLayer();
     rhs.m_created     = false;
     rhs.m_initialized = false;
@@ -124,6 +121,14 @@ namespace eCAL
     if (m_tlayer.sm_shm     == TLayer::smode_none) m_tlayer.sm_shm    = Config::GetPublisherShmMode();
     if (m_tlayer.sm_tcp     == TLayer::smode_none) m_tlayer.sm_tcp    = Config::GetPublisherTcpMode();
     if (m_tlayer.sm_inproc  == TLayer::smode_none) m_tlayer.sm_inproc = Config::GetPublisherInprocMode();
+    if (m_qos.durability == QOS::transient_local_durability_qos)
+    {
+      // only TCP can implement transient_local_durability_qos
+      m_tlayer.sm_udp_mc = TLayer::smode_none;
+      m_tlayer.sm_shm = TLayer::smode_none;
+      m_tlayer.sm_tcp = TLayer::smode_on;
+      m_tlayer.sm_inproc = TLayer::smode_none;
+    }
 
     // create data writer
     m_datawriter = new CDataWriter();
@@ -302,7 +307,7 @@ namespace eCAL
     // or we do not have any subscription at all
     // then the data writer will only do some statistics
     // for the monitoring layer and return
-    if (!IsSubscribed())
+    if (!IsSubscribed() && m_qos.durability != QOS::transient_local_durability_qos)
     {
       m_datawriter->RefreshSendCounter();
       return(len_);
@@ -364,11 +369,6 @@ namespace eCAL
   {
     if(!m_datawriter) return("");
     return(m_datawriter->GetDescription());
-  }
-
-  void CPublisher::InitializeQOS()
-  {
-    m_qos = QOS::SWriterQOS();
   }
 
   void CPublisher::InitializeTLayer()
