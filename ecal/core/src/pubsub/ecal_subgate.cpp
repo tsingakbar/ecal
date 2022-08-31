@@ -90,6 +90,8 @@ namespace eCAL
       iter->second->Destroy();
     }
 
+    gCloseEvent(ShutdownProcEvent());
+
     m_created = false;
   }
 
