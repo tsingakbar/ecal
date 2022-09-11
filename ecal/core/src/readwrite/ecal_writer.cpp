@@ -842,6 +842,7 @@ namespace eCAL
     *ecal_reg_sample_mutable_topic->mutable_attr() = google::protobuf::Map<std::string, std::string> { m_attr.begin(), m_attr.end() };
     ecal_reg_sample_mutable_topic->set_tsize(google::protobuf::int32(m_topic_size));
     // udp multicast layer
+    if (m_use_udp_mc == TLayer::smode_auto || m_use_udp_mc == TLayer::smode_on)
     {
       auto udp_tlayer = ecal_reg_sample_mutable_topic->add_tlayer();
       udp_tlayer->set_type(eCAL::pb::tl_ecal_udp_mc);
@@ -850,6 +851,7 @@ namespace eCAL
       udp_tlayer->mutable_par_layer()->ParseFromString(m_writer_udp_mc.GetConnectionParameter());
     }
     // shm layer
+    if (m_use_shm == TLayer::smode_auto || m_use_shm == TLayer::smode_on)
     {
       auto shm_tlayer = ecal_reg_sample_mutable_topic->add_tlayer();
       shm_tlayer->set_type(eCAL::pb::tl_ecal_shm);
@@ -878,6 +880,7 @@ namespace eCAL
 
     }
     // tcp layer
+    if (m_use_tcp == TLayer::smode_auto || m_use_tcp == TLayer::smode_on)
     {
       auto tcp_tlayer = ecal_reg_sample_mutable_topic->add_tlayer();
       tcp_tlayer->set_type(eCAL::pb::tl_ecal_tcp);
@@ -886,6 +889,7 @@ namespace eCAL
       tcp_tlayer->mutable_par_layer()->ParseFromString(m_writer_tcp.GetConnectionParameter());
     }
     // inproc layer
+    if (m_use_inproc == TLayer::smode_auto || m_use_inproc == TLayer::smode_on)
     {
       auto inproc_tlayer = ecal_reg_sample_mutable_topic->add_tlayer();
       inproc_tlayer->set_type(eCAL::pb::tl_inproc);

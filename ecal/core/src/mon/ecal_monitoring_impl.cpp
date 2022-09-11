@@ -263,11 +263,6 @@ namespace eCAL
       std::string topic_name_id = sample_topic.tname() + sample_topic.tid();
       STopicMon& TopicInfo = (*pTopicMap->map)[topic_name_id];
       TopicInfo.sample = sample_topic;
-      //TopicInfo.sample.mutable_tlayer()->Clear();
-      //for (auto& layer : sample_topic.tlayer()) {
-      //  if (!layer.confirmed()) continue;
-      //  *TopicInfo.sample.mutable_tlayer()->Add() = layer;
-      //}
 
       // update flexible content
       TopicInfo.rclock++;
