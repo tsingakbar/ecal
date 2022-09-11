@@ -37,9 +37,17 @@ message QOS                                     // quality of service
     keep_all_history_qos  = 1;                  // keep all samples until the ResourceLimitsQosPolicy are exhausted
   }
 
+  enum eQOSPolicy_Durability
+  {
+    volatile_durability_qos        = 0;        //!< sampls are not persistent (default for Publishers)
+    transient_local_durability_qos = 1;        //!< publisher is responsible for persisting samples for “late-joining” subscribers, only available in TCP transport
+  }
+
   eQOSPolicy_Reliability  reliability    =  1;  // qos reliability (reliable / best effort)
   eQOSPolicy_HistoryKind  history        =  2;  // qos history kind (keep last / all)
   int32                   history_depth  =  3;  // number of samples for history kind "keep last"
+  eQOSPolicy_Durability   durability     =  4;  //!< qos durability mode
+  int64                   lifespan       =  5;  //!< qos sample beyond lifespan nano seconds is considered expired, 0 means never expired
 }
 
 message Topic                                   // eCAL topic

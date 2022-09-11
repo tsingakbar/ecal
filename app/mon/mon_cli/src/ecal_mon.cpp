@@ -479,17 +479,18 @@ void ProcInfo(const std::string& topic_name)
       // check topic name
       if(topic.tname() != topic_name) continue;
 
+      std::cout << topic.Utf8DebugString() << std::endl;
       // print topic details
-      std::cout << "tname        : " << topic.tname()        << std::endl;   // topic name
-      std::cout << "ttype        : " << topic.ttype()        << std::endl;   // topic type
-      std::cout << "direction    : " << topic.direction()    << std::endl;   // direction (publisher, subscriber)
-      std::cout << "hname        : " << topic.hname()        << std::endl;   // host name
-      std::cout << "pid          : " << topic.pid()          << std::endl;   // process id
-      std::cout << "tid          : " << topic.tid()          << std::endl;   // topic id
-      std::cout << "tsize        : " << topic.tsize()        << std::endl;   // topic size
-      std::cout << "dclock       : " << topic.dclock()       << std::endl;   // data clock (send / receive action)
-      std::cout << "dfreq        : " << topic.dfreq()/1000.0 << std::endl;   // data frequency (send / receive samples per second * 1000)
-      std::cout << std::endl;
+      //std::cout << "tname        : " << topic.tname()        << std::endl;   // topic name
+      //std::cout << "ttype        : " << topic.ttype()        << std::endl;   // topic type
+      //std::cout << "direction    : " << topic.direction()    << std::endl;   // direction (publisher, subscriber)
+      //std::cout << "hname        : " << topic.hname()        << std::endl;   // host name
+      //std::cout << "pid          : " << topic.pid()          << std::endl;   // process id
+      //std::cout << "tid          : " << topic.tid()          << std::endl;   // topic id
+      //std::cout << "tsize        : " << topic.tsize()        << std::endl;   // topic size
+      //std::cout << "dclock       : " << topic.dclock()       << std::endl;   // data clock (send / receive action)
+      //std::cout << "dfreq        : " << topic.dfreq()/1000.0 << std::endl;   // data frequency (send / receive samples per second * 1000)
+      //std::cout << std::endl;
     }
 
     // sleep

@@ -308,6 +308,8 @@ namespace eCAL
       ecal_reg_sample_mutable_topic->mutable_tqos()->set_reliability(eCAL::pb::QOS::reliable_reliability_qos);
       break;
     }
+    // qos Durability, useless for subscribers
+    ecal_reg_sample_mutable_topic->mutable_tqos()->set_durability(eCAL::pb::QOS::volatile_durability_qos);
 
     // register subscriber
     if(g_registration_provider()) g_registration_provider()->RegisterTopic(m_topic_name, m_topic_id, ecal_reg_sample, force_);

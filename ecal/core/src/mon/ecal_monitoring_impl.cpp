@@ -221,34 +221,14 @@ namespace eCAL
 
   bool CMonitoringImpl::RegisterTopic(const eCAL::pb::Sample& sample_, enum ePubSub pubsub_type_)
   {
-    auto sample_topic = sample_.topic();
-    int          process_id      = sample_topic.pid();
-    std::string  topic_name      = sample_topic.tname();
-    size_t       topic_size      = static_cast<size_t>(sample_topic.tsize());
-    bool         topic_tlayer_ecal_udp_mc(false);
-    bool         topic_tlayer_ecal_shm(false);
-    bool         topic_tlayer_ecal_tcp(false);
-    bool         topic_tlayer_inproc(false);
-    for (auto layer : sample_topic.tlayer())
-    {
-      topic_tlayer_ecal_udp_mc    |= (layer.type() == eCAL::pb::tl_ecal_udp_mc)    && layer.confirmed();
-      topic_tlayer_ecal_shm       |= (layer.type() == eCAL::pb::tl_ecal_shm)       && layer.confirmed();
-      topic_tlayer_ecal_tcp       |= (layer.type() == eCAL::pb::tl_ecal_tcp)       && layer.confirmed();
-      topic_tlayer_inproc         |= (layer.type() == eCAL::pb::tl_inproc)         && layer.confirmed();
-    }
-    size_t       connections_loc = static_cast<size_t>(sample_topic.connections_loc());
-    size_t       connections_ext = static_cast<size_t>(sample_topic.connections_ext());
-    long long    did             = sample_topic.did();
-    long long    dclock          = sample_topic.dclock();
-    long long    ddropped        = sample_topic.message_drops();
-    long         dfreq           = sample_topic.dfreq();
+    auto& sample_topic = sample_.topic();
 
     // check blacklist topic filter
     {
       std::lock_guard<std::mutex> lock(m_topic_filter_excl_mtx);
       for (const auto& it : m_topic_filter_excl)
       {
-        if (std::regex_match(topic_name, std::regex(it, std::regex::icase)))
+        if (std::regex_match(sample_topic.tname(), std::regex(it, std::regex::icase)))
           return(false);
       }
     }
@@ -260,7 +240,7 @@ namespace eCAL
       is_topic_in_filter = m_topic_filter_incl.empty();
       for (const auto& it : m_topic_filter_incl)
       {
-        if (std::regex_match(topic_name, std::regex(it, std::regex::icase)))
+        if (std::regex_match(sample_topic.tname(), std::regex(it, std::regex::icase)))
         {
           is_topic_in_filter = true;
           break;
@@ -279,43 +259,18 @@ namespace eCAL
       // acquire access
       std::lock_guard<std::mutex> lock(pTopicMap->sync);
 
-      // common infos
-      std::string host_name            = sample_topic.hname();
-      std::string process_name         = sample_topic.pname();
-      std::string unit_name            = sample_topic.uname();
-      std::string topic_id             = sample_topic.tid();
-      std::string topic_type           = sample_topic.ttype();
-      std::string topic_desc           = sample_topic.tdesc();
-      auto attr                        = sample_topic.attr();
-
       // try to get topic info
-      std::string topic_name_id = topic_name + topic_id;
+      std::string topic_name_id = sample_topic.tname() + sample_topic.tid();
       STopicMon& TopicInfo = (*pTopicMap->map)[topic_name_id];
-
-      // set static content
-      TopicInfo.hname  = std::move(host_name);
-      TopicInfo.pid    = process_id;
-      TopicInfo.pname  = std::move(process_name);
-      TopicInfo.uname  = std::move(unit_name);
-      TopicInfo.tname  = std::move(topic_name);
-      TopicInfo.tid    = std::move(topic_id);
+      TopicInfo.sample = sample_topic;
+      //TopicInfo.sample.mutable_tlayer()->Clear();
+      //for (auto& layer : sample_topic.tlayer()) {
+      //  if (!layer.confirmed()) continue;
+      //  *TopicInfo.sample.mutable_tlayer()->Add() = layer;
+      //}
 
       // update flexible content
       TopicInfo.rclock++;
-      TopicInfo.ttype                 = std::move(topic_type);
-      TopicInfo.tdesc                 = std::move(topic_desc);
-      TopicInfo.attr                  = std::map<std::string, std::string>{attr.begin(), attr.end()};
-      TopicInfo.tlayer_ecal_udp_mc    = topic_tlayer_ecal_udp_mc;
-      TopicInfo.tlayer_ecal_shm       = topic_tlayer_ecal_shm;
-      TopicInfo.tlayer_ecal_tcp       = topic_tlayer_ecal_tcp;
-      TopicInfo.tlayer_inproc         = topic_tlayer_inproc;
-      TopicInfo.tsize                 = static_cast<int>(topic_size);
-      TopicInfo.connections_loc       = static_cast<int>(connections_loc);
-      TopicInfo.connections_ext       = static_cast<int>(connections_ext);
-      TopicInfo.did                   = did;
-      TopicInfo.dclock                = dclock;
-      TopicInfo.ddropped              = ddropped;
-      TopicInfo.dfreq                 = dfreq;
     }
 
     return(true);
@@ -705,86 +660,13 @@ namespace eCAL
     {
       // add topic
       eCAL::pb::Topic* pMonTopic = monitoring_.add_topics();
+      *pMonTopic = topic.second.sample;
 
       // registration clock
       pMonTopic->set_rclock(topic.second.rclock);
 
-      // host name
-      pMonTopic->set_hname(topic.second.hname);
-
-      // process id
-      pMonTopic->set_pid(topic.second.pid);
-
-      // process name
-      pMonTopic->set_pname(topic.second.pname);
-
-      // unit name
-      pMonTopic->set_uname(topic.second.uname);
-
-      // topic id
-      pMonTopic->set_tid(topic.second.tid);
-
-      // topic name
-      pMonTopic->set_tname(topic.second.tname);
-
       // direction
       pMonTopic->set_direction(direction_);
-
-      // topic type
-      pMonTopic->set_ttype(topic.second.ttype);
-
-      // topic transport layers
-      if (topic.second.tlayer_ecal_udp_mc)
-      {
-        auto tlayer = pMonTopic->add_tlayer();
-        tlayer->set_type(eCAL::pb::tl_ecal_udp_mc);
-        tlayer->set_confirmed(true);
-      }
-      if (topic.second.tlayer_ecal_shm)
-      {
-        auto tlayer = pMonTopic->add_tlayer();
-        tlayer->set_type(eCAL::pb::tl_ecal_shm);
-        tlayer->set_confirmed(true);
-      }
-      if (topic.second.tlayer_ecal_tcp)
-      {
-        auto tlayer = pMonTopic->add_tlayer();
-        tlayer->set_type(eCAL::pb::tl_ecal_tcp);
-        tlayer->set_confirmed(true);
-      }
-      if (topic.second.tlayer_inproc)
-      {
-        auto tlayer = pMonTopic->add_tlayer();
-        tlayer->set_type(eCAL::pb::tl_inproc);
-        tlayer->set_confirmed(true);
-      }
-
-      // topic description
-      pMonTopic->set_tdesc(topic.second.tdesc);
-
-      // topic attributes
-      *pMonTopic->mutable_attr() = google::protobuf::Map<std::string, std::string> {topic.second.attr.begin(), topic.second.attr.end()};
-
-      // topic size
-      pMonTopic->set_tsize(topic.second.tsize);
-
-      // local connections
-      pMonTopic->set_connections_loc(topic.second.connections_loc);
-
-      // external connections
-      pMonTopic->set_connections_ext(topic.second.connections_ext);
-
-      // data id (publisher setid)
-      pMonTopic->set_did(topic.second.did);
-
-      // data clock
-      pMonTopic->set_dclock(topic.second.dclock);
-
-      // data dropped
-      pMonTopic->set_message_drops(google::protobuf::int32(topic.second.ddropped));
-
-      // data frequency
-      pMonTopic->set_dfreq(topic.second.dfreq);
     }
   }
 

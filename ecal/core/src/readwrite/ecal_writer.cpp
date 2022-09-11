@@ -935,6 +935,20 @@ namespace eCAL
     default:
       break;
     }
+    // qos Durability
+    switch (m_qos.durability)
+    {
+    case QOS::volatile_durability_qos:
+      ecal_reg_sample_mutable_topic->mutable_tqos()->set_durability(eCAL::pb::QOS::volatile_durability_qos);
+      break;
+    case QOS::transient_local_durability_qos:
+      ecal_reg_sample_mutable_topic->mutable_tqos()->set_durability(eCAL::pb::QOS::transient_local_durability_qos);
+      break;
+    default:
+      break;
+    }
+    // qos lifespan
+    ecal_reg_sample_mutable_topic->mutable_tqos()->set_lifespan(m_qos.lifespan);
 
     // register publisher
     if (g_registration_provider()) g_registration_provider()->RegisterTopic(m_topic_name, m_topic_id, ecal_reg_sample, force_);

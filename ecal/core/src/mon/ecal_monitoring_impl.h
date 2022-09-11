@@ -74,45 +74,9 @@ namespace eCAL
   protected:
     struct STopicMon
     {
-      STopicMon()
-      {
-        rclock                = 0;
-        pid                   = 0;
-        tlayer_ecal_udp_mc    = false;
-        tlayer_ecal_shm       = false;
-        tlayer_ecal_tcp       = false;
-        tlayer_inproc         = false;
-        tsize                 = 0;
-        connections_loc       = 0;
-        connections_ext       = 0;
-        did                   = 0;
-        dclock                = 0;
-        ddropped              = 0;
-        dfreq                 = 0;
-      };
-
-      int                                rclock;
-      std::string                        hname;
-      int                                pid;
-      std::string                        pname;
-      std::string                        uname;
+      int                                rclock = 0;
       std::string                        domain;
-      std::string                        tname;
-      std::string                        tid;
-      std::string                        ttype;
-      std::string                        tdesc;
-      std::map<std::string, std::string> attr;
-      bool                               tlayer_ecal_udp_mc;
-      bool                               tlayer_ecal_shm;
-      bool                               tlayer_ecal_tcp;
-      bool                               tlayer_inproc;
-      int                                tsize;
-      int                                connections_loc;
-      int                                connections_ext;
-      long long                          did;
-      long long                          dclock;
-      long long                          ddropped;
-      long                               dfreq;
+      eCAL::pb::Topic                    sample;
     };
     typedef eCAL::Util::CExpMap<std::string, STopicMon> TopicMonMapT;
 
