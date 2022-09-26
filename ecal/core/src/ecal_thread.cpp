@@ -25,6 +25,7 @@
 
 #include "ecal_thread.h"
 #include <thread>
+#include <sys/prctl.h>
 
 namespace eCAL
 {
@@ -37,7 +38,7 @@ namespace eCAL
     try { Stop(); } catch(...) { /*??*/ }
   }
 
-  int CThread::Start(int period_, std::function<int()> ext_caller_)
+  int CThread::Start(int period_, std::function<int()> ext_caller_, const std::string& name_)
   {
     if(m_tdata.is_started) return(0);
 
@@ -45,6 +46,7 @@ namespace eCAL
     m_tdata.do_stop     = false;
     m_tdata.period      = period_;
     m_tdata.ext_caller  = ext_caller_;
+    m_tdata.name        = name_;
     m_tdata.thread      = std::thread(CThread::HelperThread, (void*)&m_tdata);
     m_tdata.is_started  = true;
 
@@ -91,6 +93,7 @@ namespace eCAL
 
     // mark as running
     tdata->is_running = true;
+    prctl(PR_SET_NAME, tdata->name.c_str(), nullptr, nullptr, nullptr);
 
     int state = 0;
     while(!tdata->do_stop)

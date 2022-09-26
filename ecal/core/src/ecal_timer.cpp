@@ -27,6 +27,7 @@
 #include <chrono>
 #include <thread>
 #include <assert.h>
+#include <sys/prctl.h>
 
 namespace eCAL
 {
@@ -64,6 +65,7 @@ namespace eCAL
     {
       assert(callback_ != nullptr);
       if (callback_ == nullptr) return;
+      prctl(PR_SET_NAME, "EcalTimer", nullptr, nullptr, nullptr);
       if (delay_ > 0) eCAL::Time::sleep_for(std::chrono::milliseconds(delay_));
 
       std::chrono::nanoseconds loop_duration((long long)timeout_ * 1000LL * 1000LL);

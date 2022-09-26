@@ -50,7 +50,7 @@ namespace eCAL
     void Create();
     void Destroy();
 
-    void Start(RequestCallbackT request_callback_, EventCallbackT event_callback_);
+    void Start(RequestCallbackT request_callback_, EventCallbackT event_callback_, const std::string& thread_name_);
     void Stop();
 
     bool IsConnected();
@@ -59,7 +59,7 @@ namespace eCAL
     unsigned short GetTcpPort() { return (m_server ? m_server->get_port() : 0); }
 
   protected:
-    void ServerThread(std::uint32_t port_, RequestCallbackT request_callback_, EventCallbackT event_callback_);
+    void ServerThread(std::uint32_t port_, RequestCallbackT request_callback_, EventCallbackT event_callback_, std::string name_);
 
     bool                               m_started;
 

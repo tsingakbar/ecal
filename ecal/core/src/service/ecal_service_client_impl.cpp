@@ -403,7 +403,7 @@ namespace eCAL
       if (client == m_client_map.end())
       {
         // create new client for that service
-        std::shared_ptr<CTcpClient> new_client = std::make_shared<CTcpClient>(iter.hname, iter.tcp_port);
+        std::shared_ptr<CTcpClient> new_client = std::make_shared<CTcpClient>(iter.hname, iter.tcp_port, std::string("EcalSvcClt:").append(iter.key).c_str());
         m_client_map[iter.key] = new_client;
       }
     }

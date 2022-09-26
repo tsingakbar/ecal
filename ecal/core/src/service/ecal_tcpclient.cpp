@@ -28,6 +28,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <sys/prctl.h>
 
 namespace eCAL
 {
@@ -38,9 +39,9 @@ namespace eCAL
   {
   }
 
-  CTcpClient::CTcpClient(const std::string& host_name_, unsigned short port_) : m_created(false), m_connected(false), m_async_request_in_progress(false)
+  CTcpClient::CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& thread_name_) : m_created(false), m_connected(false), m_async_request_in_progress(false)
   {
-    Create(host_name_, port_);
+    Create(host_name_, port_, thread_name_);
   }
 
   CTcpClient::~CTcpClient()
@@ -48,7 +49,7 @@ namespace eCAL
     Destroy();
   }
 
-  void CTcpClient::Create(const std::string& host_name_, unsigned short port_)
+  void CTcpClient::Create(const std::string& host_name_, unsigned short port_, const std::string& thread_name_)
   {
     if (m_created) return;
 
@@ -62,8 +63,9 @@ namespace eCAL
       m_idle_work = std::make_shared<asio::io_service::work>(*m_io_service);
       // NOTE: might want to lazy load this in future
       m_async_worker = std::thread(
-        [this]
+        [this, name = std::string(thread_name_)]
         {
+          prctl(PR_SET_NAME, name.c_str(), nullptr, nullptr, nullptr);
           m_io_service->run();
         });
 

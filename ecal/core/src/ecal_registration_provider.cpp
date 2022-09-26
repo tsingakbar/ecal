@@ -93,7 +93,7 @@ namespace eCAL
     m_multicast_group = attr.ipaddr;
 
     m_reg_snd.Create(attr);
-    m_reg_snd_thread.Start(Config::GetRegistrationRefreshMs(), std::bind(&CRegistrationProvider::RegisterSendThread, this));
+    m_reg_snd_thread.Start(Config::GetRegistrationRefreshMs(), std::bind(&CRegistrationProvider::RegisterSendThread, this), "EcalRegBroadcast");
 
     m_created = true;
   }

@@ -31,6 +31,7 @@
 #include "ecal_memfile_pool.h"
 
 #include <chrono>
+#include <sys/prctl.h>
 
 namespace eCAL
 {
@@ -152,6 +153,7 @@ namespace eCAL
 
   void CMemFileObserver::Observe(const std::string& topic_name_, const std::string& topic_id_, const int timeout_)
   {
+    prctl(PR_SET_NAME, std::string("EcalShmObs:").append(topic_name_).c_str(), nullptr, nullptr, nullptr);
     // internal clock sample update checking
     uint64_t last_sample_clock(0);
 

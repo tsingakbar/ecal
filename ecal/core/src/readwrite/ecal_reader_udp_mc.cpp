@@ -72,7 +72,7 @@ namespace eCAL
   {
     if (!started)
     {
-      thread.Start(0, std::bind(&CDataReaderUDP::Receive, &reader, &rcv));
+      thread.Start(0, std::bind(&CDataReaderUDP::Receive, &reader, &rcv), "EcalUdpRd:" + topic_name_);
       started = true;
     }
     // add topic name based multicast address

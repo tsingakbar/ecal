@@ -37,7 +37,7 @@ namespace eCAL
     CThread();
     virtual ~CThread();
 
-    int Start(int period, std::function<int()> ext_caller_);
+    int Start(int period, std::function<int()> ext_caller_, const std::string& name_);
     int Stop();
     int Fire();
 
@@ -60,6 +60,7 @@ namespace eCAL
       std::atomic<bool>       is_started;
       std::atomic<bool>       do_stop;
       std::function<int()>    ext_caller;
+      std::string             name;
     };
     struct ThreadData m_tdata;
 

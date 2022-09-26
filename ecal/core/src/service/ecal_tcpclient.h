@@ -58,11 +58,11 @@ namespace eCAL
     typedef std::function<void(eCAL_Client_Event event, const std::string& message)> EventCallbackT;
 
     CTcpClient();
-    CTcpClient(const std::string& host_name_, unsigned short port_);
+    CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& thread_name_);
 
     ~CTcpClient();
 
-    void Create(const std::string& host_name_, unsigned short port_);
+    void Create(const std::string& host_name_, unsigned short port_, const std::string& thread_name_);
     void Destroy();
 
     bool IsConnected();

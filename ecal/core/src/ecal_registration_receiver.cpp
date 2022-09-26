@@ -84,7 +84,7 @@ namespace eCAL
     attr.rcvbuf   = Config::GetUdpMulticastRcvBufSizeBytes();
 
     m_reg_rcv.Create(attr);
-    m_reg_rcv_thread.Start(0, std::bind(&CUdpRegistrationReceiver::Receive, &m_reg_rcv_process, &m_reg_rcv));
+    m_reg_rcv_thread.Start(0, std::bind(&CUdpRegistrationReceiver::Receive, &m_reg_rcv_process, &m_reg_rcv), "EcalRegRecv");
 
     m_created = true;
   }

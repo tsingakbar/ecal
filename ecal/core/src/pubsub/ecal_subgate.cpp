@@ -72,7 +72,7 @@ namespace eCAL
     CDataReader::InitializeLayers();
 
     // start timeout thread
-    m_subtimeout_thread.Start(CMN_DATAREADER_TIMEOUT_DTIME, std::bind(&CSubGate::CheckTimeouts, this));
+    m_subtimeout_thread.Start(CMN_DATAREADER_TIMEOUT_DTIME, std::bind(&CSubGate::CheckTimeouts, this), "EcalSubChkTimeout");
     m_created = true;
   }
 

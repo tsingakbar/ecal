@@ -68,7 +68,8 @@ namespace eCAL
 
     m_tcp_server.Create();
     m_tcp_server.Start(std::bind(&CServiceServerImpl::RequestCallback, this, std::placeholders::_1, std::placeholders::_2),
-                       std::bind(&CServiceServerImpl::EventCallback,   this, std::placeholders::_1, std::placeholders::_2));
+                       std::bind(&CServiceServerImpl::EventCallback,   this, std::placeholders::_1, std::placeholders::_2),
+                       "EcalSvc:" + service_name_);
 
     if (g_servicegate()) g_servicegate()->Register(this);
 

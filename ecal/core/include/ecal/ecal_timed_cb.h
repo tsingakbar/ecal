@@ -31,6 +31,7 @@
 #include <assert.h>
 
 #include "ecal_process.h"
+#include <sys/prctl.h>
 
 namespace eCAL
 {
@@ -111,6 +112,7 @@ namespace eCAL
     {
       assert(callback_ != nullptr);
       if (callback_ == nullptr) return;
+      prctl(PR_SET_NAME, "EcalTimedCB", nullptr, nullptr, nullptr);
       if (delay_ > 0) eCAL::Process::SleepFor(std::chrono::milliseconds(delay_));
       while (!m_stop)
       {
