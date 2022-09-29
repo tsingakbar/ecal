@@ -69,6 +69,7 @@ namespace eCAL
           m_io_service->run();
         });
 
+      m_peeraddr_before_resolve.append(host_name_).append(":").append(std::to_string(port_));
       asio::connect(*m_socket, resolver.resolve({ host_name_, std::to_string(port_) }));
       // set TCP no delay, so Nagle's algorithm will not stuff multiple messages in one TCP segment
       asio::ip::tcp::no_delay no_delay_option(true);
@@ -188,7 +189,7 @@ namespace eCAL
     }
     catch (std::exception& e)
     {
-      std::cerr << "CTcpClient::SendRequest: Failed to send request: " << e.what() << "\n";
+      std::cerr << "CTcpClient::SendRequest: Failed to send request to " << m_peeraddr_before_resolve << ": " << e.what() << "\n";
       m_connected = false;
       return false;
     }

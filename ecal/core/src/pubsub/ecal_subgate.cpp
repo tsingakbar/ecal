@@ -33,23 +33,6 @@
 
 #include "pubsub/ecal_subgate.h"
 
-////////////////////////////////////////////////////////
-// local events
-////////////////////////////////////////////////////////
-namespace eCAL
-{
-  ECAL_API const EventHandleT& ShutdownProcEvent()
-  {
-    static EventHandleT evt;
-    static std::string event_name(EVENT_SHUTDOWN_PROC + std::string("_") + std::to_string(Process::GetProcessID()));
-    if (!gEventIsValid(evt))
-    {
-      gOpenEvent(&evt, event_name);
-    }
-    return(evt);
-  }
-}
-
 namespace eCAL
 {
   //////////////////////////////////////////////////////////////////
@@ -72,6 +55,7 @@ namespace eCAL
     CDataReader::InitializeLayers();
 
     // start timeout thread
+    gOpenEvent(&m_shutdown_proc_evt, EVENT_SHUTDOWN_PROC + std::string("_") + std::to_string(Process::GetProcessID()));
     m_subtimeout_thread.Start(CMN_DATAREADER_TIMEOUT_DTIME, std::bind(&CSubGate::CheckTimeouts, this), "EcalSubChkTimeout");
     m_created = true;
   }
@@ -90,7 +74,7 @@ namespace eCAL
       iter->second->Destroy();
     }
 
-    gCloseEvent(ShutdownProcEvent());
+    gCloseEvent(m_shutdown_proc_evt);
 
     m_created = false;
   }
@@ -312,7 +296,7 @@ namespace eCAL
     }
 
     // signal shutdown if eCAL is not okay
-    bool ecal_is_ok = (g_globals_ctx != nullptr) && !gWaitForEvent(ShutdownProcEvent(), 0);
+    bool ecal_is_ok = (g_globals_ctx != nullptr) && !gWaitForEvent(m_shutdown_proc_evt, 0);
     if (!ecal_is_ok)
     {
       g_shutdown = 1;

@@ -77,6 +77,7 @@ namespace eCAL
 
   protected:
     std::string                             m_host_name;
+    std::string                             m_peeraddr_before_resolve;
     std::mutex                              m_socket_write_mutex; 
     std::mutex                              m_socket_read_mutex; 
     std::thread                             m_async_worker;

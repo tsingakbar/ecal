@@ -113,7 +113,7 @@ namespace eCAL
         m_socket.set_option(asio::ip::multicast::join_group(asio::ip::make_address(ipaddr_)), ec);
         if (ec)
         {
-          std::cerr << "CUDPReceiverAsio: Unable to join multicast group: " << ec.message() << std::endl;
+          std::cerr << "CUDPReceiverAsio: Unable to join multicast group " << ipaddr_ << ": " << ec.message() << std::endl;
           return(false);
         }
       }
@@ -139,7 +139,7 @@ namespace eCAL
         m_socket.set_option(asio::ip::multicast::leave_group(asio::ip::make_address(ipaddr_)), ec);
         if (ec)
         {
-          std::cerr << "CUDPReceiverAsio: Unable to leave multicast group: " << ec.message() << std::endl;
+          std::cerr << "CUDPReceiverAsio: Unable to leave multicast group " << ipaddr_ << ": " << ec.message() << std::endl;
           return(false);
         }
       }
