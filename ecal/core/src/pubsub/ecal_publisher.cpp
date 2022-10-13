@@ -47,7 +47,7 @@ namespace eCAL
     InitializeTLayer();
   }
 
-  CPublisher::CPublisher(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */, const QOS::SWriterQOS& qos) :
+  CPublisher::CPublisher(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const QOS::SWriterQOS& qos, const std::map<std::string, std::string>& attr_) :
                 m_datawriter(nullptr),
                 m_qos(qos),
                 m_created(false),
@@ -55,7 +55,7 @@ namespace eCAL
   {
     InitializeTLayer();
 
-    Create(topic_name_, topic_type_, topic_desc_);
+    Create(topic_name_, topic_type_, topic_desc_, attr_);
   }
 
   CPublisher::~CPublisher()
@@ -98,7 +98,7 @@ namespace eCAL
     return *this;
   };
 
-  bool CPublisher::Create(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */)
+  bool CPublisher::Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_)
   {
     if(m_created)               return(false);
     if(topic_name_.size() == 0) return(false);
@@ -140,7 +140,7 @@ namespace eCAL
     m_datawriter->SetLayerMode(TLayer::tlayer_tcp,     m_tlayer.sm_tcp);
     m_datawriter->SetLayerMode(TLayer::tlayer_inproc,  m_tlayer.sm_inproc);
     // create it
-    if (!m_datawriter->Create(topic_name_, topic_type_, topic_desc_))
+    if (!m_datawriter->Create(topic_name_, topic_type_, topic_desc_, attr_))
     {
 #ifndef NDEBUG
       // log it

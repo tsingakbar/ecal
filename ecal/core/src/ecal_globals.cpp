@@ -219,7 +219,7 @@ namespace eCAL
     if (servicegate_instance && (components_ & Init::Service))    servicegate_instance->Create();
     if (clientgate_instance && (components_ & Init::Service))     clientgate_instance->Create();
     if (timegate_instance && (components_ & Init::TimeSync))      timegate_instance->Create(CTimeGate::eTimeSyncMode::realtime);
-    if (monitoring_instance && (components_ & Init::Monitoring))  monitoring_instance->Create();
+    if (monitoring_instance && (components_ & Init::Monitoring))  monitoring_instance->Create(components_ & Init::CorkedMonitoring);
 
     initialized =  true;
     components  |= components_;

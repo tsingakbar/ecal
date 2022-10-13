@@ -85,7 +85,7 @@ namespace eCAL
     Destroy();
   }
 
-  bool CDataReader::Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_)
+  bool CDataReader::Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_)
   {
     if(m_created) return(false);
 
@@ -94,6 +94,7 @@ namespace eCAL
     m_topic_id.clear();
     m_topic_type    = topic_type_;
     m_topic_desc    = topic_desc_;
+    m_attr          = attr_;
     m_clock         = 0;
     m_clock_old     = 0;
     m_message_drops = 0;

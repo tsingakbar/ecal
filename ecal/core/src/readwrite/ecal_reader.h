@@ -54,7 +54,7 @@ namespace eCAL
 
     static void InitializeLayers();
 
-    bool Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_);
+    bool Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_);
     bool Destroy();
 
     bool SetQOS(const QOS::SReaderQOS& qos_);

@@ -30,6 +30,7 @@
 #include <ecal/ecal_tlayer.h>
 
 #include <string>
+#include <map>
 
 namespace eCAL
 {
@@ -77,7 +78,7 @@ namespace eCAL
      * @param topic_type_   Type name (optional). 
      * @param topic_desc_   Type description (optional). 
     **/
-    CPublisher(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const QOS::SWriterQOS& qos = QOS::SWriterQOS());
+    CPublisher(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const QOS::SWriterQOS& qos = QOS::SWriterQOS(), const std::map<std::string, std::string>& attr_ = {});
 
     /**
      * @brief Destructor. 
@@ -113,7 +114,7 @@ namespace eCAL
      *
      * @return  True if it succeeds, false if it fails. 
     **/
-    bool Create(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "");
+    bool Create(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const std::map<std::string, std::string>& attr_ = {});
 
     /**
      * @brief Destroys this object. 

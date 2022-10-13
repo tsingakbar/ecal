@@ -43,7 +43,7 @@ namespace eCAL
     CMonitoringImpl();
     ~CMonitoringImpl();
 
-    void Create();
+    void Create(bool cork);
     void Destroy();
 
     void SetExclFilter(const std::string& filter_);
@@ -237,6 +237,7 @@ namespace eCAL
     void Tokenize(const std::string& str, StrICaseSetT& tokens, const std::string& delimiters, bool trimEmpty);
 
     bool                                         m_init;
+    std::atomic<bool>                            m_corked;
     bool                                         m_network;
     std::string                                  m_host_name;
 

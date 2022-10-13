@@ -62,7 +62,7 @@ namespace eCAL
     attr.rcvbuf   = Config::GetUdpMulticastRcvBufSizeBytes();
 
     m_reg_rcv.Create(attr);
-    m_reg_rcv_thread.Start(0, std::bind(&CRegistrationReceiveThread::ThreadFun, this), "EcalRegRecv");
+    m_reg_rcv_thread.Start(0, std::bind(&CRegistrationReceiveThread::ThreadFun, this), "EcalMonRegRecv");
   }
 
   CRegistrationReceiveThread::~CRegistrationReceiveThread()
@@ -98,7 +98,7 @@ namespace eCAL
     attr.rcvbuf   = Config::GetUdpMulticastRcvBufSizeBytes();
 
     m_log_rcv.Create(attr);
-    m_log_rcv_thread.Start(0, std::bind(&CLoggingReceiveThread::ThreadFun, this), "EcalLogRecv");
+    m_log_rcv_thread.Start(0, std::bind(&CLoggingReceiveThread::ThreadFun, this), "EcalMonLogRecv");
     m_msg_buffer.resize(MSG_BUFFER_SIZE);
   }
 
@@ -135,7 +135,7 @@ namespace eCAL
   CMonLogPublishingThread::CMonLogPublishingThread(MonitoringCallbackT mon_cb_, LoggingCallbackT log_cb_) :
     m_mon_cb(mon_cb_), m_log_cb(log_cb_)
   {
-    m_pub_thread.Start(CMN_REGISTRATION_REFRESH, std::bind(&CMonLogPublishingThread::ThreadFun, this), "EcalLogPub");
+    m_pub_thread.Start(CMN_REGISTRATION_REFRESH, std::bind(&CMonLogPublishingThread::ThreadFun, this), "EcalMonLogPub");
   };
 
   CMonLogPublishingThread::~CMonLogPublishingThread()

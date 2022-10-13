@@ -78,6 +78,7 @@ namespace eCAL
   ////////////////////////////////////////
   CMonitoringImpl::CMonitoringImpl() :
     m_init(false),
+    m_corked(false),
     m_network       (Config::IsNetworkEnabled()),
     m_publisher_map (std::chrono::milliseconds(Config::GetMonitoringTimeoutMs())),
     m_subscriber_map(std::chrono::milliseconds(Config::GetMonitoringTimeoutMs())),
@@ -91,7 +92,10 @@ namespace eCAL
   {
   }
 
-  void CMonitoringImpl::Create()
+  // once uncorked monitor is created, it will kept collecting neighbour's information, 
+  // and if no consume operation is performed, memory usage might be huge.
+  // corked monitor will ignore all neighbour's information until uncorked.
+  void CMonitoringImpl::Create(bool cork)
   {
     if (m_init) return;
 
@@ -100,6 +104,8 @@ namespace eCAL
 
     // get name of this host
     m_host_name = Process::GetHostName();
+
+    if (cork) m_corked.store(true);
 
     // start registration receive thread
     CRegistrationReceiveThread::RegMessageCallbackT regmsg_cb = std::bind(&CSampleReceiver::Receive, this, std::placeholders::_1);
@@ -171,6 +177,7 @@ namespace eCAL
 
   size_t CMonitoringImpl::ApplySample(const eCAL::pb::Sample& ecal_sample_, eCAL::pb::eTLayerType /*layer_*/)
   {
+    if (m_corked) return 0;
     // if sample is from outside and we are in local network mode
     // do not process sample
     if (!IsLocalHost(ecal_sample_) && !m_network) return 0;
@@ -415,6 +422,7 @@ namespace eCAL
 
   void CMonitoringImpl::RegisterLogMessage(const eCAL::pb::LogMessage& log_msg_)
   {
+    if (m_corked) return;
     std::lock_guard<std::mutex> lock(m_log_msglist_sync);
     m_log_msglist.emplace_back(log_msg_);
   }
@@ -439,6 +447,13 @@ namespace eCAL
     // clear protobuf object
     monitoring_.Clear();
 
+    if (m_corked)
+    {
+      // uncork from now on, but it's caller's responsiblity to retry later
+      m_corked.store(false);
+      return;
+    }
+
     // write all registrations to monitoring message object
     MonitorProcs(monitoring_);
     MonitorServer(monitoring_);
@@ -451,6 +466,13 @@ namespace eCAL
   {
     // clear protobuf object
     logging_.Clear();
+
+    if (m_corked)
+    {
+      // uncork from now on, but it's caller's responsiblity to retry later
+      m_corked.store(false);
+      return;
+    }
 
     // acquire access
     std::lock_guard<std::mutex> lock(m_log_msglist_sync);

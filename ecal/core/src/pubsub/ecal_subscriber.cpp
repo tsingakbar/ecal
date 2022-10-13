@@ -44,14 +44,14 @@ namespace eCAL
     InitializeQOS();
   }
 
-  CSubscriber::CSubscriber(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */) :
+  CSubscriber::CSubscriber(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_) :
                  m_datareader(nullptr),
                  m_created(false),
                  m_initialized(false)
   {
     InitializeQOS();
 
-    Create(topic_name_, topic_type_, topic_desc_);
+    Create(topic_name_, topic_type_, topic_desc_, attr_);
   }
 
   CSubscriber::~CSubscriber()
@@ -86,7 +86,7 @@ namespace eCAL
     return *this;
   };
 
-  bool CSubscriber::Create(const std::string& topic_name_, const std::string& topic_type_ /* = "" */, const std::string& topic_desc_ /* = "" */)
+  bool CSubscriber::Create(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_)
   {
     if(m_created)               return(false);
     if(!g_globals())            return(false);
@@ -104,7 +104,7 @@ namespace eCAL
     // set qos
     m_datareader->SetQOS(m_qos);
     // create it
-    if(!m_datareader->Create(topic_name_, topic_type_, topic_desc_))
+    if(!m_datareader->Create(topic_name_, topic_type_, topic_desc_, attr_))
     {
 #ifndef NDEBUG
       // log it
