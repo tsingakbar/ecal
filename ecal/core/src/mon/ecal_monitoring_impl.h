@@ -43,7 +43,7 @@ namespace eCAL
     CMonitoringImpl();
     ~CMonitoringImpl();
 
-    void Create(bool cork);
+    void Create();
     void Destroy();
 
     void SetExclFilter(const std::string& filter_);
@@ -62,14 +62,17 @@ namespace eCAL
       subscriber = 2,
     };
 
-    bool HasSample(const std::string& /* sample_name_ */) { return(true); };
-    size_t ApplySample(const eCAL::pb::Sample& ecal_sample_, eCAL::pb::eTLayerType /*layer_*/);
+    bool HasSample(const std::string& /* sample_name_ */) override { return(true); };
+    size_t ApplySample(const eCAL::pb::Sample& ecal_sample_, eCAL::pb::eTLayerType /*layer_*/) override;
 
-    bool RegisterProcess(const eCAL::pb::Sample& sample_);
+  protected:
+    bool RegisterProcess(const eCAL::pb::Sample &sample_);
     bool RegisterServer(const eCAL::pb::Sample& sample_);
     bool RegisterClient(const eCAL::pb::Sample& sample_);
     bool RegisterTopic(const eCAL::pb::Sample& sample_, enum ePubSub pubsub_type_);
     void RegisterLogMessage(const eCAL::pb::LogMessage& log_msg_);
+
+    bool CreateIfNotAlready();
 
   protected:
     struct STopicMon
@@ -237,7 +240,7 @@ namespace eCAL
     void Tokenize(const std::string& str, StrICaseSetT& tokens, const std::string& delimiters, bool trimEmpty);
 
     bool                                         m_init;
-    std::atomic<bool>                            m_corked;
+    std::mutex                                   m_init_mutex;
     bool                                         m_network;
     std::string                                  m_host_name;
 

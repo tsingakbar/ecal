@@ -47,7 +47,7 @@ namespace eCAL
     CMonitoring();
     ~CMonitoring();
     
-    void Create(bool cork = false);
+    void Create();
     void Destroy();
 
     void SetExclFilter(const std::string& filter_);

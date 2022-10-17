@@ -38,9 +38,9 @@ namespace eCAL
     m_monitoring_impl = nullptr;
   }
 
-  void CMonitoring::Create(bool cork)
+  void CMonitoring::Create()
   {
-    m_monitoring_impl->Create(cork);
+    m_monitoring_impl->Create();
   }
 
   void CMonitoring::Destroy()

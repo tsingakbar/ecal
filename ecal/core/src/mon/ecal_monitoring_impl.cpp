@@ -78,7 +78,6 @@ namespace eCAL
   ////////////////////////////////////////
   CMonitoringImpl::CMonitoringImpl() :
     m_init(false),
-    m_corked(false),
     m_network       (Config::IsNetworkEnabled()),
     m_publisher_map (std::chrono::milliseconds(Config::GetMonitoringTimeoutMs())),
     m_subscriber_map(std::chrono::milliseconds(Config::GetMonitoringTimeoutMs())),
@@ -92,10 +91,30 @@ namespace eCAL
   {
   }
 
-  // once uncorked monitor is created, it will kept collecting neighbour's information, 
+  // Once monitor is created, it will kept collecting neighbour's information, 
   // and if no consume operation is performed, memory usage might be huge.
-  // corked monitor will ignore all neighbour's information until uncorked.
-  void CMonitoringImpl::Create(bool cork)
+  // We deploy the lazy creation strategy here hoping to avoid that.
+  bool CMonitoringImpl::CreateIfNotAlready()
+  {
+    if (!m_init_mutex.try_lock()) {
+      // CreateIfNotAlready() is already running
+      return true;
+    }
+    class DeferUnlock
+    {
+    public:
+      DeferUnlock(std::mutex &mtx) : m_mtx(mtx) {}
+      ~DeferUnlock() { m_mtx.unlock(); }
+    private:
+      std::mutex &m_mtx;
+    } defer_unlock(m_init_mutex);
+
+    if (m_init) return false;
+    Create();
+    return true;
+  }
+
+  void CMonitoringImpl::Create()
   {
     if (m_init) return;
 
@@ -105,7 +124,6 @@ namespace eCAL
     // get name of this host
     m_host_name = Process::GetHostName();
 
-    if (cork) m_corked.store(true);
 
     // start registration receive thread
     CRegistrationReceiveThread::RegMessageCallbackT regmsg_cb = std::bind(&CSampleReceiver::Receive, this, std::placeholders::_1);
@@ -138,16 +156,19 @@ namespace eCAL
 
   void CMonitoringImpl::SetExclFilter(const std::string& filter_)
   {
+    CreateIfNotAlready();
     m_topic_filter_excl_s = filter_;
   }
 
   void CMonitoringImpl::SetInclFilter(const std::string& filter_)
   {
+    CreateIfNotAlready();
     m_topic_filter_incl_s = filter_;
   }
 
   void CMonitoringImpl::SetFilterState(bool state_)
   {
+    CreateIfNotAlready();
     if (state_)
     {
       // create excluding filter list
@@ -177,7 +198,6 @@ namespace eCAL
 
   size_t CMonitoringImpl::ApplySample(const eCAL::pb::Sample& ecal_sample_, eCAL::pb::eTLayerType /*layer_*/)
   {
-    if (m_corked) return 0;
     // if sample is from outside and we are in local network mode
     // do not process sample
     if (!IsLocalHost(ecal_sample_) && !m_network) return 0;
@@ -422,7 +442,6 @@ namespace eCAL
 
   void CMonitoringImpl::RegisterLogMessage(const eCAL::pb::LogMessage& log_msg_)
   {
-    if (m_corked) return;
     std::lock_guard<std::mutex> lock(m_log_msglist_sync);
     m_log_msglist.emplace_back(log_msg_);
   }
@@ -447,10 +466,9 @@ namespace eCAL
     // clear protobuf object
     monitoring_.Clear();
 
-    if (m_corked)
+    if (CreateIfNotAlready())
     {
-      // uncork from now on, but it's caller's responsiblity to retry later
-      m_corked.store(false);
+      // monitoring information won't be ready soon enough, it's caller's responsiblity to retry later
       return;
     }
 
@@ -467,10 +485,9 @@ namespace eCAL
     // clear protobuf object
     logging_.Clear();
 
-    if (m_corked)
+    if (CreateIfNotAlready())
     {
-      // uncork from now on, but it's caller's responsiblity to retry later
-      m_corked.store(false);
+      // monitoring information won't be ready soon enough, it's caller's responsiblity to retry later
       return;
     }
 
@@ -495,6 +512,7 @@ namespace eCAL
 
   int CMonitoringImpl::PubMonitoring(bool state_, std::string & name_)
   {
+    CreateIfNotAlready();
     // (de)activate monitor publisher
     m_pub_threadcaller->SetMonState(state_, name_);
     return 0;
@@ -502,6 +520,7 @@ namespace eCAL
 
   int CMonitoringImpl::PubLogging(bool state_, std::string & name_)
   {
+    CreateIfNotAlready();
     // (de)activate logging publisher
     m_pub_threadcaller->SetLogState(state_, name_);
     return 0;
