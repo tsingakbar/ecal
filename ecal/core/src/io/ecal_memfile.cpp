@@ -145,7 +145,7 @@ namespace eCAL
     ret_state &= DestroyMtx(&m_memfile_info.mutex);
 
     // cleanup mutex
-    ret_state &= CleanupMtx(m_name);
+    if (remove_) ret_state &= CleanupMtx(m_name);
 
     // reset states
     m_created      = false;

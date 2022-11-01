@@ -64,7 +64,7 @@ namespace eCAL
     if (iter == m_event_handle_map.end())
     {
       SEventHandlePair event_pair;
-      gOpenEvent(&event_pair.event_snd, event_snd_name);
+      gOpenEvent(&event_pair.event_snd, event_snd_name, true);
       if (m_attr.timeout_ack_ms != 0)
       {
         gOpenEvent(&event_pair.event_ack, event_ack_name);

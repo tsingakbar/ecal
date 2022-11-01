@@ -61,7 +61,7 @@ namespace eCAL
     if (m_created) return false;
 
     // open memory file events
-    gOpenEvent(&m_event_snd, memfile_event_);
+    gOpenEvent(&m_event_snd, memfile_event_, true);
     if (m_timeout_ack != 0)
     {
       gOpenEvent(&m_event_ack, memfile_event_ + "_ack");
@@ -174,7 +174,10 @@ namespace eCAL
         {
           // read the file header
           SMemFileHeader mfile_hdr;
-          ReadFileHeader(mfile_hdr);
+          if (!ReadFileHeader(mfile_hdr)) {
+            std::cerr << topic_name_ << ": shm.ReadFileHeader() failed" << std::endl;
+            // should not happen, so move on
+          }
 
           // check for new content
           if (mfile_hdr.clock <= last_sample_clock)
@@ -226,7 +229,11 @@ namespace eCAL
               else
               {
                 m_ecal_buffer.resize((size_t)mfile_hdr.data_size);
-                m_memfile.Read(m_ecal_buffer.data(), (size_t)mfile_hdr.data_size, mfile_hdr.hdr_size);
+                auto cnt = m_memfile.Read(m_ecal_buffer.data(), (size_t)mfile_hdr.data_size, mfile_hdr.hdr_size);
+                if (cnt < mfile_hdr.data_size) {
+                  std::cerr << topic_name_ << ": shm.Read(" << mfile_hdr.data_size << ") only returns " << cnt << std::endl;
+                  // should not happen, so move on
+                }
                 post_process_buffer = true;
               }
             }

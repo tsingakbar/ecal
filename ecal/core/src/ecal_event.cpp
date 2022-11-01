@@ -37,7 +37,7 @@
 
 namespace eCAL
 {
-  bool gOpenEvent(EventHandleT* event_, const std::string& event_name_)
+  bool gOpenEvent(EventHandleT* event_, const std::string& event_name_, bool)
   {
     if(event_ == nullptr) return(false);
     EventHandleT event;
@@ -302,12 +302,19 @@ namespace eCAL
   class CNamedEvent
   {
   public:
-    explicit CNamedEvent(const std::string& name_) :
+    CNamedEvent(const std::string& name_, bool one_to_one_) :
       m_name(name_ + "_evt"),
       m_event(nullptr)
     {
       m_name = (m_name[0] != '/') ? "/" + m_name : m_name; // make memory file path compatible for all posix systems
       m_event = named_event_open(m_name.c_str());
+      if (m_event != nullptr && one_to_one_)
+      {
+        // for one(creater) to one(opener) named event, the opener can safely unlink it after opened,
+        // which will decrease the garbages left behind after abnormal process exit(like a crash).
+        // see: https://github.com/eclipse-ecal/ecal/issues/723
+        named_event_destroy(m_name.c_str());
+      }
       if(m_event == nullptr)
       {
         m_event = named_event_create(m_name.c_str());
@@ -373,7 +380,7 @@ namespace eCAL
     named_event_t*  m_event;
   };
 
-  bool gOpenEvent(EventHandleT* event_, const std::string& event_name_)
+  bool gOpenEvent(EventHandleT* event_, const std::string& event_name_, bool one_to_one_)
   {
     if(event_ == nullptr) return(false);
 
@@ -386,7 +393,7 @@ namespace eCAL
     }
     else
     {
-      event.handle = new CNamedEvent(event.name);
+      event.handle = new CNamedEvent(event.name, one_to_one_);
     }
 
     if(event.handle != nullptr)

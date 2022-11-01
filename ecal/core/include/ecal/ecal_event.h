@@ -38,7 +38,7 @@ namespace eCAL
    *
    * @return  True if succeeded.
   **/
-  ECAL_API bool gOpenEvent(eCAL::EventHandleT* event_, const std::string& event_name_ = "");
+  ECAL_API bool gOpenEvent(eCAL::EventHandleT* event_, const std::string& event_name_ = "", bool one_to_one_ = false);
 
   /**
    * @brief Close an event.
