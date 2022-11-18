@@ -41,16 +41,16 @@ namespace eCAL
                  m_created(false),
                  m_initialized(false)
   {
-    InitializeQOS();
+    m_qos.reliability = QOS::best_effort_reliability_qos;
   }
 
-  CSubscriber::CSubscriber(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const std::map<std::string, std::string>& attr_) :
+  CSubscriber::CSubscriber(const std::string& topic_name_, const std::string& topic_type_, const std::string& topic_desc_, const QOS::SReaderQOS& qos, const std::map<std::string, std::string>& attr_) :
                  m_datareader(nullptr),
+                 m_qos(qos),
                  m_created(false),
                  m_initialized(false)
   {
-    InitializeQOS();
-
+    m_qos.reliability = QOS::best_effort_reliability_qos;
     Create(topic_name_, topic_type_, topic_desc_, attr_);
   }
 
@@ -65,8 +65,6 @@ namespace eCAL
                  m_created(rhs.m_created),
                  m_initialized(rhs.m_initialized)
   {
-    InitializeQOS();
-
     rhs.m_created     = false;
     rhs.m_initialized = false;
   }
@@ -79,7 +77,6 @@ namespace eCAL
     m_created         = rhs.m_created;
     m_initialized     = rhs.m_initialized;
 
-    InitializeQOS();
     rhs.m_created     = false;
     rhs.m_initialized = false;
 
@@ -266,12 +263,6 @@ namespace eCAL
   {
     if (!m_datareader) return(false);
     return(m_datareader->SetTimeout(timeout_));
-  }
-
-  void CSubscriber::InitializeQOS()
-  {
-    m_qos = QOS::SReaderQOS();
-    m_qos.reliability = QOS::best_effort_reliability_qos;
   }
 
   std::string CSubscriber::Dump(const std::string& indent_ /* = "" */) const

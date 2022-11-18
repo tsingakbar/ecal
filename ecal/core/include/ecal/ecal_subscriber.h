@@ -93,7 +93,7 @@ namespace eCAL
      * @param topic_type_   Type name (optional for type checking).
      * @param topic_desc_   Type description (optional for description checking).
      **/
-    CSubscriber(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const std::map<std::string, std::string>& attr_ = {});
+    CSubscriber(const std::string& topic_name_, const std::string& topic_type_ = "", const std::string& topic_desc_ = "", const QOS::SReaderQOS& qos = QOS::SReaderQOS(), const std::map<std::string, std::string>& attr_ = {});
 
     /**
      * @brief Destructor. 
@@ -297,8 +297,6 @@ namespace eCAL
     std::string Dump(const std::string& indent_ = "") const;
 
   protected:
-    void InitializeQOS();
-
     // class members
     CDataReader*                     m_datareader;
     struct ECAL_API QOS::SReaderQOS  m_qos;
