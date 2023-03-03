@@ -56,7 +56,8 @@ struct alignas(4) SUDPMessageHead
   int32_t  len;       // header: complete size of message, data: current size of that part
 };
 
-#define MSG_BUFFER_SIZE   (64*1024 - 20 /* IP header */ - 8 /* UDP header */ - 1 /* don't ask */)
+//#define MSG_BUFFER_SIZE   (64*1024 - 20 /* IP header */ - 8 /* UDP header */ - 1 /* don't ask */)
+#define MSG_BUFFER_SIZE   (1500 /* ethernet MTU */ - 20 /* IP header */ - 8 /* UDP header */)
 #define MSG_PAYLOAD_SIZE  (MSG_BUFFER_SIZE-sizeof(struct SUDPMessageHead))
 struct SUDPMessage
 {
