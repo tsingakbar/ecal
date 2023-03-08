@@ -29,6 +29,7 @@
 #include "ecal_descgate.h"
 #include "ecal_timegate.h"
 #include "ecal_log_impl.h"
+#include "ecal_publisher_config.h"
 #include "mon/ecal_monitoring_def.h"
 #include "pubsub/ecal_pubgate.h"
 #include "pubsub/ecal_subgate.h"
@@ -58,6 +59,7 @@ namespace eCAL
     int Finalize(unsigned int components_);
 
     const std::unique_ptr<CConfig>&                                       config()                 { return config_instance; };
+    const std::unique_ptr<CPublisherConfig>&                              publisher_config()       { return publisher_config_instance; };
     const std::unique_ptr<CLog>&                                          log()                    { return log_instance; };
     const std::unique_ptr<CMonitoring>&                                   monitoring()             { return monitoring_instance; };
     const std::unique_ptr<CTimeGate>&                                     timegate()               { return timegate_instance; };
@@ -77,6 +79,7 @@ namespace eCAL
     bool                                                                  initialized;
     unsigned int                                                          components;
     std::unique_ptr<CConfig>                                              config_instance;
+    std::unique_ptr<CPublisherConfig>                                     publisher_config_instance;
     std::unique_ptr<CLog>                                                 log_instance;
     std::unique_ptr<CMonitoring>                                          monitoring_instance;
     std::unique_ptr<CTimeGate>                                            timegate_instance;

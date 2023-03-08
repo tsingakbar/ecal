@@ -117,17 +117,56 @@ namespace eCAL
     // this can not be done in the constructor because a publisher is allowed
     // to construct befor eCAL::Initialize and so global config is not
     // existing while construction
-    if (m_tlayer.sm_udp_mc  == TLayer::smode_none) m_tlayer.sm_udp_mc = Config::GetPublisherUdpMulticastMode();
-    if (m_tlayer.sm_shm     == TLayer::smode_none) m_tlayer.sm_shm    = Config::GetPublisherShmMode();
-    if (m_tlayer.sm_tcp     == TLayer::smode_none) m_tlayer.sm_tcp    = Config::GetPublisherTcpMode();
-    if (m_tlayer.sm_inproc  == TLayer::smode_none) m_tlayer.sm_inproc = Config::GetPublisherInprocMode();
+    m_tlayer.sm_udp_mc = Config::GetPublisherUdpMulticastMode();
+    m_tlayer.sm_shm    = Config::GetPublisherShmMode();
+    m_tlayer.sm_tcp    = Config::GetPublisherTcpMode();
+    m_tlayer.sm_inproc = Config::GetPublisherInprocMode();
+
+    const std::vector<eCAL::TLayer::eTransportLayer> *topic_custom_transport = nullptr;
+    topic_custom_transport = Config::CustomTransportPriorityByTopicName(topic_name_);
+    if (topic_custom_transport == nullptr)
+    {
+      topic_custom_transport = Config::CustomTransportPriorityByTopicType(topic_type_);
+    }
+    if (topic_custom_transport != nullptr)
+    {
+      // current topic is customized in pulisher_config.json
+      // first reset default settings from ecal.ini
+      m_tlayer = TLayer::STLayer();
+      // then apply customized settings
+      for (auto trans : *topic_custom_transport)
+      {
+        switch (trans)
+        {
+        case TLayer::tlayer_udp_mc:
+          // tcp and udp_mc are mutually exclusive
+          if (m_tlayer.sm_tcp == TLayer::smode_off)
+            m_tlayer.sm_udp_mc = TLayer::smode_on;
+          break;
+        case TLayer::tlayer_shm:
+          m_tlayer.sm_shm = TLayer::smode_on;
+          break;
+        case TLayer::tlayer_tcp:
+          // tcp and udp_mc are mutually exclusive
+          if (m_tlayer.sm_udp_mc == TLayer::smode_off)
+            m_tlayer.sm_tcp = TLayer::smode_on;
+          break;
+        case TLayer::tlayer_inproc:
+          m_tlayer.sm_inproc = TLayer::smode_on;
+          break;
+        default:
+          break;
+        }
+      }
+    }
+
     if (m_qos.durability == QOS::transient_local_durability_qos)
     {
       // only TCP can implement transient_local_durability_qos
-      m_tlayer.sm_udp_mc = TLayer::smode_none;
-      m_tlayer.sm_shm = TLayer::smode_none;
+      m_tlayer.sm_udp_mc = TLayer::smode_off;
+      m_tlayer.sm_shm = TLayer::smode_off;
       m_tlayer.sm_tcp = TLayer::smode_on;
-      m_tlayer.sm_inproc = TLayer::smode_none;
+      m_tlayer.sm_inproc = TLayer::smode_off;
     }
 
     // create data writer

@@ -22,6 +22,7 @@
 
 #include "ecal_config_reader.h"
 #include "ecal_config_reader_hlp.h"
+#include "ecal_publisher_config.h"
 #include "ecal_def.h"
 
 
@@ -158,6 +159,13 @@ namespace eCAL
     ECAL_API TLayer::eSendMode GetPublisherShmMode                  () { return TLayer::eSendMode(eCALPAR(PUB, USE_SHM)); }
     ECAL_API TLayer::eSendMode GetPublisherTcpMode                  () { return TLayer::eSendMode(eCALPAR(PUB, USE_TCP)); }
     ECAL_API TLayer::eSendMode GetPublisherInprocMode               () { return TLayer::eSendMode(eCALPAR(PUB, USE_INPROC)); }
+
+    ECAL_API const std::vector<TLayer::eTransportLayer>* CustomTransportPriorityByTopicName(const std::string& tname) {
+      return eCAL::g_publisher_config()->CustomTransportPriorityByTopicName(tname);
+    }
+    ECAL_API const std::vector<TLayer::eTransportLayer>* CustomTransportPriorityByTopicType(const std::string& ttype) {
+      return eCAL::g_publisher_config()->CustomTransportPriorityByTopicType(ttype);
+    }
 
     ECAL_API size_t            GetMemfileMinsizeBytes               () { return static_cast<size_t>(eCALPAR(PUB, MEMFILE_MINSIZE)); }
     ECAL_API size_t            GetMemfileOverprovisioningPercentage () { return static_cast<size_t>(eCALPAR(PUB, MEMFILE_RESERVE)); }

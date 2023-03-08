@@ -1012,7 +1012,6 @@ namespace eCAL
       Logging::Log(log_level_debug4, m_topic_name + "::CDataWriter::Create::UDP_MC_WRITER");
 #endif
       break;
-    case TLayer::eSendMode::smode_none:
     case TLayer::eSendMode::smode_off:
       m_writer_udp_mc.Destroy();
       break;
@@ -1038,7 +1037,6 @@ namespace eCAL
       Logging::Log(log_level_debug4, m_topic_name + "::CDataWriter::Create::SHM_WRITER");
 #endif
       break;
-    case TLayer::eSendMode::smode_none:
     case TLayer::eSendMode::smode_off:
       m_writer_shm.Destroy();
       break;
@@ -1064,7 +1062,6 @@ namespace eCAL
       Logging::Log(log_level_debug4, m_topic_name + "::CDataWriter::Create::TCP_WRITER");
 #endif
       break;
-    case TLayer::eSendMode::smode_none:
     case TLayer::eSendMode::smode_off:
       m_writer_tcp.Destroy();
       break;
@@ -1119,9 +1116,6 @@ namespace eCAL
 #ifndef NDEBUG
     switch (smode_)
     {
-    case TLayer::eSendMode::smode_none:
-      Logging::Log(log_level_debug4, base_msg_ + "NONE");
-      break;
     case TLayer::eSendMode::smode_auto:
       Logging::Log(log_level_debug4, base_msg_ + "AUTO");
       break;

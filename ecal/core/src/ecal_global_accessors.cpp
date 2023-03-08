@@ -66,6 +66,13 @@ namespace eCAL
     return(g_globals()->config().get());
   }
 
+  CPublisherConfig *g_publisher_config()
+  {
+    if (!g_globals())
+      return (nullptr);
+    return (g_globals()->publisher_config().get());
+  }
+
   CLog* g_log()
   {
     if (!g_globals()) return(nullptr);

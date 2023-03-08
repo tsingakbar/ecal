@@ -74,6 +74,26 @@ namespace eCAL
 
       new_initialization = true;
     }
+    if (publisher_config_instance == nullptr)
+    {
+      publisher_config_instance = std::make_unique<CPublisherConfig>();
+      std::string config_json_path = ECAL_INSTALL_PREFIX "/" ECAL_INSTALL_CONFIG_DIR "/publisher_config.json";
+      if (!publisher_config_instance->ParseFile(config_json_path))
+      {
+        std::string emsg("Core initialization failed cause by " + config_json_path);
+
+        std::cerr                                                                 << std::endl;
+        std::cerr << "----------------------------------------------------------" << std::endl;
+        std::cerr << "eCAL CORE PANIC :-("                                        << std::endl;
+        std::cerr                                                                 << std::endl;
+        std::cerr << emsg                                                         << std::endl;
+        std::cerr << "----------------------------------------------------------" << std::endl;
+        std::cerr                                                                 << std::endl;
+
+        throw std::runtime_error(emsg.c_str());
+      }
+      new_initialization = true;
+    }
 
     /////////////////////
     // REGISTRATION PROVIDER

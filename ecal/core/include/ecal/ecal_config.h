@@ -22,6 +22,7 @@
 #include <ecal/ecal_log_level.h>
 
 #include <string>
+#include <vector>
 
 namespace eCAL
 {
@@ -98,6 +99,8 @@ namespace eCAL
     ECAL_API TLayer::eSendMode GetPublisherShmMode                  ();
     ECAL_API TLayer::eSendMode GetPublisherTcpMode                  ();
     ECAL_API TLayer::eSendMode GetPublisherUdpMulticastMode         ();
+    ECAL_API const std::vector<TLayer::eTransportLayer>* CustomTransportPriorityByTopicName(const std::string&);
+    ECAL_API const std::vector<TLayer::eTransportLayer>* CustomTransportPriorityByTopicType(const std::string&);
 
     ECAL_API size_t            GetMemfileMinsizeBytes               ();
     ECAL_API size_t            GetMemfileOverprovisioningPercentage ();

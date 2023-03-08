@@ -43,7 +43,6 @@ enum eTransportLayerC
 **/
 enum eSendModeC
 {
-  smode_none = -1,
   smode_off  = 0,
   smode_on,
   smode_auto

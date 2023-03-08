@@ -1,0 +1,13 @@
+{
+    "by-name": [],
+    "by-type": [
+        {
+            "key": "pb_msgs/sensor_pb_PointCloud",
+            "transport": [ "shm" ]
+        },
+        {
+            "key": "pb_msgs/sensor_pb_Image",
+            "transport": [ "shm" ]
+        }
+    ]
+}

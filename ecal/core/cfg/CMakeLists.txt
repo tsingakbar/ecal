@@ -57,3 +57,9 @@ if(ECAL_SHARED_CONFIG AND NOT CMAKE_CROSSCOMPILING)
     )
   endif()
 endif()
+
+install(
+  FILES ${CMAKE_CURRENT_LIST_DIR}/publisher_config.json
+  DESTINATION ${ECAL_SHARED_CONFIG}
+  COMPONENT configuration        
+)

@@ -33,6 +33,7 @@ namespace eCAL
 {
   class  CGlobals;
   class  CConfig;
+  class  CPublisherConfig;
   class  CLog;
   class  CMonitoring;
   class  CTimeGate;
@@ -52,6 +53,7 @@ namespace eCAL
   // Declaration of getter functions for globally accessible variable instances
   CGlobals*               g_globals();
   CConfig*                g_config();
+  CPublisherConfig*       g_publisher_config();
   CLog*                   g_log();
   CMonitoring*            g_monitoring();
   CTimeGate*              g_timegate();

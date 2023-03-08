@@ -48,7 +48,6 @@ namespace eCAL
     **/
     enum eSendMode
     {
-      smode_none = -1,
       smode_off  = 0,
       smode_on,
       smode_auto
@@ -61,10 +60,10 @@ namespace eCAL
     {
       STLayer()
       {
-        sm_udp_mc  = smode_none;
-        sm_shm     = smode_none;
-        sm_inproc  = smode_none;
-        sm_tcp     = smode_none;
+        sm_udp_mc  = smode_off;
+        sm_shm     = smode_off;
+        sm_inproc  = smode_off;
+        sm_tcp     = smode_off;
       }
       eSendMode sm_udp_mc;  //!< udp multicast
       eSendMode sm_shm;     //!< shared memory
