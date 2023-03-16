@@ -148,6 +148,7 @@ set(ecal_cmn_cpp_src
     src/ecal_util.cpp
     src/ecalc.cpp
     src/sys_usage.cpp
+    src/uniq_id_gen_within_process.cpp
 )
 
 if(ECAL_NPCAP_SUPPORT)

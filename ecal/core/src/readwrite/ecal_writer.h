@@ -77,11 +77,9 @@ namespace eCAL
 
     bool Write(const void* const buf_, size_t len_, long long time_, long long id_);
 
-    void ApplyLocSubscription(const std::string& process_id_, const std::string& reader_par_);
-    void RemoveLocSubscription(const std::string & process_id_);
+    void ApplyLocSubscription(const std::string& process_id_, const std::string& topic_id_, const std::string& reader_par_);
 
-    void ApplyExtSubscription(const std::string& host_name_, const std::string& process_id_, const std::string& reader_par_);
-    void RemoveExtSubscription(const std::string & host_name_, const std::string & process_id_);
+    void ApplyExtSubscription(const std::string& host_name_, const std::string& process_id_, const std::string& topic_id_, const std::string& reader_par_);
 
     void RefreshRegistration();
     void RefreshSendCounter();
@@ -134,10 +132,13 @@ namespace eCAL
     bool               m_zero_copy;
 
     std::atomic<bool>  m_connected;
-    typedef Util::CExpMap<std::string, bool> ConnectedMapT;
     mutable std::mutex  m_sub_map_sync;
-    ConnectedMapT      m_loc_sub_map;
-    ConnectedMapT      m_ext_sub_map;
+    // NOTE: tuple<subscriber process id, suscirber side topic id>
+    typedef std::tuple<std::string, std::string> LocalSubKey;
+    Util::CExpMap<LocalSubKey, bool> m_loc_sub_map;
+    // NOTE: tuple<subscriber host name, subscriber process id, suscirber side topic id>
+    typedef std::tuple<std::string, std::string, std::string> ExternalSubKey;
+    Util::CExpMap<ExternalSubKey, bool> m_ext_sub_map;
 
     std::mutex         m_event_callback_map_sync;
     typedef std::map<eCAL_Publisher_Event, PubEventCallbackT> EventCallbackMapT;

@@ -29,6 +29,7 @@
 #include "ecal_descgate.h"
 #include "ecal_reader.h"
 #include "ecal_process.h"
+#include "uniq_id_gen_within_process.h"
 
 #include "readwrite/ecal_reader_udp_mc.h"
 
@@ -105,9 +106,7 @@ namespace eCAL
     Logging::Log(log_level_debug1, m_topic_name + "::CDataReader::Create");
 #endif
     // build topic id
-    std::stringstream counter;
-    counter << std::chrono::steady_clock::now().time_since_epoch().count();
-    m_topic_id = counter.str();
+    m_topic_id = std::to_string(GenerateUniqIdWithinCurrentProcess());
 
     // create receive event
     gOpenEvent(&m_receive_event);

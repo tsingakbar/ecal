@@ -116,6 +116,7 @@ namespace eCAL
     auto ecal_sample_topic = ecal_sample_.topic();
     std::string topic_name = ecal_sample_topic.tname();
     std::string process_id = std::to_string(ecal_sample_topic.pid());
+    const std::string& topic_id = ecal_sample_topic.tid();
     std::string reader_par;
     for (auto layer : ecal_sample_topic.tlayer())
     {
@@ -138,7 +139,7 @@ namespace eCAL
     auto res = m_topic_name_datawriter_map.equal_range(topic_name);
     for(TopicNameDataWriterMapT::const_iterator iter = res.first; iter != res.second; ++iter)
     {
-      iter->second->ApplyLocSubscription(process_id, reader_par);
+      iter->second->ApplyLocSubscription(process_id, topic_id, reader_par);
     }
   }
 
@@ -150,6 +151,7 @@ namespace eCAL
     std::string host_name  = ecal_sample_topic.hname();
     std::string topic_name = ecal_sample_topic.tname();
     std::string process_id = std::to_string(ecal_sample_topic.pid());
+    const std::string& topic_id = ecal_sample_topic.tid();
     std::string reader_par;
     for (auto layer : ecal_sample_topic.tlayer())
     {
@@ -172,7 +174,7 @@ namespace eCAL
     auto res = m_topic_name_datawriter_map.equal_range(topic_name);
     for(TopicNameDataWriterMapT::const_iterator iter = res.first; iter != res.second; ++iter)
     {
-      iter->second->ApplyExtSubscription(host_name, process_id, reader_par);
+      iter->second->ApplyExtSubscription(host_name, process_id, topic_id, reader_par);
     }
   }
 

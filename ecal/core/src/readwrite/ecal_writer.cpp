@@ -34,6 +34,7 @@
 #include "ecal_writer.h"
 #include "ecal_writer_base.h"
 #include "ecal_process.h"
+#include "uniq_id_gen_within_process.h"
 
 #include <sstream>
 #include <chrono>
@@ -123,9 +124,7 @@ namespace eCAL
     m_created           = false;
 
     // build topic id
-    std::stringstream counter;
-    counter << std::chrono::steady_clock::now().time_since_epoch().count();
-    m_topic_id = counter.str();
+    m_topic_id = std::to_string(GenerateUniqIdWithinCurrentProcess());
 
     // set registration expiration
     std::chrono::milliseconds registration_timeout(Config::GetRegistrationTimeoutMs());
@@ -669,12 +668,12 @@ namespace eCAL
     return(written);
   }
 
-  void CDataWriter::ApplyLocSubscription(const std::string& process_id_, const std::string& reader_par_)
+  void CDataWriter::ApplyLocSubscription(const std::string& process_id_, const std::string& topic_id_, const std::string& reader_par_)
   {
     SetConnected(true);
     {
       std::lock_guard<std::mutex> lock(m_sub_map_sync);
-      m_loc_sub_map[process_id_] = true;
+      m_loc_sub_map[std::make_tuple(process_id_, topic_id_)] = true;
     }
     m_loc_subscribed = true;
 
@@ -688,24 +687,12 @@ namespace eCAL
 #endif
   }
 
-  void CDataWriter::RemoveLocSubscription(const std::string& process_id_)
-  {
-    // remove a local subscription
-    m_writer_udp_mc.RemLocConnection (process_id_);
-    m_writer_shm.RemLocConnection    (process_id_);
-
-#ifndef NDEBUG
-    // log it
-    Logging::Log(log_level_debug3, m_topic_name + "::CDataWriter::RemoveLocSubscription");
-#endif
-  }
-
-  void CDataWriter::ApplyExtSubscription(const std::string& host_name_, const std::string& process_id_, const std::string& reader_par_)
+  void CDataWriter::ApplyExtSubscription(const std::string& host_name_, const std::string& process_id_, const std::string& topic_id_, const std::string& reader_par_)
   {
     SetConnected(true);
     {
       std::lock_guard<std::mutex> lock(m_sub_map_sync);
-      m_ext_sub_map[host_name_] = true;
+      m_ext_sub_map[std::make_tuple(host_name_, process_id_, topic_id_)] = true;
     }
     m_ext_subscribed = true;
 
@@ -717,13 +704,6 @@ namespace eCAL
     // log it
     Logging::Log(log_level_debug3, m_topic_name + "::CDataWriter::ApplyExtSubscription");
 #endif
-  }
-
-  void CDataWriter::RemoveExtSubscription(const std::string& host_name_, const std::string& process_id_)
-  {
-    // remove external subscription
-    m_writer_udp_mc.RemExtConnection (host_name_, process_id_);
-    m_writer_shm.RemExtConnection    (host_name_, process_id_);
   }
 
   void CDataWriter::RefreshRegistration()
@@ -760,7 +740,7 @@ namespace eCAL
     DoRegister(false);
 
     // check connection timeouts
-    std::shared_ptr<std::list<std::string>> loc_timeouts = std::make_shared<std::list<std::string>>();
+    auto loc_timeouts = std::make_shared<std::list<LocalSubKey>>();
     {
       std::lock_guard<std::mutex> lock(m_sub_map_sync);
       m_loc_sub_map.remove_deprecated(loc_timeouts.get());
@@ -772,7 +752,9 @@ namespace eCAL
 
     for(auto loc_sub : *loc_timeouts)
     {
-      m_writer_shm.RemLocConnection(loc_sub);
+      std::string expired_process_id;
+      std::tie(expired_process_id, std::ignore) = loc_sub;
+      m_writer_shm.RemLocConnection(expired_process_id);
     }
 
     if (!m_loc_subscribed && !m_ext_subscribed)
@@ -1102,7 +1084,9 @@ namespace eCAL
     std::lock_guard<std::mutex> lock(m_sub_map_sync);
     for (auto sub : m_loc_sub_map)
     {
-      if (sub.first != process_id)
+      std::string subscriber_process_id;
+      std::tie(subscriber_process_id, std::ignore) = sub.first;
+      if (subscriber_process_id != process_id)
       {
         is_internal_only = false;
         break;
