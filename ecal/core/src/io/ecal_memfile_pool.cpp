@@ -264,8 +264,15 @@ namespace eCAL
       }
       else
       {
+        int64_t since_loop_start_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - loop_start;
+        if (since_loop_start_ms == 0) {
+          // TODO(richieyu): event wait failed but is not timed out
+          // currently sleep for a while to prevent current loop hogging up one cpu.
+          since_loop_start_ms = 20;
+          std::this_thread::sleep_for(std::chrono::milliseconds(since_loop_start_ms));
+        }
         // increase timeout in ms
-        m_timeout_read += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - loop_start;
+        m_timeout_read += since_loop_start_ms;
       }
     }
 
