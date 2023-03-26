@@ -776,7 +776,8 @@ ECAL_API bool client_call_method_async(ECAL_HANDLE handle_, const char* method_n
   if (client)
   {
     std::string request(request_, request_len_);
-    return(client->CallAsync(method_name_, request, timeout_));
+    // limitation: always use 0 as request/response id
+    return(client->CallAsync(method_name_, 0, request, timeout_));
   }
   else
   {

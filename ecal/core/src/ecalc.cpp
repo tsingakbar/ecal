@@ -1313,7 +1313,8 @@ ECALC_API int eCAL_Client_Call_Async(ECAL_HANDLE handle_, const char* method_nam
 {
   if (handle_ == NULL) return(0);
   eCAL::CServiceClient* client = static_cast<eCAL::CServiceClient*>(handle_);
-  if (client->CallAsync(method_name_, std::string(request_, static_cast<size_t>(request_len_)), timeout_)) return(1);
+  // limitation: always use 0 as request/response id
+  if (client->CallAsync(method_name_, 0, std::string(request_, static_cast<size_t>(request_len_)), timeout_)) return(1);
   return(0);
 }
 

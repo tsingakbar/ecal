@@ -58,7 +58,7 @@ namespace eCAL
     typedef std::function<void(eCAL_Client_Event event, const std::string& message)> EventCallbackT;
 
     CTcpClient();
-    CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& thread_name_);
+    CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& log_prefix_, const std::string& thread_name_);
 
     ~CTcpClient();
 
@@ -76,6 +76,7 @@ namespace eCAL
     void ExecuteRequestAsync(const std::string& request_, int timeout_, AsyncCallbackT callback);
 
   protected:
+    std::string                             m_id_for_err_log;
     std::string                             m_host_name;
     std::string                             m_peeraddr_before_resolve;
     std::mutex                              m_socket_write_mutex; 
@@ -87,7 +88,12 @@ namespace eCAL
     EventCallbackT                          m_event_callback;
     bool                                    m_created;
     bool                                    m_connected;
-    std::atomic<bool>                       m_async_request_in_progress;
+    std::mutex                              m_async_request_in_progress_mutex;
+    struct AsyncRequestInProgressInfo
+    {
+      int64_t since_epoch_ms = 0;
+      pid_t tid = 0;
+    } m_async_request_in_progress;
 
   private:
     bool SendRequest(const std::string &request_);

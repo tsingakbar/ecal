@@ -50,6 +50,7 @@ namespace eCAL
     int          ret_state;      //!< return state of the called service method
     eCallState   call_state;     //!< call state (see eCallState)
     std::string  response;       //!< service response
+    int64_t      id;             //!< request id
   };
   typedef std::vector<SServiceResponse> ServiceResponseVecT; //!< vector of multiple service responses
 

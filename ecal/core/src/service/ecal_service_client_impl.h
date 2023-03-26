@@ -49,6 +49,7 @@ namespace eCAL
     bool SetHostName(const std::string& host_name_);
 
     // add and remove callback function for service response
+    // NOTE: only support one callback(should be named Set rather than Add)
     bool AddResponseCallback(const ResponseCallbackT& callback_);
     bool RemResponseCallback();
 
@@ -56,10 +57,6 @@ namespace eCAL
     bool AddEventCallback(eCAL_Client_Event type_, ClientEventCallbackT callback_);
     bool RemEventCallback(eCAL_Client_Event type_);
       
-    // blocking call, no broadcast, first matching service only, response will be returned in service_response_
-    [[deprecated]]
-    bool Call(const std::string& method_name_, const std::string& request_, struct SServiceResponse& service_response_);
-    
     // blocking call, all responses will be returned in service_response_vec_
     bool Call(const std::string& method_name_, const std::string& request_, int timeout_, ServiceResponseVecT* service_response_vec_);
 
@@ -67,7 +64,7 @@ namespace eCAL
     bool Call(const std::string& method_name_, const std::string& request_, int timeout_);
 
     // asynchronously call, using callback (timeout not supported yet)
-    bool CallAsync(const std::string& method_name_, const std::string& request_ /*, int timeout_*/);
+    bool CallAsync(const std::string& method_name_, const int64_t req_id_, const std::string& request_ /*, int timeout_*/);
 
     // check connection state
     bool IsConnected();
@@ -87,11 +84,10 @@ namespace eCAL
   protected:
     void CheckForNewServices();
 
-    bool SendRequests(const std::string& host_name_, const std::string& method_name_, const std::string& request_, int timeout_);
+    ServiceResponseVecT SendRequests(const std::string& host_name_, const std::string& method_name_, const std::string& request_, int timeout_);
     bool SendRequest(std::shared_ptr<CTcpClient> client_, const std::string& method_name_, const std::string& request_, int timeout_, struct SServiceResponse& service_response_);
 
-    void SendRequestsAsync(const std::string& host_name_, const std::string& method_name_, const std::string& request_, int timeout_);
-    void SendRequestAsync(std::shared_ptr<CTcpClient> client_, const std::string& method_name_, const std::string& request_, int timeout_);
+    void SendRequestAsync(std::shared_ptr<CTcpClient> client_, const std::string& method_name_, const int64_t req_id_, const std::string& request_, int timeout_);
 
     void ErrorCallback(const std::string &method_name_, const std::string &error_message_);
 
@@ -112,7 +108,7 @@ namespace eCAL
 
     std::string        m_service_name;
     std::string        m_service_id;
-    std::string        m_host_name;
+    std::string        m_host_name_filter;
 
     bool               m_created;
   };

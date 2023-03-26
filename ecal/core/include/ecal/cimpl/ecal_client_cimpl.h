@@ -64,7 +64,7 @@ extern "C"
   ECALC_API int eCAL_Client_SetHostName(ECAL_HANDLE handle_, const char* host_name_);
 
   /**
-   * @brief Call a method of this service (none blocking variant with callback). 
+   * @brief Call a method of this service (blocking variant with callback). 
    *
    * @param handle_       Client handle. 
    * @param method_name_  Method name.

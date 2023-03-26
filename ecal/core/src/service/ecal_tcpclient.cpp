@@ -29,17 +29,19 @@
 #include <iostream>
 #include <thread>
 #include <sys/prctl.h>
+#include <sys/syscall.h>
 
 namespace eCAL
 {
   //////////////////////////////////////////////////////////////////
   // CTcpClient
   //////////////////////////////////////////////////////////////////
-  CTcpClient::CTcpClient() : m_created(false), m_connected(false), m_async_request_in_progress(false)
+  CTcpClient::CTcpClient() : m_created(false), m_connected(false)
   {
   }
 
-  CTcpClient::CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& thread_name_) : m_created(false), m_connected(false), m_async_request_in_progress(false)
+  CTcpClient::CTcpClient(const std::string& host_name_, unsigned short port_, const std::string& log_prefix_, const std::string& thread_name_)
+  : m_id_for_err_log(log_prefix_), m_created(false), m_connected(false)
   {
     Create(host_name_, port_, thread_name_);
   }
@@ -112,7 +114,10 @@ namespace eCAL
     m_io_service = nullptr;
 
     m_connected                 = false;
-    m_async_request_in_progress = false;
+    {
+      std::unique_lock<std::mutex> lk(m_async_request_in_progress_mutex);
+      m_async_request_in_progress = AsyncRequestInProgressInfo{};
+    }
     m_created                   = false;
   }
 
@@ -146,11 +151,29 @@ namespace eCAL
 
   void CTcpClient::ExecuteRequestAsync(const std::string& request_, int timeout_, AsyncCallbackT callback)
   {
-    std::unique_lock<std::mutex> lock(m_socket_write_mutex);
-    if (!m_async_request_in_progress)
+    bool no_request_in_progress = [this]()
     {
-      m_async_request_in_progress.store(true);
+      const int64_t now_since_epoch_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                             std::chrono::steady_clock::now().time_since_epoch())
+                                             .count();
+      std::unique_lock<std::mutex> lk(m_async_request_in_progress_mutex);
+      if (m_async_request_in_progress.since_epoch_ms != 0)
+      {
+        int64_t elapsed_ms = now_since_epoch_ms - m_async_request_in_progress.since_epoch_ms;
+        std::cerr << m_id_for_err_log
+                  << " CTcpClient::ExecuteRequestAsync(tid" << ::syscall(SYS_gettid) << ") failed: Another request"
+                  << "(-" << elapsed_ms << "ms;tid" << m_async_request_in_progress.tid << ") is already in progress."
+                  << std::endl;
+        return false;
+      }
+      m_async_request_in_progress.since_epoch_ms = now_since_epoch_ms;
+      m_async_request_in_progress.tid = ::syscall(SYS_gettid);
+      return true;
+    }();
 
+    if (no_request_in_progress)
+    {
+      std::unique_lock<std::mutex> lock(m_socket_write_mutex);
       if (!m_created)
         ExecuteCallback(callback, "", false);
 
@@ -162,7 +185,6 @@ namespace eCAL
     }
     else
     {
-      std::cerr << "CTcpClient::ExecuteRequestAsync failed: Another request is already in progress" << std::endl;
       ExecuteCallback(callback, "", false);
     }
   }
@@ -189,7 +211,7 @@ namespace eCAL
     }
     catch (std::exception& e)
     {
-      std::cerr << "CTcpClient::SendRequest: Failed to send request to " << m_peeraddr_before_resolve << ": " << e.what() << "\n";
+      std::cerr << m_id_for_err_log << " CTcpClient::SendRequest: Failed to send request to " << m_peeraddr_before_resolve << ": " << e.what() << "\n";
       m_connected = false;
       return false;
     }
@@ -294,7 +316,7 @@ namespace eCAL
     }
     catch (std::exception& e)
     {
-      std::cerr << "CTcpClient::ReceiveResponse: Failed to recieve response: " << e.what() << std::endl;
+      std::cerr << m_id_for_err_log << " CTcpClient::ReceiveResponse: Failed to recieve response: " << e.what() << std::endl;
       m_connected = false;
       return 0;
     }
@@ -342,7 +364,7 @@ namespace eCAL
         }
         else
         {
-          std::cerr << "CTcpClient::ReceiveResponseAsync: Failed to receive response: " << "tcp_header size is invalid." << "\n";
+          std::cerr << m_id_for_err_log << " CTcpClient::ReceiveResponseAsync: Failed to receive response: tcp_header size is invalid." << std::endl;
           this->ExecuteCallback(callback_, "", false);
         }
       });
@@ -362,7 +384,10 @@ namespace eCAL
 
   void CTcpClient::ExecuteCallback(AsyncCallbackT callback_, const std::string &data_, bool success_)
   {
-    m_async_request_in_progress = false;
+    {
+      std::unique_lock<std::mutex> lk(m_async_request_in_progress_mutex);
+      m_async_request_in_progress = AsyncRequestInProgressInfo{};
+    }
     callback_(data_, success_);
   }  
 };

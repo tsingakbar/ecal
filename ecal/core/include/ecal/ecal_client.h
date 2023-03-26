@@ -95,7 +95,7 @@ namespace eCAL
     bool SetHostName(const std::string& host_name_);
 
     /**
-     * @brief Call a method of this service, responses will be returned by callback. 
+     * @brief Call a method of this service, responses will be delivered by callback before return. 
      *
      * @param method_name_  Method name.
      * @param request_      Request string. 
@@ -118,29 +118,16 @@ namespace eCAL
     bool Call(const std::string& method_name_, const std::string& request_, int timeout_, ServiceResponseVecT* service_response_vec_);
 
     /**
-     * @brief Call method of this service, for specific host (deprecated). 
-     *
-     * @param       host_name_         Host name.
-     * @param       method_name_       Method name.
-     * @param       request_           Request string.
-     * @param [out] service_info_      Service response struct for detailed informations.
-     * @param [out] response_          Response string.
-     *
-     * @return  True if successful.
-    **/
-    [[deprecated]]
-    bool Call(const std::string& host_name_, const std::string& method_name_, const std::string& request_, struct SServiceResponse& service_info_, std::string& response_);
-
-    /**
      * @brief Call a method of this service asynchronously, responses will be returned by callback. 
      *
      * @param method_name_  Method name.
+     * @param req_id_       This id will be carried back in callback, which will helper caller to pair async response with pending request.(richieyu)
      * @param request_      Request string. 
      * @param timeout_      Maximum time before operation returns (in milliseconds, -1 means infinite) - NOT SUPPORTED YET.
      *
      * @return  True if successful.
     **/
-    bool CallAsync(const std::string& method_name_, const std::string& request_, int timeout_ = -1);
+    bool CallAsync(const std::string& method_name_, const int64_t req_id_, const std::string& request_, int timeout_ = -1);
 
     /**
      * @brief Add server response callback. 
