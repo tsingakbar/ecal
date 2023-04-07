@@ -29,7 +29,7 @@
 #include "ecal_descgate.h"
 #include "ecal_reader.h"
 #include "ecal_process.h"
-#include "uniq_id_gen_within_process.h"
+#include "uniq_id_generator.h"
 
 #include "readwrite/ecal_reader_udp_mc.h"
 
@@ -106,7 +106,7 @@ namespace eCAL
     Logging::Log(log_level_debug1, m_topic_name + "::CDataReader::Create");
 #endif
     // build topic id
-    m_topic_id = std::to_string(GenerateUniqIdWithinCurrentProcess());
+    m_topic_id = std::to_string(GenerateUniqIdWithinPidNamespace());
 
     // create receive event
     gOpenEvent(&m_receive_event);
@@ -406,10 +406,8 @@ namespace eCAL
     //   so we return and do not process this sample again
     if (m_sample_hash.find(hash_) != m_sample_hash.end())
     {
-#ifndef NDEBUG
       // log it
-      Logging::Log(log_level_debug3, m_topic_name + "::CDataReader::AddSample discard sample because of multiple receive");
-#endif
+      Logging::Log(log_level_warning, m_topic_name + "::CDataReader::AddSample discard sample because of multiple receive");
       return(size_);
     }
     //   this is a new sample -> store it's hash

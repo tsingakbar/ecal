@@ -82,7 +82,9 @@ namespace eCAL
       m_subscriber->addSession(host_name_, port_, Config::GetTcpPubsubMaxReconnectionAttemps());
       if (!m_callback_active)
       {
-        m_subscriber->setCallback(std::bind(&CDataReaderTCP::OnTcpMessage, this, std::placeholders::_1));
+        // use synchronous execution mode to ensure that we don't miss any message when the underlying cache is full.
+        // it's the reponsiblity of the uppper-level receiver (such as RMW) to avoid blocking the receiver callback.
+        m_subscriber->setCallback(std::bind(&CDataReaderTCP::OnTcpMessage, this, std::placeholders::_1), true);
         m_callback_active = true;
       }
     }

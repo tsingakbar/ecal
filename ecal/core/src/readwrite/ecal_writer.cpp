@@ -34,7 +34,7 @@
 #include "ecal_writer.h"
 #include "ecal_writer_base.h"
 #include "ecal_process.h"
-#include "uniq_id_gen_within_process.h"
+#include "uniq_id_generator.h"
 
 #include <sstream>
 #include <chrono>
@@ -124,7 +124,7 @@ namespace eCAL
     m_created           = false;
 
     // build topic id
-    m_topic_id = std::to_string(GenerateUniqIdWithinCurrentProcess());
+    m_topic_id = std::to_string(GenerateUniqIdWithinPidNamespace());
 
     // set registration expiration
     std::chrono::milliseconds registration_timeout(Config::GetRegistrationTimeoutMs());

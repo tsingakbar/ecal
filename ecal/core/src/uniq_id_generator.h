@@ -4,5 +4,5 @@
 
 namespace eCAL
 {
-    int64_t GenerateUniqIdWithinCurrentProcess();
+    uint64_t GenerateUniqIdWithinPidNamespace();
 }

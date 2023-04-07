@@ -26,6 +26,7 @@
 
 #include "ecal_memfile_header.h"
 #include "ecal_memfile_sync.h"
+#include "uniq_id_generator.h"
 
 #include <algorithm>
 #include <sstream>
@@ -44,7 +45,7 @@ namespace eCAL
     Destroy();
   }
 
-  bool CSyncMemoryFile::Connect(const std::string& process_id_)
+  bool CSyncMemoryFile::AcceptConnect(const std::string& process_id_)
   {
     if (!m_created) return false;
 
@@ -313,7 +314,7 @@ namespace eCAL
     // reconnect processes
     for (auto process_id : process_id_list)
     {
-      Connect(process_id);
+      AcceptConnect(process_id);
     }
 
     return true;
@@ -322,9 +323,9 @@ namespace eCAL
   std::string CSyncMemoryFile::BuildMemFileName(const std::string base_name_)
   {
     std::string mfile_name(base_name_);
-    std::stringstream out;
-    out << mfile_name << "_" << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    mfile_name = out.str();
+    // shm will be recreated with another name if it's capacity is not enough.
+    // therefore reusing topic id within the file name is not appropriate.
+    mfile_name.append("_").append(std::to_string(eCAL::GenerateUniqIdWithinPidNamespace()));
 
     // replace all '\\' and '/' to '_'
     std::replace(mfile_name.begin(), mfile_name.end(), '\\', '_');

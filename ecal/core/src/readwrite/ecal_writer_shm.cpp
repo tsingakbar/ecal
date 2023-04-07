@@ -187,7 +187,7 @@ namespace eCAL
 
     for (auto& memory_file : m_memory_file_vec)
     {
-      if (!memory_file->Connect(process_id_))
+      if (!memory_file->AcceptConnect(process_id_))
       {
         return false;
       }

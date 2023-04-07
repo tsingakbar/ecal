@@ -48,7 +48,7 @@ namespace eCAL
     CSyncMemoryFile(const std::string& base_name_, size_t size_, SSyncMemoryFileAttr attr_);
     ~CSyncMemoryFile();
 
-    bool Connect(const std::string& process_id_);
+    bool AcceptConnect(const std::string& process_id_);
     bool Disconnect(const std::string& process_id_);
 
     bool CheckSize(size_t size_);
