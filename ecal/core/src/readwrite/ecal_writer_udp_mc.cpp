@@ -85,6 +85,11 @@ namespace eCAL
     attr.ttl        = ttl;
     m_sample_snd_loopback.Create(attr);
 
+    eCAL::pb::ConnnectionPar connection_par;
+    connection_par.mutable_layer_par_udpmc()->set_mc_dst_addr(attr.ipaddr);
+    connection_par.mutable_layer_par_udpmc()->set_mc_dst_port(attr.port);
+    m_serialized_conn_par_info_pb = connection_par.SerializeAsString();
+
     m_created = true;
     return true;
   }
@@ -141,5 +146,10 @@ namespace eCAL
     }
 
     return(sent > 0);
+  }
+
+  std::string CDataWriterUdpMC::GetConnectionParameter() {
+    // not functional, only for inspecting purpose
+    return m_serialized_conn_par_info_pb;
   }
 }

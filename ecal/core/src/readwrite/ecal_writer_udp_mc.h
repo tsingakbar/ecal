@@ -55,8 +55,11 @@ namespace eCAL
 
     bool Write(const SWriterData& data_) override;
 
+    std::string GetConnectionParameter() override;
+
   protected:
     std::string     m_udp_ipaddr;
+    std::string     m_serialized_conn_par_info_pb;
     eCAL::pb::Sample  m_ecal_sample;
 
     CUDPSender      m_sample_snd_loopback;

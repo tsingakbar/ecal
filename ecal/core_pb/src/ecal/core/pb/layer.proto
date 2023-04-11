@@ -23,6 +23,8 @@ package eCAL.pb;
 
 message LayerParUdpMC
 {
+  string mc_dst_addr = 1;
+  int32 mc_dst_port = 2;
 }
 
 message LayerParShm

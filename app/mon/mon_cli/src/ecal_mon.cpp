@@ -25,6 +25,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <asio.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -68,6 +69,7 @@ enum class CmdOption
   pub,
   type,
   desc,
+  tcpdump_filter,
 };
 
 const int _1kB = 1024;
@@ -86,6 +88,7 @@ void ProcList();
 void ProcPub(const std::string& topic_name, const std::string& data);
 void ProcType(const std::string& topic_name);
 void ProcDesc(const std::string& topic_name);
+void ProcTcpdumpFilter(const std::string& topic_name);
 
 // main entry
 int main(int argc, char** argv)
@@ -102,35 +105,43 @@ int main(int argc, char** argv)
     std::string version_str = std::string(ECAL_MON_VERSION) + " (" + std::string(ECAL_MON_DATE) + ")";
     TCLAP::CmdLine cmd(ECAL_MON_NAME, ' ' , version_str);
 
+    std::vector<std::reference_wrapper<TCLAP::Arg>> args;
     // Define the values from argument and add them to the command line.
-    TCLAP::ValueArg<std::string> bandwidth_arg("b", "bandwidth", "display bandwidth used by topic", false, "", "string");
-    TCLAP::ValueArg<std::string> echo_arg("e", "echo", "print string messages to screen", false, "", "string");
-    TCLAP::ValueArg<std::string> proto_arg("", "proto", "print protobuf messages to screen", false, "", "string");
-    TCLAP::ValueArg<std::string> find_arg("f", "find", "find topics by type", false, "", "string");
-    TCLAP::ValueArg<std::string> rate_arg("r", "rate", "display publishing rate of topic", false, "", "string");
-    TCLAP::ValueArg<std::string> info_arg("i", "info", "print information about active topics", false, "", "string");
-    TCLAP::ValueArg<std::string> pub_arg("p", "pub", "publish string data to topic", false, "", "string");
-    TCLAP::ValueArg<std::string> message_arg("m", "msg", "message to publish", false, "", "string");
-    TCLAP::ValueArg<std::string> type_arg("t", "type", "print topic type", false, "", "string");
-    TCLAP::ValueArg<std::string> desc_arg("d", "desc", "print topic description", false, "", "string");
-    TCLAP::ValueArg<int> count_arg("c", "count", "exit application after a defined number of received messages (used with --echo or --proto option)", false, 0, "int");
-    TCLAP::ValueArg<int> pause_arg("", "pause", "sleep between command execution [ms]", false, 0, "int");
-
     TCLAP::SwitchArg list_arg("l", "list", "print information about active topics", false);
+    args.push_back(list_arg);
+    TCLAP::ValueArg<std::string> info_arg("i", "info", "print information about active topics", false, "", "string");
+    args.push_back(info_arg);
+    TCLAP::ValueArg<std::string> find_arg("f", "find", "find topics by type", false, "", "string");
+    args.push_back(find_arg);
+    TCLAP::ValueArg<std::string> type_arg("t", "type", "print topic type", false, "", "string");
+    args.push_back(type_arg);
+    TCLAP::ValueArg<std::string> desc_arg("d", "desc", "print topic description", false, "", "string");
+    args.push_back(desc_arg);
+    TCLAP::ValueArg<std::string> tcpdump_arg("", "tcpdump", "print topic transport layer tcpdump filter", false, "", "string");
+    args.push_back(tcpdump_arg);
 
-    cmd.add(bandwidth_arg);
-    cmd.add(echo_arg);
-    cmd.add(proto_arg);
-    cmd.add(find_arg);
-    cmd.add(rate_arg);
-    cmd.add(info_arg);
-    cmd.add(pub_arg);
-    cmd.add(message_arg);
-    cmd.add(type_arg);
-    cmd.add(desc_arg);
-    cmd.add(count_arg);
-    cmd.add(pause_arg);
-    cmd.add(list_arg);
+    TCLAP::ValueArg<std::string> rate_arg("r", "rate", "display publishing rate of topic", false, "", "string");
+    args.push_back(rate_arg);
+    TCLAP::ValueArg<std::string> bandwidth_arg("b", "bandwidth", "display bandwidth used by topic", false, "", "string");
+    args.push_back(bandwidth_arg);
+
+    TCLAP::ValueArg<std::string> echo_arg("e", "echo", "print string messages to screen", false, "", "string");
+    args.push_back(echo_arg);
+    TCLAP::ValueArg<std::string> proto_arg("", "proto", "print protobuf messages to screen", false, "", "string");
+    args.push_back(proto_arg);
+    TCLAP::ValueArg<int> count_arg("c", "count", "exit application after a defined number of received messages (used with --echo or --proto option)", false, 0, "int");
+    args.push_back(count_arg);
+
+    TCLAP::ValueArg<std::string> pub_arg("p", "pub", "publish string data to topic", false, "", "string");
+    args.push_back(pub_arg);
+    TCLAP::ValueArg<std::string> message_arg("m", "msg", "message to publish", false, "", "string");
+    args.push_back(message_arg);
+
+    TCLAP::ValueArg<int> pause_arg("", "pause", "sleep between command execution [ms]", false, 0, "int");
+    args.push_back(pause_arg);
+
+    // usage display order is reversed with adding order
+    for (auto itr = args.rbegin(); itr != args.rend(); ++itr) cmd.add(itr->get());
 
     // Parse the argv array.
     cmd.parse(argc, argv);
@@ -198,6 +209,11 @@ int main(int argc, char** argv)
       topic_name = desc_arg.getValue();
       cmd_option = CmdOption::desc;
     }
+    if (tcpdump_arg.getValue().empty() == false)
+    {
+      topic_name = tcpdump_arg.getValue();
+      cmd_option = CmdOption::tcpdump_filter;
+    }
     if (count_arg.isSet())
     {
       message_count = count_arg.getValue();
@@ -245,6 +261,9 @@ int main(int argc, char** argv)
       break;
     case CmdOption::desc:
       ProcDesc(topic_name);
+      break;
+    case CmdOption::tcpdump_filter:
+      ProcTcpdumpFilter(topic_name);
       break;
     default:
       break;
@@ -362,7 +381,8 @@ void ProcProto(const std::string& topic_name, int msg_count)
   // create dynamic subscribers for receiving and decoding messages and assign callback
   eCAL::protobuf::CDynamicSubscriber sub(topic_name);
   std::atomic<int> cnt(msg_count);
-  auto msg_cb = [&cnt](const google::protobuf::Message& msg_) { if (cnt != 0) { std::cout << msg_.DebugString() << std::endl; if (cnt > 0) cnt--; } };
+  auto msg_cb = [&cnt](const google::protobuf::Message &msg_)
+  { if (cnt != 0) { std::cout << msg_.DebugString() << std::endl; if (cnt > 0) cnt--; } };
   sub.AddReceiveCallback(std::bind(msg_cb, std::placeholders::_2));
 
   // enter main loop
@@ -480,17 +500,6 @@ void ProcInfo(const std::string& topic_name)
       if(topic.tname() != topic_name) continue;
 
       std::cout << topic.Utf8DebugString() << std::endl;
-      // print topic details
-      //std::cout << "tname        : " << topic.tname()        << std::endl;   // topic name
-      //std::cout << "ttype        : " << topic.ttype()        << std::endl;   // topic type
-      //std::cout << "direction    : " << topic.direction()    << std::endl;   // direction (publisher, subscriber)
-      //std::cout << "hname        : " << topic.hname()        << std::endl;   // host name
-      //std::cout << "pid          : " << topic.pid()          << std::endl;   // process id
-      //std::cout << "tid          : " << topic.tid()          << std::endl;   // topic id
-      //std::cout << "tsize        : " << topic.tsize()        << std::endl;   // topic size
-      //std::cout << "dclock       : " << topic.dclock()       << std::endl;   // data clock (send / receive action)
-      //std::cout << "dfreq        : " << topic.dfreq()/1000.0 << std::endl;   // data frequency (send / receive samples per second * 1000)
-      //std::cout << std::endl;
     }
 
     // sleep
@@ -628,5 +637,88 @@ void ProcDesc(const std::string& topic_name_)
 
     // print topic description
     std::cout << topic.tdesc() << " (" << topic.hname() << ":"  << topic.direction() << ")" << std::endl;
+  }
+}
+
+void ProcTcpdumpFilter(const std::string& topic_name_)
+{
+  std::cout << "print tcpdump filter for topic " << topic_name_ << std::endl << std::endl;;
+
+  // monitoring instance to store complete snapshot
+  eCAL::pb::Monitoring monitoring;
+
+  // sleep 1 s
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  // take snapshot :-)
+  static std::string monitoring_s;
+  if(eCAL::Monitoring::GetMonitoring(monitoring_s))
+  {
+    monitoring.ParseFromString(monitoring_s);
+  }
+
+  class HostnameResolver
+  {
+  public:
+    std::string Resolve(const std::string &hostname)
+    {
+      auto itr_cache_hit = hostname_resolve_cache_.find(hostname);
+      if (itr_cache_hit != hostname_resolve_cache_.end())
+        return itr_cache_hit->second;
+
+      asio::io_context io_ctxt;
+      asio::ip::tcp::resolver resolver(io_ctxt);
+      asio::ip::tcp::resolver::query query(hostname, "");
+      asio::error_code ec;
+      auto resolve_results = resolver.resolve(query, ec);
+      for (auto &resolve : resolve_results)
+      {
+        if (!resolve.endpoint().address().is_v4())
+          continue;
+        auto resolved = resolve.endpoint().address().to_string();
+        hostname_resolve_cache_.insert({hostname, resolved});
+        return resolved;
+      }
+      return hostname;
+    }
+
+  private:
+    std::map<std::string, std::string> hostname_resolve_cache_;
+  } resolver;
+
+  // for all topics
+  for(const auto& topic : monitoring.topics())
+  {
+    // check topic name
+    if((topic.tname() != topic_name_) || topic.ttype().empty()) continue;
+    if (topic.direction() != "publisher") continue;
+
+    for (auto &trans_layer : topic.tlayer())
+    {
+      switch (trans_layer.type())
+      {
+      case eCAL::pb::tl_ecal_udp_mc:
+      {
+        const auto &mc_dst_addr = trans_layer.par_layer().layer_par_udpmc().mc_dst_addr();
+        const auto mc_dst_port = trans_layer.par_layer().layer_par_udpmc().mc_dst_port();
+        if (!mc_dst_addr.empty() && mc_dst_port > 0)
+          // do not use port in case tcpdump is unable to recognize ip segmented udp packets.
+          // NOTE: multiple topic might share same mc_dst_addr
+          std::cout << "dst net " << mc_dst_addr << std::endl;
+        break;
+      }
+      case eCAL::pb::tl_ecal_tcp:
+      {
+        auto publisher_hostname = resolver.Resolve(topic.hname());
+        const auto publisher_listen_port = trans_layer.par_layer().layer_par_tcp().port();
+        if (publisher_listen_port > 0) {
+          std::cout << "host " << publisher_hostname << " and tcp port " << publisher_listen_port << std::endl;
+        }
+        break;
+      }
+      default:
+        break;
+      }
+    }
   }
 }
