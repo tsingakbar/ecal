@@ -1,5 +1,10 @@
 {
-    "by-name": [],
+    "by-name": [
+        {
+            "key": "rt/perception/obstacles",
+            "transport": [ "shm", "tcp" ]
+        }
+    ],
     "by-type": [
         {
             "key": "pb_msgs/sensor_pb_PointCloud",

@@ -200,13 +200,28 @@ namespace eCAL
     // get process id
     std::string process_id = std::to_string(ecal_sample_.topic().pid());
 
+    // richieyu: use only one layer for local subscribe connection, and prefer shm over others
+    const eCAL::pb::TLayer* chosen_layer = nullptr;
+    for (auto& tlayer : ecal_sample_topic.tlayer()) {
+      if (chosen_layer == nullptr) {
+        chosen_layer = &tlayer;
+        continue;
+      }
+      if (tlayer.type() == eCAL::pb::tl_ecal_shm) {
+        chosen_layer = &tlayer;
+      }
+    }
+    if (chosen_layer == nullptr) {
+      return;
+    }
+
     // handle local publisher connection
     std::shared_lock<std::shared_timed_mutex> lock(m_topic_name_datareader_sync);
     auto res = m_topic_name_datareader_map.equal_range(topic_name);
     for (TopicNameDataReaderMapT::iterator iter = res.first; iter != res.second; ++iter)
     {
       // apply layer specific parameter
-      for (auto tlayer : ecal_sample_topic.tlayer())
+      auto& tlayer = *chosen_layer;
       {
         // layer parameter for local publisher registrations
         // ---------------------------------------------------------------
