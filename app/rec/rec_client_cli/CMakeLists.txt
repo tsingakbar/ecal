@@ -28,12 +28,6 @@ set(source_files
     src/ecal_rec_service.h
 )
 
-if(WIN32)
-    set(win_src
-        resources/resource.h
-        resources/win32_resources.rc
-    )
-endif(WIN32)
 
 ecal_add_app_console(${PROJECT_NAME} ${source_files} ${win_src})
 

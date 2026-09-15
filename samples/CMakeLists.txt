@@ -107,43 +107,10 @@ endif(HAS_QT5)
 # python samples
 # --------------------------------------------------------
 if(BUILD_PY_BINDING)
-  if(WIN32)
-    if(HAS_HDF5)
-      add_subdirectory(python/ecalhdf5_rw)
-    endif(HAS_HDF5)
-    add_subdirectory(python/latency_rec)
-    add_subdirectory(python/latency_rec_cb)
-    add_subdirectory(python/latency_snd)
-    if(HAS_HDF5)
-      add_subdirectory(python/measurement_read)
-    endif(HAS_HDF5)
-    add_subdirectory(python/minimal_rec)
-    add_subdirectory(python/minimal_rec_cb)
-    add_subdirectory(python/minimal_service)
-    add_subdirectory(python/minimal_snd)
-    add_subdirectory(python/monitoring)
-    add_subdirectory(python/person_rec)
-    add_subdirectory(python/person_rec_cb)
-    add_subdirectory(python/person_rec_json)  
-    add_subdirectory(python/person_snd)
-  endif(WIN32)
 endif(BUILD_PY_BINDING)
 
 # --------------------------------------------------------
 # csharp samples
 # --------------------------------------------------------
 if(BUILD_CSHARP_BINDING)
-  if(WIN32)
-  # --------------------------------------------------------
-  # samples csharp (not working curently, they should be create "AnyCPU" platform but they dont ..
-  # --------------------------------------------------------
-  add_subdirectory(csharp/minimal/minimal_rec)
-  add_subdirectory(csharp/minimal/minimal_rec_cb)
-  add_subdirectory(csharp/minimal/minimal_snd)
-  add_subdirectory(csharp/person/protobuf)
-  add_subdirectory(csharp/person/person_rec)
-  add_subdirectory(csharp/person/person_rec_cb)
-  add_subdirectory(csharp/person/person_rec_json_cb)
-  add_subdirectory(csharp/person/person_snd)
-  endif()
 endif()

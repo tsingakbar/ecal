@@ -23,11 +23,6 @@ find_package(Qt5 COMPONENTS
     Widgets
 REQUIRED)
 
-if(WIN32)
-    find_package(Qt5 COMPONENTS
-        WinExtras
-    REQUIRED)
-endif(WIN32)
 
 find_package(simpleini REQUIRED)
 find_package(tclap REQUIRED)
@@ -112,12 +107,6 @@ set(qt_resource_files
     ../../iconset/ecalicons.qrc
     resources/resources.qrc
 )
-if(WIN32)
-    set(win32_resource_files
-        resources/resource.h
-        resources/win32_resources.rc
-    )
-ENDIF(WIN32)
 
 set(ui_files
     src/help_window.ui
@@ -168,29 +157,11 @@ target_link_libraries (${PROJECT_NAME}
     QEcalParser
     ThreadingUtils
 )
-if (WIN32)
-    target_link_libraries (${PROJECT_NAME}
-        Qt5::WinExtras
-    )
-endif(WIN32)
 
-if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif(WIN32)
-if(MSVC)
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")
-ENDIF(MSVC)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 
-if(WIN32)
-    # Deploy Qt DLLs in the binary folder. This is necessary for starting the application from whithin the IDE without having to copy QtCore.dll, QtWidgets.dll etc. by hand each time
-    qt_add_windeployqt_postbuild(--no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw --pdb "$<TARGET_FILE:${PROJECT_NAME}>")
-endif(WIN32)
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"
@@ -218,45 +189,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER app/rec)
 
 ecal_install_app(${PROJECT_NAME} START_MENU_NAME "eCAL Recorder")
 
-get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
-get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
-
-# Running this with MSVC 2015 requires CMake 3.6+
-if((MSVC_VERSION VERSION_EQUAL 1900 OR MSVC_VERSION VERSION_GREATER 1900)
-        AND CMAKE_VERSION VERSION_LESS "3.6")
-    message(WARNING "Deploying with MSVC 2015+ requires CMake 3.6+")
-endif()
-
-if(WIN32)
-install(CODE
-    "
-    set(_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/ecal_rec_gui.exe)
-    execute_process(
-            COMMAND \"${CMAKE_COMMAND}\" -E
-                env PATH=\"${_qt_bin_dir}\" \"${WINDEPLOYQT_EXECUTABLE}\"
-                    --dry-run
-                    --no-compiler-runtime
-                    --no-angle
-                    --no-opengl-sw
-                    --list mapping
-                    \${_file}
-            OUTPUT_VARIABLE _output
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-    separate_arguments(_files WINDOWS_COMMAND \${_output})
-    while(_files)
-            list(GET _files 0 _src)
-            list(GET _files 1 _dest)
-            execute_process(
-                COMMAND \"${CMAKE_COMMAND}\" -E
-                    copy \${_src} \"\${CMAKE_INSTALL_PREFIX}/bin/\${_dest}\"
-            )
-            list(REMOVE_AT _files 0 1)
-    endwhile()
-    "
-)
-endif()
 
 # install files required for linux mimetypes and icon
 if (UNIX)

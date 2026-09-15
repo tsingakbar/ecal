@@ -121,12 +121,6 @@ set(qt_resource_files
     ../../iconset/ecalicons.qrc
     resources/resources.qrc
 )
-if(WIN32)
-    set(win32_resource_files
-        resources/resource.h
-        resources/win32_resources.rc
-    )
-endif(WIN32)
 
 set(ui_files
     src/help_window.ui
@@ -179,25 +173,11 @@ target_link_libraries (${PROJECT_NAME}
     eCAL::ecal-utils
 )
 
-if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-      LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
-      LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE"
-      LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
-      LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
-if(MSVC)
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")
-endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:eCAL::core,INCLUDE_DIRECTORIES>)
 
 
-if(WIN32)
-    # Deploy Qt DLLs in the binary folder. This is necessary for starting the application from whithin the IDE without having to copy QtCore.dll, QtWidgets.dll etc. by hand each time
-    qt_add_windeployqt_postbuild(--no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw --pdb "$<TARGET_FILE:${PROJECT_NAME}>")
-endif()
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"

@@ -49,8 +49,5 @@ source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"
         ${source_files}
 )
 
-if(MSVC)
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")
-endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER app/mon/plugins)

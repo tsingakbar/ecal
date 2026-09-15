@@ -66,12 +66,6 @@ set(source_files
   src/commands/upload.h
 )
 
-if(WIN32)
-    set(win_src
-        resources/resource.h
-        resources/win32_resources.rc
-    )
-endif(WIN32)
 
 ecal_add_app_console(${PROJECT_NAME} ${source_files} ${win32_source_files})
 

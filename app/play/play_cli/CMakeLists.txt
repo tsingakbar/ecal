@@ -30,12 +30,6 @@ set(source_files
   src/ecal_play_service.h
 )
 
-if(WIN32)
-  set(win32_resource_files
-      resources/resource.h
-      resources/win32_resources.rc
-  )
-endif()
 
 if(UNIX)
   set_source_files_properties(src/convert_utf.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)

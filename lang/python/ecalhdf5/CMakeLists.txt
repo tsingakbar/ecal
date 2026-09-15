@@ -16,16 +16,6 @@
 #
 # ========================= eCAL LICENSE =================================
 
-if (WIN32)
-    if (TARGET hdf5::hdf5-shared)
-        add_custom_target(copy_hdf5_dll ALL
-            COMMAND cmake -E copy_if_different "$<TARGET_FILE:hdf5::hdf5-shared>" "${PYTHON_BINARY_MODULE_DIR}"
-            COMMENT "Copy hdf5 DLL to python directory"
-            DEPENDS hdf5::hdf5-shared
-        )
-        set_property(TARGET copy_hdf5_dll PROPERTY FOLDER lang/python/hdf5)
-    endif()
-endif()
 
 # ==========================================
 
@@ -45,19 +35,11 @@ target_link_libraries(${PROJECT_NAME}
         eCAL::hdf5
 )
 
-if (WIN32)
-    if (TARGET hdf5::hdf5-shared)
-        add_dependencies(${PROJECT_NAME} copy_hdf5_dll)
-    endif()
-endif()
 
-if(MSVC)
-  set_property(TARGET ${PROJECT_NAME} PROPERTY LINK_FLAGS "/ignore:4098,4099")
-endif(MSVC)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER lang/python/hdf5)
 
-if(BUILD_STANDALONE_PY_WHEEL AND NOT WIN32)
+if(BUILD_STANDALONE_PY_WHEEL)
   find_package(patchelf REQUIRED)
   add_custom_command(TARGET ${PROJECT_NAME} 
                      POST_BUILD
@@ -67,10 +49,4 @@ if(BUILD_STANDALONE_PY_WHEEL AND NOT WIN32)
 endif()
 
 if(ECAL_INCLUDE_PY_SAMPLES)
-  if(WIN32)
-
-    include_external_msproject(ecal_hdf5_py ${CMAKE_CURRENT_SOURCE_DIR}/ecal_hdf5_py.pyproj)
-    set_property(TARGET ecal_hdf5_py PROPERTY FOLDER lang/python/hdf5)
-
-  endif()
 endif()

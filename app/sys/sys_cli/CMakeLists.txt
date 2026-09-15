@@ -54,11 +54,6 @@ set(source_files
   src/commands/update_from_cloud.h
 )
 
-if(WIN32)
-  set(win32_source_files
-    src/ecalsys.rc
-  )
-endif()
 
 ecal_add_app_console(${PROJECT_NAME} ${source_files} ${win32_source_files})
 

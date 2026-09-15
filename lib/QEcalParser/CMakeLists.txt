@@ -82,10 +82,6 @@ target_link_libraries(${PROJECT_NAME}
     EcalParser
 )
 
-if(MSVC)
-    # Disable Compiler warning "Conditional expression is constant"
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")
-endif()
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"

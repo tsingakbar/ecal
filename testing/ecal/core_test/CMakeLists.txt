@@ -32,10 +32,3 @@ target_link_libraries(${PROJECT_NAME}_cpp
 ecal_install_gtest(${PROJECT_NAME}_cpp)
 set_property(TARGET ${PROJECT_NAME}_cpp PROPERTY FOLDER testing/ecal/core)
 
-if(WIN32)
-  ecal_add_gtest(${PROJECT_NAME}_c   ${core_test_src})
-  target_include_directories(${PROJECT_NAME}_c   PRIVATE $<TARGET_PROPERTY:eCAL::core,INCLUDE_DIRECTORIES>)
-  target_link_libraries(${PROJECT_NAME}_c PRIVATE eCAL::core_c Threads::Threads)
-  ecal_install_gtest(${PROJECT_NAME}_c)
-  set_property(TARGET ${PROJECT_NAME}_c   PROPERTY FOLDER testing/ecal/core)
-endif()

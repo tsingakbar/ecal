@@ -117,15 +117,3 @@ source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${source_files})
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER app/rec)
 
 
-#if (WIN32)
-#    add_custom_target(libcurl_copy_dlls ALL
-#        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:CURL::libcurl>              ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
-#        COMMAND ${CMAKE_COMMAND} -E copy $ENV{CTZS_LIBS}/bin/libcrypto-1_1.dll     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
-#        COMMAND ${CMAKE_COMMAND} -E copy $ENV{CTZS_LIBS}/bin/libcrypto-1_1-x64.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
-#        COMMAND ${CMAKE_COMMAND} -E copy $ENV{CTZS_LIBS}/bin/libssl-1_1.dll        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
-#        COMMAND ${CMAKE_COMMAND} -E copy $ENV{CTZS_LIBS}/bin/libssl-1_1-x64.dll    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
-#    )
-#    set_property(TARGET libcurl_copy_dlls PROPERTY FOLDER app/rec)
-#
-#    add_dependencies(${PROJECT_NAME} libcurl_copy_dlls)
-#endif()

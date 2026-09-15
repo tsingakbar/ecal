@@ -69,9 +69,6 @@ create_targets_protobuf()
 
 target_link_libraries (${PROJECT_NAME} Qt5::Widgets Qt5::Core eCAL::core eCAL::app_pb protobuf::libprotobuf eCAL::mon_plugin_lib qwt::qwt CustomQt)
 
-if(MSVC)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714" )
-endif(MSVC)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

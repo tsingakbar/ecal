@@ -25,11 +25,6 @@ set(ecalmon_src
   src/ecal_mon.cpp
 )
 
-if(WIN32)
-  set(ecalmon_win_src
-    src/ecal_mon.rc
-  )
-endif()
 
 ecal_add_app_console(${PROJECT_NAME} ${ecalmon_src} ${ecalmon_win_src})
 

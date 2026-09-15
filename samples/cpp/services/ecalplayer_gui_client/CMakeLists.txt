@@ -56,13 +56,6 @@ ecal_add_sample (${PROJECT_NAME}
     ${ui_files}
 )
 
-if(WIN32)
-  set_target_properties(${PROJECT_NAME} PROPERTIES
-    LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
-    LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE"
-    LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
-    LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
@@ -74,14 +67,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 create_targets_protobuf()
 
-if(WIN32)
-  # Deploy Qt DLLs in the binary folder. This is necessary for starting the application from whithin the IDE without having to copy QtCore.dll, QtWidgets.dll etc. by hand each time
-  qt_add_windeployqt_postbuild(--no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw --pdb "$<TARGET_FILE:${PROJECT_NAME}>")
-endif()
 
-if(MSVC)
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")
-endif()
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"
