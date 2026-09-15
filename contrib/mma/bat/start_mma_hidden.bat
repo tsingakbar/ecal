@@ -1,1 +1,0 @@
-"%PLT_HOME%\ecal_plt.exe" --command "ecal_mma.exe" --path "%MMA_HOME%" --delay 20 --hidden --visibility hide
