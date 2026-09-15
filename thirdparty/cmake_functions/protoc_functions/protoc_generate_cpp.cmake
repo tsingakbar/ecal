@@ -81,10 +81,6 @@ cmake_parse_arguments(INPUT ""
   "${oneValueArgs}"
   "${multiValueArgs}" ${ARGN} )
 
-  if (MSVC)
-    set_source_files_properties(${INPUT_CPP_FILES} PROPERTIES COMPILE_FLAGS "/wd4100 /wd4146 /wd4512 /wd4127 /wd4125 /wd4244 /wd4267 /wd4300 /wd4309 /wd4456 /wd4800")
-  endif(MSVC)
-
   if(UNIX)
     set_source_files_properties(${INPUT_CPP_FILES} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter -Wno-array-bounds")
   endif(UNIX)

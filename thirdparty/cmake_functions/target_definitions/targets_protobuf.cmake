@@ -26,13 +26,9 @@ function(create_targets_protobuf)
 
     add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
     #message(STATUS "Include directories: ${Protobuf_INCLUDE_DIRS}")
-    set_target_properties(protobuf::libprotobuf PROPERTIES 
+    set_target_properties(protobuf::libprotobuf PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIRS}")
-    if (MSVC)
-    set_target_properties(protobuf::libprotobuf PROPERTIES  
-                INTERFACE_COMPILE_DEFINITIONS "${Protobuf_DEFINITIONS}")
-    endif (MSVC)
-    #message(STATUS "Debug lib: ${Protobuf_LIBRARY_DEBUG}")  
+    #message(STATUS "Debug lib: ${Protobuf_LIBRARY_DEBUG}")
     #message(STATUS "Release lib: ${Protobuf_LIBRARY}")     
     set_target_properties(protobuf::libprotobuf PROPERTIES
       IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
