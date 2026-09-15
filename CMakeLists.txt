@@ -59,13 +59,10 @@ option(BUILD_DOCS                              "Build the eCAL documentation"   
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
 option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
 option(BUILD_TIME                              "Build the eCAL time interfaces"                                    ON)
-option(BUILD_PY_BINDING                        "Build eCAL python binding"                                         ON)
-option(BUILD_STANDALONE_PY_WHEEL               "Build eCAL python binding as standalone wheel"                    OFF)
 option(BUILD_ECAL_TESTS                        "Build the eCAL google tests"                                      OFF)
 
 option(ECAL_LAYER_ICEORYX                      "Use iceoryx shared memory as local communication layer"           OFF)
 
-option(ECAL_INCLUDE_PY_SAMPLES                 "Include python language sample projects into CMake"               OFF)
 option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
 option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug Workaround"                        OFF)
@@ -80,8 +77,6 @@ option(ECAL_THIRDPARTY_BUILD_RECYCLE           "Build steinwurf::recylce with eC
 option(ECAL_THIRDPARTY_BUILD_GTEST             "Build gtest with eCAL"                                            OFF)
 
   option(ECAL_THIRDPARTY_BUILD_PROTOBUF        "Build protobuf with eCAL"                                          OFF)
-
-set(ECAL_INSTALL_PYTHON_DIR "bin" CACHE PATH "Location to install the Python extension modules. Might be set by setupdtools install.")
 
 set(ECAL_BUILD_VERSION "0.0.0" CACHE STRING "Inject a build version if not building from a git repository")
 
@@ -166,7 +161,6 @@ set(eCAL_VERSION        ${eCAL_VERSION_STRING})
 include(helper_functions/ecal_add_functions)
 include(helper_functions/ecal_helper_functions)
 include(helper_functions/ecal_install_functions)
-include(helper_functions/ecal_python_functions)
 
 
 
@@ -240,13 +234,6 @@ add_subdirectory(lib/EcalParser)
 # --------------------------------------------------------
 if(BUILD_TIME)
   add_subdirectory(contrib/ecaltime)
-endif()
-
-# --------------------------------------------------------
-# ecal core python binding
-# --------------------------------------------------------
-if(BUILD_PY_BINDING)
-  add_subdirectory(lang/python)
 endif()
 
 # --------------------------------------------------------
@@ -365,11 +352,8 @@ message(STATUS "BUILD_DOCS                                     : ${BUILD_DOCS}")
 message(STATUS "BUILD_APPS                                     : ${BUILD_APPS}")
 message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES}")
 message(STATUS "BUILD_TIME                                     : ${BUILD_TIME}")
-message(STATUS "BUILD_PY_BINDING                               : ${BUILD_PY_BINDING}")
-message(STATUS "BUILD_STANDALONE_PY_WHEEL                      : ${BUILD_STANDALONE_PY_WHEEL}")
 message(STATUS "BUILD_ECAL_TESTS                               : ${BUILD_ECAL_TESTS}")
 message(STATUS "ECAL_LAYER_ICEORYX                             : ${ECAL_LAYER_ICEORYX}")
-message(STATUS "ECAL_INCLUDE_PY_SAMPLES                        : ${ECAL_INCLUDE_PY_SAMPLES}")
 message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")

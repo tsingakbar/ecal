@@ -79,9 +79,3 @@ add_subdirectory(cpp/services/minimal_server)
 add_subdirectory(cpp/services/ping_client)
 add_subdirectory(cpp/services/ping_client_dyn)
 add_subdirectory(cpp/services/ping_server)
-
-# --------------------------------------------------------
-# python samples
-# --------------------------------------------------------
-if(BUILD_PY_BINDING)
-endif(BUILD_PY_BINDING)
