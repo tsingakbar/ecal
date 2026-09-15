@@ -115,7 +115,6 @@ set(ecal_service_cpp_src
 set(ecal_cmn_cpp_src
     src/convert_utf.cpp
     src/ecal.cpp
-    src/ecal_clang.cpp
     src/ecal_config.cpp
     src/ecal_config_reader.cpp
     src/ecal_publisher_config.cpp
@@ -133,7 +132,6 @@ set(ecal_cmn_cpp_src
     src/ecal_timegate.cpp
     src/ecal_timer.cpp
     src/ecal_util.cpp
-    src/ecalc.cpp
     src/sys_usage.cpp
     src/uniq_id_generator.cpp
 )
@@ -244,14 +242,9 @@ set(ecal_cmn_header_src
     src/topic2mcast.h
 )
 
-set(ecal_c_src
-    src/ecalc.cpp
-)
-
 set(ecal_header_cmn
     include/ecal/ecal.h
     include/ecal/ecal_callback.h
-    include/ecal/ecal_clang.h
     include/ecal/ecal_config.h
     include/ecal/ecal_client.h
     include/ecal/ecal_config.h
@@ -277,7 +270,6 @@ set(ecal_header_cmn
     include/ecal/ecal_timer.h
     include/ecal/ecal_tlayer.h
     include/ecal/ecal_util.h
-    include/ecal/ecalc.h
     include/ecal/ecalc_types.h
 )
 
@@ -366,19 +358,7 @@ if(UNIX)
   set_source_files_properties(src/convert_utf.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 endif()
 
-ecal_add_ecal_shared_library(${PROJECT_NAME}_c ${ecal_c_src})
-
 add_library(eCAL::${PROJECT_NAME}   ALIAS ${PROJECT_NAME})
-add_library(eCAL::${PROJECT_NAME}_c ALIAS ${PROJECT_NAME}_c)
-
-target_link_libraries(${PROJECT_NAME}_c ${PROJECT_NAME})
-
-target_compile_definitions(${PROJECT_NAME}_c
-  INTERFACE ECAL_C_DLL
-  PUBLIC
-    ASIO_STANDALONE
-    ASIO_DISABLE_VISIBILITY
-  PRIVATE eCAL_EXPORTS)
 
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC
@@ -418,9 +398,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 set_property(TARGET ${PROJECT_NAME}   PROPERTY FOLDER ecal/core)
-set_property(TARGET ${PROJECT_NAME}_c PROPERTY FOLDER ecal/core)
 
-ecal_install_ecal_shared_library(${PROJECT_NAME}_c)
 ecal_install_ecal_shared_library(${PROJECT_NAME})
 
 install(DIRECTORY
@@ -446,7 +424,6 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.8.0")
     ${ecal_readwrite_shm_cpp_src}
     ${ecal_service_cpp_src}
     ${ecal_cmn_cpp_src}
-    ${ecal_c_src}
   )
   
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Header Files\\internal" FILES 

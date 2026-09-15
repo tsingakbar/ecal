@@ -21,15 +21,6 @@ project(eCAL_samples VERSION "${ECAL_VERSION_STRING}")
 set (CMAKE_CXX_STANDARD 14)
 
 # --------------------------------------------------------
-# c samples
-# --------------------------------------------------------
-add_subdirectory(c/minimal/minimal_rec)
-add_subdirectory(c/minimal/minimal_rec_cb)
-add_subdirectory(c/minimal/minimal_snd)
-add_subdirectory(c/services/minimal_client_c)
-add_subdirectory(c/services/minimal_server_c)
-
-# --------------------------------------------------------
 # cpp samples
 # --------------------------------------------------------
 add_subdirectory(cpp/benchmarks/many_connections)
