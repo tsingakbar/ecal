@@ -1,1 +1,0 @@
-// This is a very sad workaround to make this header only libary to generate an output and be visible in Visual Studio

@@ -250,7 +250,6 @@ add_subdirectory(ecal/core)
 # --------------------------------------------------------
 # custom libs
 # --------------------------------------------------------
-add_subdirectory(lib/ThreadingUtils)
 add_subdirectory(lib/CustomTclap)
 add_subdirectory(lib/ecal_utils)
 
@@ -273,7 +272,6 @@ endif()
 # --------------------------------------------------------
 # console applications
 # --------------------------------------------------------
-add_subdirectory(app/apps)
 if(BUILD_APPS)
   add_subdirectory(app/mon/mon_cli)
   add_subdirectory(app/util/config)
