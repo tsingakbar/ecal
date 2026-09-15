@@ -20,10 +20,6 @@ cmake_minimum_required(VERSION 3.10)
 project(eCAL_samples VERSION "${ECAL_VERSION_STRING}")
 set (CMAKE_CXX_STANDARD 14)
 
-if(HAS_HDF5)
-set(SAMPLE_PERSON_MEASUREMENT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/data/person)
-endif(HAS_HDF5)
-
 # --------------------------------------------------------
 # c samples
 # --------------------------------------------------------
@@ -37,18 +33,8 @@ add_subdirectory(c/services/minimal_server_c)
 # cpp samples
 # --------------------------------------------------------
 add_subdirectory(cpp/benchmarks/many_connections)
-if(HAS_CAPNPROTO)
-add_subdirectory(cpp/capnp/addressbook_snd)
-add_subdirectory(cpp/capnp/addressbook_rec)
-add_subdirectory(cpp/capnp/addressbook_rec_cb)
-add_subdirectory(cpp/capnp/addressbook_rec_dynamic)
-endif(HAS_CAPNPROTO)
 add_subdirectory(cpp/counter/counter_rec_cb)
 add_subdirectory(cpp/counter/counter_snd)
-if(HAS_HDF5)
-add_subdirectory(cpp/measurement/measurement_read)
-add_subdirectory(cpp/measurement/measurement_write)
-endif(HAS_HDF5)
 add_subdirectory(cpp/datarate/datarate_rec)
 add_subdirectory(cpp/datarate/datarate_snd)
 add_subdirectory(cpp/event/event_rec)
@@ -83,10 +69,6 @@ add_subdirectory(cpp/person/person_snd_multicast)
 add_subdirectory(cpp/person/person_snd_tcp)
 add_subdirectory(cpp/pingpong/ping)
 add_subdirectory(cpp/pingpong/pong)
-add_subdirectory(cpp/services/ecalplayer_client)
-if(HAS_QT5)
-  add_subdirectory(cpp/services/ecalplayer_gui_client)
-endif(HAS_QT5)
 add_subdirectory(cpp/services/ecalsys_client)
 add_subdirectory(cpp/services/latency_client)
 add_subdirectory(cpp/services/latency_server)
@@ -97,11 +79,6 @@ add_subdirectory(cpp/services/minimal_server)
 add_subdirectory(cpp/services/ping_client)
 add_subdirectory(cpp/services/ping_client_dyn)
 add_subdirectory(cpp/services/ping_server)
-add_subdirectory(cpp/services/rec_client_service_cli)
-if(HAS_QT5)
-  add_subdirectory(cpp/services/rec_client_service_gui)
-  add_subdirectory(cpp/services/rec_server_service_gui)
-endif(HAS_QT5)
 
 # --------------------------------------------------------
 # python samples

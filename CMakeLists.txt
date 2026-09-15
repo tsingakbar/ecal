@@ -55,11 +55,6 @@ endif()
 # command line build options
 # use it that way cmake .. -DBUILD_APPS=ON -DBUILD_SAMPLES=ON
 # --------------------------------------------------------
-option(HAS_HDF5                                "Platform supports HDF5 library"                                   OFF)
-option(HAS_QT5                                 "Platform supports Qt 5 library"                                   OFF)
-option(HAS_CURL                                "Build with CURL (i.e. upload support in the recorder app)"         ON)
-option(HAS_CAPNPROTO                           "Platform supports Cap'n Proto library"                            OFF)
-
 option(BUILD_DOCS                              "Build the eCAL documentation"                                     OFF)
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
 option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
@@ -79,21 +74,12 @@ option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug W
 option(ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS   "Build CMakeFunctions with eCAL"                                    ON)
 option(ECAL_THIRDPARTY_BUILD_SPDLOG            "Build spdlog with eCAL"                                            ON)
 option(ECAL_THIRDPARTY_BUILD_TINYXML2          "Build tinyxml2 with eCAL"                                          ON)
-option(ECAL_THIRDPARTY_BUILD_FINEFTP           "Build fineFTP with eCAL"                                           ON)
 option(ECAL_THIRDPARTY_BUILD_TERMCOLOR         "Build termcolor with eCAL"                                         ON)
 option(ECAL_THIRDPARTY_BUILD_TCP_PUBSUB        "Build tcp_pubsub library with eCAL"                                ON)
 option(ECAL_THIRDPARTY_BUILD_RECYCLE           "Build steinwurf::recylce with eCAL"                                ON)
-# option(ECAL_THIRDPARTY_BUILD_ZLIB              "Build zlib with eCAL"                                              ON)
-# option(ECAL_THIRDPARTY_BUILD_LIBSSH2           "Build libssh2 with eCAL"                                           ON)
 option(ECAL_THIRDPARTY_BUILD_GTEST             "Build gtest with eCAL"                                            OFF)
 
   option(ECAL_THIRDPARTY_BUILD_PROTOBUF        "Build protobuf with eCAL"                                          OFF)
-  option(ECAL_THIRDPARTY_BUILD_CURL            "Build CURL with eCAL"                                              OFF)
-  option(ECAL_THIRDPARTY_BUILD_HDF5            "Build HDF5 with eCAL"                                              OFF)
-  cmake_dependent_option(ECAL_THIRDPARTY_BUILD_QWT "Build qwt::qwt with eCAL"                                      OFF "HAS_QT5" OFF)
-
-# This should be ON, unless build ecal hdf5 for Matlab usage
-option(ECAL_LINK_HDF5_SHARED                   "Link shared libs of HDF5"                                         OFF)
 
 set(ECAL_INSTALL_PYTHON_DIR "bin" CACHE PATH "Location to install the Python extension modules. Might be set by setupdtools install.")
 
@@ -133,17 +119,11 @@ set(possible_subprojects
   Protobuf
   spdlog
   tinyxml2
-  fineftp
   termcolor
   recycle
   tcp_pubsub
-  #libssh2
-  #zlib zlibstatic
-  CURL
   GTest
-  HDF5
   CMakeFunctions
-  qwt
 )
 
 # We should rename the option, but don't know how to do in in a
@@ -381,10 +361,6 @@ include(cpack/cpack_variables.cmake)
 message(STATUS "Build Options:")
 message(STATUS "--------------------------------------------------------------------------------")
 message(STATUS "CMAKE_EXPORT_COMPILE_COMMANDS                  : ${CMAKE_EXPORT_COMPILE_COMMANDS}")
-message(STATUS "HAS_HDF5                                       : ${HAS_HDF5}")
-message(STATUS "HAS_QT5                                        : ${HAS_QT5}")
-message(STATUS "HAS_CURL                                       : ${HAS_CURL}")
-message(STATUS "HAS_CAPNPROTO                                  : ${HAS_CAPNPROTO}")
 message(STATUS "BUILD_DOCS                                     : ${BUILD_DOCS}")
 message(STATUS "BUILD_APPS                                     : ${BUILD_APPS}")
 message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES}")
@@ -399,14 +375,10 @@ message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MUL
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_SPDLOG                   : ${ECAL_THIRDPARTY_BUILD_SPDLOG}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TINYXML2                 : ${ECAL_THIRDPARTY_BUILD_TINYXML2}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_FINEFTP                  : ${ECAL_THIRDPARTY_BUILD_FINEFTP}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TERMCOLOR                : ${ECAL_THIRDPARTY_BUILD_TERMCOLOR}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TCP_PUBSUB               : ${ECAL_THIRDPARTY_BUILD_TCP_PUBSUB}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_RECYCLE                  : ${ECAL_THIRDPARTY_BUILD_RECYCLE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_GTEST                    : ${ECAL_THIRDPARTY_BUILD_GTEST}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_PROTOBUF                 : ${ECAL_THIRDPARTY_BUILD_PROTOBUF}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_CURL                     : ${ECAL_THIRDPARTY_BUILD_CURL}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_HDF5                     : ${ECAL_THIRDPARTY_BUILD_HDF5}")
-message(STATUS "ECAL_LINK_HDF5_SHARED                          : ${ECAL_LINK_HDF5_SHARED}")
 
 message(STATUS "--------------------------------------------------------------------------------")

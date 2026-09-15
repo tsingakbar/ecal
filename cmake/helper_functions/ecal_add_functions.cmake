@@ -61,50 +61,6 @@ function(ecal_add_app_gui TARGET_NAME)
     OUTPUT_NAME ecal_${TARGET_NAME})
 endfunction()
 
-function(ecal_add_app_qt TARGET_NAME)
-  add_executable(${TARGET_NAME} ${ARGN})
-  set_target_properties(${TARGET_NAME} PROPERTIES
-    VERSION ${eCAL_VERSION_STRING}
-    SOVERSION ${eCAL_VERSION_MAJOR}
-    OUTPUT_NAME ecal_${TARGET_NAME})
-endfunction()
-
-function(ecal_add_mon_plugin TARGET_NAME)
-  set(options        "")
-  set(oneValueArgs   METADATA)
-  set(multiValueArgs SOURCES)
-  cmake_parse_arguments(MON_PLUGIN 
-   "${options}"
-   "${oneValueArgs}"
-   "${multiValueArgs}"
-   ${ARGN}
-  )
-  add_library(${TARGET_NAME} MODULE ${MON_PLUGIN_SOURCES} ${MON_PLUGIN_METADATA})
-  set_target_properties(${TARGET_NAME} PROPERTIES
-    VERSION $<NOT:$<CXX_COMPILER_ID:Clang,AppleClang>:${${TARGET_NAME}_VERSION}>>
-    SOVERSION $<NOT:$<CXX_COMPILER_ID:Clang,AppleClang>:${${TARGET_NAME}_VERSION_MAJOR}>>
-    LIBRARY_OUTPUT_DIRECTORY $<IF:$<BOOL:${WIN32}>,${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/ecalmon_plugins,${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/ecal/plugins/mon>
-  )
-  target_compile_definitions(${TARGET_NAME}
-    PRIVATE
-      $<$<CONFIG:Release>:QT_NO_DEBUG>
-      $<$<CONFIG:RelWithDebInfo>:QT_NO_DEBUG>
-      $<$<CONFIG:MinSizeRel>:QT_NO_DEBUG>
-  )
-    
-endfunction()
-
-function(ecal_add_rec_addon TARGET_NAME)
-  add_executable(${TARGET_NAME} ${ARGN})
-  set_target_properties(${TARGET_NAME} PROPERTIES
-    #VERSION ${${TARGET_NAME}_VERSION}
-    #SOVERSION ${${TARGET_NAME}_VERSION_MAJOR}
-    OUTPUT_NAME ecal_${TARGET_NAME}
-    RUNTIME_OUTPUT_DIRECTORY $<IF:$<BOOL:${WIN32}>,${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/ecalrec_addons,${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/ecal/addons/rec>
-  )
-    
-endfunction()
-
 function(ecal_add_time_plugin TARGET_NAME)
   add_library(${TARGET_NAME} MODULE ${ARGN})
   set_target_properties(${TARGET_NAME} PROPERTIES
