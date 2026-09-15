@@ -24,27 +24,8 @@
 
 #pragma once
 
-#if defined(_WIN32)
-#define ECAL_OS_WINDOWS
-#endif
-
 #if defined(__linux__)
 #define ECAL_OS_LINUX
-#endif
-
-#if defined(__APPLE__)
-#define ECAL_OS_LINUX // macOS does not differ that much from linux
-#define ECAL_OS_MACOS
-#endif
-
-#if defined(__QNXNTO__)
-#define ECAL_OS_LINUX
-#define ECAL_OS_QNX
-#endif
-
-#if defined(__FreeBSD__)
-#define ECAL_OS_LINUX
-#define ECAL_OS_FREEBSD
 #endif
 
 #ifdef _MSC_VER

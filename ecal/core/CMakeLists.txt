@@ -37,12 +37,6 @@ if     (IS_GIT_TREE OR NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include/ecal/ecal
 endif  (IS_GIT_TREE OR NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include/ecal/ecal_defs.h")
 
 
-if(ECAL_NPCAP_SUPPORT)
-set(ecal_io_cpp_src_npcap 
-   src/io/udp_receiver_npcap.cpp
-)
-endif()
-
 set(ecal_custom_tclap_cpp_src
     src/custom_tclap/advanced_tclap_output.cpp
 )
@@ -55,7 +49,6 @@ set(ecal_io_cpp_src
     src/io/udp_receiver.cpp
     src/io/udp_receiver_asio.cpp
     src/io/udp_sender.cpp
-    ${ecal_io_cpp_src_npcap}
 )
 
 if(NOT ECAL_LAYER_ICEORYX)
@@ -68,12 +61,6 @@ if(NOT ECAL_LAYER_ICEORYX)
   if(UNIX)
     set(ecal_io_mem_cpp_linux_src
         src/io/linux/ecal_memfile_os.cpp
-    )
-  endif()
-
-  if(WIN32)
-    set(ecal_io_mem_cpp_win_src
-       src/io/win32/ecal_memfile_os.cpp
     )
   endif()
 endif(NOT ECAL_LAYER_ICEORYX)
@@ -151,12 +138,6 @@ set(ecal_cmn_cpp_src
     src/uniq_id_generator.cpp
 )
 
-if(ECAL_NPCAP_SUPPORT)
-set(ecal_io_header_src_npcap 
-   src/io/udp_receiver_npcap.h
-)
-endif()
-
 set(ecal_custom_tclap_header_src
     src/custom_tclap/advanced_tclap_output.h
 )
@@ -174,7 +155,6 @@ set(ecal_io_header_src
     src/io/udp_receiver_base.h
     src/io/udp_receiver_asio.h
     src/io/udp_sender.h
-    ${ecal_io_header_src_npcap}
 )
 
 if(NOT ECAL_LAYER_ICEORYX)
@@ -187,12 +167,6 @@ if(NOT ECAL_LAYER_ICEORYX)
       src/io/ecal_memfile_pool.h
       src/io/ecal_memfile_sync.h
   )
-
-  if(WIN32)
-    set(ecal_io_mem_header_win_src
-        src/io/win32/ecal_memfile_mtx.h
-    )
-  endif()
 
   if(UNIX)
     set(ecal_io_mem_header_linux_src
@@ -265,8 +239,6 @@ set(ecal_cmn_header_src
     src/ecal_registration_receiver.h
     src/ecal_thread.h
     src/ecal_timegate.h
-    $<$<BOOL:${WIN32}>:src/ecal_win_main.h>
-    $<$<BOOL:${WIN32}>:src/ecal_win_socket.h>
     src/getenvvar.h
     src/sys_usage.h
     src/topic2mcast.h
@@ -275,13 +247,6 @@ set(ecal_cmn_header_src
 set(ecal_c_src
     src/ecalc.cpp
 )
-
-if(WIN32)
-  set(ecal_c_win_src
-      src/win32/dll/dllmain.cpp
-      src/win32/dll/ecal.rc
-  )
-endif()
 
 set(ecal_header_cmn
     include/ecal/ecal.h
@@ -370,9 +335,8 @@ set(ecal_header_base
 ecal_add_ecal_shared_library(${PROJECT_NAME} 
     ${ecal_custom_tclap_cpp_src}
     ${ecal_io_cpp_src} 
-    ${ecal_io_mem_cpp_src} 
-    ${ecal_io_mem_cpp_win_src} 
-    ${ecal_io_mem_cpp_linux_src} 
+    ${ecal_io_mem_cpp_src}
+    ${ecal_io_mem_cpp_linux_src}
     ${ecal_mon_cpp_src} 
     ${ecal_pubsub_cpp_src} 
     ${ecal_readwrite_cpp_src} 
@@ -383,9 +347,8 @@ ecal_add_ecal_shared_library(${PROJECT_NAME}
     ${ecal_custom_tclap_header_src}
     ${ecal_cmn_header_src}
     ${ecal_io_header_src}
-    ${ecal_io_mem_header_src} 
-    ${ecal_io_mem_header_win_src} 
-    ${ecal_io_mem_header_linux_src} 
+    ${ecal_io_mem_header_src}
+    ${ecal_io_mem_header_linux_src}
     ${ecal_mon_header_src}
     ${ecal_pubsub_header_src}
     ${ecal_readwrite_header_src}
@@ -403,7 +366,7 @@ if(UNIX)
   set_source_files_properties(src/convert_utf.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 endif()
 
-ecal_add_ecal_shared_library(${PROJECT_NAME}_c ${ecal_c_src} ${ecal_c_win_src})
+ecal_add_ecal_shared_library(${PROJECT_NAME}_c ${ecal_c_src})
 
 add_library(eCAL::${PROJECT_NAME}   ALIAS ${PROJECT_NAME})
 add_library(eCAL::${PROJECT_NAME}_c ALIAS ${PROJECT_NAME}_c)
@@ -429,15 +392,6 @@ if(ECAL_LAYER_ICEORYX)
   target_compile_definitions(${PROJECT_NAME} PUBLIC ECAL_LAYER_ICEORYX)
 endif()
 
-if(ECAL_NPCAP_SUPPORT)
-  target_compile_definitions(${PROJECT_NAME}
-    PRIVATE ECAL_NPCAP_SUPPORT)
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-      udpcap
-  )
-endif(ECAL_NPCAP_SUPPORT)
-
 target_include_directories(${PROJECT_NAME}
   PRIVATE 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -454,13 +408,6 @@ target_link_libraries(${PROJECT_NAME}
     $<$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${QNXNTO}>>>:dl>
     $<$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>,$<NOT:$<BOOL:${QNXNTO}>>>:rt>
     $<$<STREQUAL:${CMAKE_SYSTEM_NAME},FreeBSD>:util>
-    $<$<BOOL:${WIN32}>:iphlpapi>
-    $<$<BOOL:${WIN32}>:psapi> 
-    $<$<BOOL:${WIN32}>:shlwapi.lib> 
-    $<$<BOOL:${WIN32}>:winmm> 
-    $<$<BOOL:${WIN32}>:ws2_32> 
-    $<$<BOOL:${WIN32}>:wsock32>
-    $<$<BOOL:${QNXNTO}>:socket>
     asio::asio
     tclap::tclap
     simpleini::simpleini
@@ -491,10 +438,8 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.8.0")
     ${ecal_custom_tclap_cpp_src}
     ${ecal_io_cpp_src}
     ${ecal_io_mem_cpp_src}
-    ${ecal_io_mem_cpp_linux_src} 
-    ${ecal_io_mem_cpp_win_src} 
+    ${ecal_io_mem_cpp_linux_src}
     ${ecal_io_cpp_linux_src}
-    ${ecal_io_cpp_win32_src}
     ${ecal_mon_cpp_src}
     ${ecal_pubsub_cpp_src}
     ${ecal_readwrite_cpp_src}
@@ -502,7 +447,6 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.8.0")
     ${ecal_service_cpp_src}
     ${ecal_cmn_cpp_src}
     ${ecal_c_src}
-    ${ecal_c_win_src}
   )
   
   source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Header Files\\internal" FILES 
@@ -510,9 +454,7 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.8.0")
     ${ecal_cmn_header_src}
     ${ecal_io_header_src}
     ${ecal_io_mem_header_src}
-    ${ecal_io_mem_header_win_src}
     ${ecal_io_header_linux_src}
-    ${ecal_io_header_win_src}
     ${ecal_mon_header_src}
     ${ecal_pubsub_header_src}
     ${ecal_readwrite_header_src}

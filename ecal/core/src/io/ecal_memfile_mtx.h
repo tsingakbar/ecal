@@ -26,10 +26,6 @@
 #include <ecal/ecal_os.h>
 #include <string>
 
-#ifdef ECAL_OS_WINDOWS
-#include "win32/ecal_memfile_mtx.h"
-#endif /* ECAL_OS_WINDOWS */
-
 #ifdef ECAL_OS_LINUX
 #include "linux/ecal_memfile_mtx.h"
 #endif /* ECAL_OS_LINUX */

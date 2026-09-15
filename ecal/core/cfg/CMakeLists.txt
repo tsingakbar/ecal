@@ -27,10 +27,6 @@ endforeach()
 # Select the correct ecal config directory on Linux and Windows
 if(UNIX)
   set(ECAL_SHARED_CONFIG ${eCAL_install_config_dir})
-elseif(WIN32)
-  set(ECAL_SHARED_CONFIG ${eCAL_install_config_dir})
-else()
-  message(STATUS "Unsupported OS, not installing configs")
 endif()
 
 configure_file(
