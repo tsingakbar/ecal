@@ -200,19 +200,9 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 add_subdirectory(contrib/ecalproto)
 
 # --------------------------------------------------------
-# old ecal core protobuf interface (for compatibility)
-# --------------------------------------------------------
-add_subdirectory(ecal/pb)
-
-# --------------------------------------------------------
 # ecal core protobuf interface
 # --------------------------------------------------------
 add_subdirectory(ecal/core_pb)
-
-# --------------------------------------------------------
-# ecal app protobuf interface
-# --------------------------------------------------------
-add_subdirectory(app/app_pb)
 
 # --------------------------------------------------------
 # ecal core
@@ -241,10 +231,6 @@ if(BUILD_APPS)
   add_subdirectory(app/mon/mon_cli)
   add_subdirectory(app/util/config)
   add_subdirectory(app/util/stop)
-  add_subdirectory(app/sys/sys_core)
-  add_subdirectory(app/sys/sys_cli)
-  add_subdirectory(app/sys/sys_client_cli)
-  add_subdirectory(app/sys/sys_client_core)
 endif()
 
 # --------------------------------------------------------
