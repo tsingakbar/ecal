@@ -257,24 +257,10 @@ add_subdirectory(lib/ecal_utils)
 add_subdirectory(lib/EcalParser)
 
 # --------------------------------------------------------
-# ecal rec addon sdk
-# --------------------------------------------------------
-add_subdirectory(app/rec/rec_addon_core)
-add_subdirectory(app/rec/rec_addon_dummy)
-
-# --------------------------------------------------------
 # ecal time
 # --------------------------------------------------------
 if(BUILD_TIME)
   add_subdirectory(contrib/ecaltime)
-endif()
-
-# --------------------------------------------------------
-# ecal hdf5 support
-# --------------------------------------------------------
-if(HAS_HDF5)
-  add_subdirectory(contrib/ecalhdf5)
-  add_subdirectory(contrib/message)
 endif()
 
 # --------------------------------------------------------
@@ -296,22 +282,6 @@ if(BUILD_APPS)
   add_subdirectory(app/sys/sys_cli)
   add_subdirectory(app/sys/sys_client_cli)
   add_subdirectory(app/sys/sys_client_core)
-  if(NOT APPLE)
-    add_subdirectory(contrib/mma)
-  endif()
-endif()
-
-# --------------------------------------------------------
-# applications using hdf5
-# --------------------------------------------------------
-if(BUILD_APPS AND HAS_HDF5)
-  add_subdirectory(app/play/play_core)
-  add_subdirectory(app/play/play_cli)
-
-  add_subdirectory(app/rec/rec_client_core)
-  add_subdirectory(app/rec/rec_server_core)
-  add_subdirectory(app/rec/rec_client_cli)
-  add_subdirectory(app/rec/rec_server_cli)
 endif()
 
 # --------------------------------------------------------
@@ -330,9 +300,6 @@ if(BUILD_ECAL_TESTS)
   # ------------------------------------------------------
   # test contrib
   # ------------------------------------------------------
-  if(HAS_HDF5)
-    add_subdirectory(testing/contrib/ecalhdf5/hdf5_test)
-  endif()
   add_subdirectory(testing/contrib/ecalproto/dynproto_test)
   add_subdirectory(testing/contrib/ecalproto/ecal_proto_test)
 

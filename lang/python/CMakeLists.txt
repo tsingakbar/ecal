@@ -47,9 +47,6 @@ if(Python_Interpreter_FOUND)
   message(STATUS "Installing Python extensions")
   #install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} setup.py install --user WORKING_DIRECTORY ${PYTHON_BINARY_DIR})")
   set(CREATE_PYTHON_WHEEL_TARGET_DEPENDS _ecal_core_py)
-  if(HAS_HDF5)
-      list(APPEND CREATE_PYTHON_WHEEL_TARGET_DEPENDS _ecal_hdf5_py)
-  endif()
   add_custom_target(create_python_wheel
       ${Python_EXECUTABLE} setup.py bdist_wheel --dist-dir=${BUILD_DEPLOY_DIRECTORY}
       DEPENDS ${CREATE_PYTHON_WHEEL_TARGET_DEPENDS}
@@ -63,6 +60,3 @@ else()
 endif()
 
 add_subdirectory(core)
-if(HAS_HDF5)
-  add_subdirectory(ecalhdf5)
-endif()
