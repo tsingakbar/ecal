@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/qecalparser">
-        <file alias="SHOW_DIALOG">show_dialog.svg</file>
-    </qresource>
-</RCC>

@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="/ecalmon">
-    <file alias="APP_ICON">ecalmon.ico</file>
-  </qresource>
-</RCC>

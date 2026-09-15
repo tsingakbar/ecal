@@ -254,20 +254,7 @@ add_subdirectory(lib/ThreadingUtils)
 add_subdirectory(lib/CustomTclap)
 add_subdirectory(lib/ecal_utils)
 
-if(HAS_QT5)
-  add_subdirectory(lib/CustomQt)
-endif()
 add_subdirectory(lib/EcalParser)
-if(HAS_QT5)
-  add_subdirectory(lib/QEcalParser)
-endif(HAS_QT5)
-
-# --------------------------------------------------------
-# ecal mon plugin sdk
-# --------------------------------------------------------
-if(HAS_QT5)
-  add_subdirectory(app/mon/mon_plugin_lib)
-endif(HAS_QT5)
 
 # --------------------------------------------------------
 # ecal rec addon sdk
@@ -325,24 +312,6 @@ if(BUILD_APPS AND HAS_HDF5)
   add_subdirectory(app/rec/rec_server_core)
   add_subdirectory(app/rec/rec_client_cli)
   add_subdirectory(app/rec/rec_server_cli)
-endif()
-
-# --------------------------------------------------------
-# qt applications
-# --------------------------------------------------------
-if(BUILD_APPS AND HAS_QT5)
-  add_subdirectory(app/sys/sys_gui)
-  add_subdirectory(app/mon/mon_gui)
-    set(ECAL_MON_PLUGIN_DIR ecal/plugins/mon)
-  add_subdirectory(app/mon/mon_plugins)
-  add_subdirectory(app/util/launcher)
-# --------------------------------------------------------
-# qt applications using hdf5
-# --------------------------------------------------------
-if(BUILD_APPS AND HAS_QT5 AND HAS_HDF5)
-  add_subdirectory(app/play/play_gui)
-  add_subdirectory(app/rec/rec_gui)
-endif()
 endif()
 
 # --------------------------------------------------------

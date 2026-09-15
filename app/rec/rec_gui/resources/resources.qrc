@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/ecalrec">
-        <file alias="APP_ICON">ecalrec.ico</file>
-    </qresource>
-</RCC>
