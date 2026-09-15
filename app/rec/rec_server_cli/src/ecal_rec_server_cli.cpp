@@ -83,24 +83,12 @@
 
 #include "bytes_to_pretty_string_utils.h"
 
-#ifdef WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <signal.h>
-
-// Win32 Console Handler (CTRL+C, Close Window)
-BOOL WINAPI ConsoleHandler(DWORD);
-
-#else // WIN32
 
 #include <signal.h>
 
 /** POSIX signal handler */
 void SignalHandler(int s);
 
-#endif // WIN32
 
 /**************************************
 * Global Methods
@@ -143,9 +131,6 @@ std::unique_ptr<eCAL::rec_cli::command::Record> record_command;
 
 int main(int argc, char** argv)
 {
-#ifdef WIN32
-  EcalUtils::WinCpChanger win_cp_changer(CP_UTF8); // The WinCpChanger will set the Codepage back to the original, once destroyed
-#endif // WIN32
 
   // Define the command line object.
   TCLAP::CmdLine cmd(ECAL_REC_NAME, ' ', ECAL_REC_VERSION_STRING);
@@ -259,12 +244,7 @@ int main(int argc, char** argv)
 
   try
   {
-#ifdef WIN32
-    auto utf8_args_vector = EcalUtils::CommandLine::GetUtf8Argv();
-    cmd.parse(utf8_args_vector);
-#else
     cmd.parse(argc, argv);
-#endif // WIN32
   }
   catch (TCLAP::ArgException& e)
   {
@@ -354,32 +334,6 @@ int main(int argc, char** argv)
   /* CTRL+C handler / Signal handler                                      */
   /************************************************************************/
   std::cout << std::endl;
-#ifdef WIN32
-
-  if (!remote_control_arg.isSet())
-  {
-    std::string attention_string1 = "!! Attention !!";
-    std::string attention_string2 = "Closing the console with the [X] button may lead to incomplete measurements";
-    EcalUtils::String::CenterString(attention_string1, ' ', 73);
-    EcalUtils::String::CenterString(attention_string2, ' ', 73);
-
-    std::cout << std::endl;
-    std::cout << attention_string1 << std::endl;
-    std::cout << attention_string2 << std::endl;
-    std::cout << std::endl;
-  }
-
-
-  if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE))
-  {
-    std::cout << "Press Ctrl+C to exit" << std::endl;
-  }
-  else
-  {
-    std::cerr << "Unable to set Ctrl+C handler" << std::endl;
-  }
-
-#else // WIN32
   struct sigaction sigIntHandler;
 
   sigIntHandler.sa_handler = SignalHandler;
@@ -396,7 +350,6 @@ int main(int argc, char** argv)
     std::cerr << "Unable to set signal handler: " << strerror(errno) << std::endl;    
   }
 
-#endif
   std::cout << std::endl;
 
   // ==========================================================================
@@ -1349,11 +1302,6 @@ int main(int argc, char** argv)
   /************************************************************************/
   if (interactive_arg.isSet() || interactive_dont_exit_arg.isSet())
   {
-#ifdef WIN32
-    // Create buffer fo the manual ReadConsoleW call
-    std::wstring w_buffer;
-    w_buffer.reserve(4096);
-#endif // WIN32
 
     std::cout << "Using interactive mode. Type \"help\" to view a list of all commands." << std::endl;
     for (;;)
@@ -1369,41 +1317,7 @@ int main(int argc, char** argv)
       std::string line;
       bool success = false;
 
-#ifdef WIN32
-      HANDLE h_in = GetStdHandle(STD_INPUT_HANDLE);
-      DWORD std_handle_type = GetFileType(h_in);
-      if (std_handle_type == FILE_TYPE_CHAR)
-      {
-        // This is an (interactive) console => read console as UTF16
-        DWORD chars_read(0);
-        w_buffer.resize(4096);
-
-        success = ReadConsoleW(h_in, (LPVOID)(w_buffer.data()), static_cast<DWORD>(w_buffer.size()), &chars_read, NULL) != 0;
-
-        if (success)
-        {
-          w_buffer.resize(chars_read);
-          line = EcalUtils::StrConvert::WideToUtf8(w_buffer);
-          
-          // Trim \r\n at the end
-          for (int i = 0; i < 2; i++)
-          {
-            if (line.size() > 0 
-              && ((line.back() == '\r') || (line.back() == '\n')))
-            {
-              line.pop_back();
-            }
-          }
-        }
-      }
-      else
-      {
-        // This is a pipe => read binary data directly as UTF8
-        success = bool(std::getline(std::cin, line));
-      }
-#else
       success = bool(std::getline(std::cin, line));
-#endif // WIN32
       
       if (!success || ctrl_exit_event)
       {
@@ -1687,95 +1601,6 @@ bool IsBuiltInFtpServerBusy(bool print_status)
   return (open_connections > 0);
 }
 
-#ifdef WIN32
-BOOL WINAPI ConsoleHandler(DWORD dwType)
-{
-  if (dwType == CTRL_C_EVENT)
-  {
-    std::lock_guard<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-    if (!ctrl_exit_event)
-    {
-      ctrl_exit_event = true;
-
-      if(command_executor)
-        command_executor->Interrupt();
-
-      if (record_command)
-        record_command->Interrupt();
-
-      InterruptStdIn();
-    }
-    return TRUE;
-  }
-  else if (dwType == CTRL_BREAK_EVENT)
-  {
-    std::lock_guard<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-    if (!ctrl_exit_event)
-    {
-      ctrl_exit_until = std::chrono::steady_clock::now(); // Exit immediatelly
-      ctrl_exit_event = true;
-
-      if(command_executor)
-        command_executor->Interrupt();
-
-      if (record_command)
-        record_command->Interrupt();
-
-      InterruptStdIn();
-    }
-    return TRUE;
-  }
-  else if (dwType == CTRL_CLOSE_EVENT)
-  {
-    std::unique_lock<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-    if (!ctrl_exit_event)
-    {
-      ctrl_exit_event = true;
-      ctrl_exit_until = std::chrono::steady_clock::now() + std::chrono::seconds(3); // Give it 3 seconds to finish, kill it otherwise
-
-      if(command_executor)
-        command_executor->Interrupt();
-
-      if (record_command)
-        record_command->Interrupt();
-
-      InterruptStdIn();
-
-      ecal_rec_exit_cv_.wait(ecal_rec_exit_lock);
-    }
-
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-void InterruptStdIn()
-{
-  // Virtually press Return, so the cin reading loop will exit
-
-  DWORD dwTmp;
-  INPUT_RECORD ir[2];
-
-  ir[0].EventType                        = KEY_EVENT;
-  ir[0].Event.KeyEvent.bKeyDown          = TRUE;
-  ir[0].Event.KeyEvent.dwControlKeyState = 0;
-  ir[0].Event.KeyEvent.uChar.UnicodeChar = VK_RETURN;
-  ir[0].Event.KeyEvent.wRepeatCount      = 1;
-  ir[0].Event.KeyEvent.wVirtualKeyCode   = VK_RETURN;
-  ir[0].Event.KeyEvent.wVirtualScanCode  = static_cast<WORD>(MapVirtualKey(VK_RETURN, MAPVK_VK_TO_VSC));
-
-  ir[1]                                  = ir[0];
-  ir[1].Event.KeyEvent.bKeyDown          = FALSE;
-
-  HANDLE std_in_handle = GetStdHandle(STD_INPUT_HANDLE);
-
-  if (std_in_handle != INVALID_HANDLE_VALUE)
-    WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE), ir, 2, &dwTmp);
-}
-
-
-#else // WIN32
 
 void SignalHandler(int s)
 {
@@ -1862,5 +1687,4 @@ void InterruptStdIn()
   ::fclose(stdin);
 }
 
-#endif //WIN32
 

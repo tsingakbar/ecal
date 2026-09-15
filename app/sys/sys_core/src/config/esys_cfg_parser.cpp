@@ -34,9 +34,6 @@
 #include <ecal_utils/string.h>
 #include <ecal_utils/filesystem.h>
 
-#ifdef WIN32
-#include <ecal_utils/str_convert.h>
-#endif // WIN32
 
 
 namespace eCAL
@@ -235,12 +232,7 @@ namespace eCAL
       bool ReadConfig(const std::string& path, CConfiguration& configuration, bool import = false)
       {
         FILE* xml_file;
-#ifdef WIN32
-        std::wstring w_path = EcalUtils::StrConvert::Utf8ToWide(path);
-        xml_file = _wfopen(w_path.c_str(), L"rb");
-#else
         xml_file = fopen(path.c_str(), "rb");
-#endif // WIN32
 
         if (xml_file == nullptr)
         {
@@ -256,7 +248,7 @@ namespace eCAL
         {
 #if TINYXML2_MAJOR_VERSION >= 6
           throw std::runtime_error(std::string("Error loading file from \"") + path + "\": " + src.ErrorStr());
-#else // TINYXML2_MAJOR_VERSION
+#else
           throw std::runtime_error(std::string("Error loading file from \"") + path + "\": " + src.GetErrorStr1());
 #endif // TINYXML2_MAJOR_VERSION
           return false;
@@ -838,12 +830,7 @@ namespace eCAL
         AddChildElement(doc, *root_element, "layout", configuration.GetLayout());
 
         FILE* xml_file;
-#ifdef WIN32
-        std::wstring w_path = EcalUtils::StrConvert::Utf8ToWide(path);
-        xml_file = _wfopen(w_path.c_str(), L"w");
-#else
         xml_file = fopen(path.c_str(), "w");
-#endif // WIN32
 
         if (xml_file == nullptr)
         {

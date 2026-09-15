@@ -196,12 +196,7 @@ namespace eCAL
         }
 
         FILE* xml_file;
-#ifdef WIN32
-        std::wstring w_path = EcalUtils::StrConvert::Utf8ToWide(path);
-        xml_file = _wfopen(w_path.c_str(), L"w");
-#else
         xml_file = fopen(path.c_str(), "w");
-#endif // WIN32
 
         if (xml_file == nullptr)
         {
@@ -220,7 +215,7 @@ namespace eCAL
         {
 #if TINYXML2_MAJOR_VERSION >= 6
           eCAL::rec::EcalRecLogger::Instance()->error(std::string("Error saving config to \"") + path + "\": " + document.ErrorStr());
-#else // TINYXML2_MAJOR_VERSION
+#else
             eCAL::rec::EcalRecLogger::Instance()->error(std::string("Error saving config to \"") + path + "\": " + document.GetErrorStr1());
 #endif // TINYXML2_MAJOR_VERSION
           return false;

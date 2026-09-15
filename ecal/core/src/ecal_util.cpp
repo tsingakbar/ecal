@@ -38,10 +38,6 @@
 #include <list>
 #include <string>
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_main.h"
-#endif /* ECAL_OS_WINDOWS */
-
 namespace eCAL
 {
   /**

@@ -39,9 +39,6 @@
 
 #include <ecal/ecal_os.h>
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_socket.h"
-#endif
 #include "ecal/cimpl/ecal_callback_cimpl.h"
 
 #ifdef ECAL_OS_LINUX

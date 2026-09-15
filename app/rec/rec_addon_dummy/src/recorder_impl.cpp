@@ -19,11 +19,7 @@
 
 #include "recorder_impl.h"
 
-#ifdef WIN32
-#include <Windows.h>
-#else
 #include <iostream>
-#endif
 #include <sstream>
 
 std::unique_ptr<eCAL::rec::addon::RecorderImplBase> eCAL::rec::addon::recorder_impl = std::make_unique<RecorderImpl>();
@@ -55,11 +51,7 @@ bool RecorderImpl::Initialize()
       else
       {
         s << "Frame " << c << " dropped " << std::endl;
-#ifdef WIN32
-        OutputDebugStringA(s.str().c_str());
-#else
         std::cerr << s.str() << std::endl;
-#endif
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
     }

@@ -19,36 +19,13 @@
 
 #include <ecal_utils/filesystem.h>
 
-#ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #define NOMINMAX
-  #include <windows.h>
-  #include <direct.h>
-  #include <shellapi.h> // SHFileOperation
-
-  #include <ecal_utils/str_convert.h> // ANSI/Wide/UTF8 conversion
-#else // _WIN32
   #include <cstring>    // strerror()
   #include <dirent.h>
   #include <fcntl.h>    // O_RDONLY
-  #ifndef __QNXNTO__
     #include <fts.h>      // File-tree traversal
-  #endif
   #include <unistd.h>
 
-  #if defined (__APPLE__)
-    #include <copyfile.h>
-  #elif defined (__linux__)
     #include <sys/sendfile.h>
-  #elif defined (__FreeBSD__)
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <sys/uio.h>
-  #else
-    #include <sys/mman.h>
-  #endif
-  
-#endif  // _WIN32
 
 #include <sys/stat.h> // stat
 #include <errno.h>    // errno, ENOENT, EEXIST
@@ -69,12 +46,7 @@ namespace EcalUtils
 
     FileStatus::FileStatus(const std::string& path, OsStyle input_path_style)
     {
-#ifdef WIN32
-      std::wstring w_native_path_ = StrConvert::Utf8ToWide(ToNativeSeperators(path, input_path_style));
-      const int error_code = _wstat64(w_native_path_.c_str(), &file_status_);
-#else // WIN32
       const int error_code = stat(ToNativeSeperators(path, input_path_style).c_str(), &file_status_);
-#endif // WIN32
       is_ok_ = (error_code == 0);
     }
 
@@ -94,12 +66,10 @@ namespace EcalUtils
       case S_IFREG:  return Type::RegularFile;
       case S_IFDIR:  return Type::Dir;
       case S_IFCHR:  return Type::CharacterDevice;
-#ifndef WIN32
       case S_IFBLK:  return Type::BlockDevice;
       case S_IFIFO:  return Type::Fifo;
       case S_IFLNK:  return Type::SymbolicLink;
       case S_IFSOCK: return Type::Socket;
-#endif // !WIN32
       default:       return Type::Unknown;
       }
 
@@ -113,18 +83,7 @@ namespace EcalUtils
       return file_status_.st_size;
     }
 
-#ifdef WIN32
-    bool FileStatus::PermissionRootRead()     const { return 0 != (file_status_.st_mode & S_IREAD); }
-    bool FileStatus::PermissionRootWrite()    const { return 0 != (file_status_.st_mode & S_IWRITE); }
-    bool FileStatus::PermissionRootExecute()  const { return 0 != (file_status_.st_mode & S_IEXEC); }
-    bool FileStatus::PermissionGroupRead()    const { return 0 != (file_status_.st_mode & S_IREAD); }
-    bool FileStatus::PermissionGroupWrite()   const { return 0 != (file_status_.st_mode & S_IWRITE); }
-    bool FileStatus::PermissionGroupExecute() const { return 0 != (file_status_.st_mode & S_IEXEC); }
-    bool FileStatus::PermissionOwnerRead()    const { return 0 != (file_status_.st_mode & S_IREAD); }
-    bool FileStatus::PermissionOwnerWrite()   const { return 0 != (file_status_.st_mode & S_IWRITE); }
-    bool FileStatus::PermissionOwnerExecute() const { return 0 != (file_status_.st_mode & S_IEXEC); }
-#else // WIN32
-    bool FileStatus::PermissionRootRead()     const { return 0 != (file_status_.st_mode & S_IRUSR); }
+bool FileStatus::PermissionRootRead()     const { return 0 != (file_status_.st_mode & S_IRUSR); }
     bool FileStatus::PermissionRootWrite()    const { return 0 != (file_status_.st_mode & S_IWUSR); }
     bool FileStatus::PermissionRootExecute()  const { return 0 != (file_status_.st_mode & S_IXUSR); }
     bool FileStatus::PermissionGroupRead()    const { return 0 != (file_status_.st_mode & S_IRGRP); }
@@ -133,7 +92,6 @@ namespace EcalUtils
     bool FileStatus::PermissionOwnerRead()    const { return 0 != (file_status_.st_mode & S_IROTH); }
     bool FileStatus::PermissionOwnerWrite()   const { return 0 != (file_status_.st_mode & S_IWOTH); }
     bool FileStatus::PermissionOwnerExecute() const { return 0 != (file_status_.st_mode & S_IXOTH); }
-#endif // WIN32
 
     bool FileStatus::CanOpenDir() const
     {
@@ -144,28 +102,12 @@ namespace EcalUtils
         return false;
 
       bool can_open_dir(false);
-#ifdef WIN32
-      std::string find_file_path = path_ + "\\*";
-      std::replace(find_file_path.begin(), find_file_path.end(), '/', '\\');
-
-      std::wstring w_find_file_path = StrConvert::Utf8ToWide(find_file_path);
-
-      HANDLE hFind;
-      WIN32_FIND_DATAW ffd;
-      hFind = FindFirstFileW(w_find_file_path.c_str(), &ffd);
-      if (hFind != INVALID_HANDLE_VALUE)
-      {
-        can_open_dir = true;
-      }
-      FindClose(hFind);
-#else // WIN32
       DIR *dp = opendir(path_.c_str());
       if (dp != NULL)
       {
         can_open_dir = true;
         closedir(dp);
       }
-#endif // WIN32
 
       return can_open_dir;
     }
@@ -195,29 +137,6 @@ namespace EcalUtils
       std::string clean_path = ToNativeSeperators(CleanPath(path, input_path_style), input_path_style);
 
       std::map<std::string, FileStatus> content;
-#ifdef WIN32
-      std::string find_file_path = clean_path + "\\*";
-      std::replace(find_file_path.begin(), find_file_path.end(), '/', '\\');
-
-      std::wstring w_find_file_path = StrConvert::Utf8ToWide(find_file_path);
-
-      HANDLE hFind;
-      WIN32_FIND_DATAW ffd;
-      hFind = FindFirstFileW(w_find_file_path.c_str(), &ffd);
-      if (hFind == INVALID_HANDLE_VALUE)
-      {
-        std::cerr << "FindFirstFile Error" << std::endl;
-        return content;
-      }
-
-      do
-      {
-        std::string file_name = StrConvert::WideToUtf8(std::wstring(ffd.cFileName));
-        if ((file_name != ".") && (file_name != ".."))
-          content.emplace(file_name, FileStatus(clean_path + "\\" + file_name));
-      } while (FindNextFileW(hFind, &ffd) != 0);
-      FindClose(hFind);
-#else // WIN32
       DIR *dp;
       struct dirent *dirp;
       if ((dp = opendir(clean_path.c_str())) == NULL)
@@ -234,7 +153,6 @@ namespace EcalUtils
       }
       closedir(dp);
 
-#endif // WIN32
       return content;
     }
 
@@ -242,12 +160,8 @@ namespace EcalUtils
     {
       std::string native_path = ChangeSeperators(path, OsStyle::Current, input_path_style);
 
-#if defined(_WIN32)
-      int ret = _wmkdir(StrConvert::Utf8ToWide(native_path).c_str());
-#else
       mode_t mode = 0755;
       int ret = mkdir(native_path.c_str(), mode);
-#endif
       return ret == 0;
     }
 
@@ -309,85 +223,30 @@ namespace EcalUtils
       std::string source_clean      = ToNativeSeperators(CleanPath(source,      input_path_style), input_path_style);
       std::string destination_clean = ToNativeSeperators(CleanPath(destination, input_path_style), input_path_style);
 
-#if defined WIN32
-      std::wstring w_source_clean      = StrConvert::Utf8ToWide(source_clean);
-      std::wstring w_destination_clean = StrConvert::Utf8ToWide(destination_clean);
-      return (CopyFileW(w_source_clean.c_str(), w_destination_clean.c_str(), FALSE) != FALSE);
-#else // WIN32
       int input_fd {-1}, output_fd {-1};
       bool copy_succeeded {false};
       if ((input_fd = open(source_clean.c_str(), O_RDONLY)) == -1)
       {
         return false;
-      }    
+      }
       if ((output_fd = creat(destination_clean.c_str(), 0660)) == -1)
       {
         close(input_fd);
         return false;
       }
-#if defined (__APPLE__)
-      int result = fcopyfile(input_fd, output_fd, 0, COPYFILE_ALL);
-      copy_succeeded = (result == 0);
-#elif defined(__FreeBSD__)
-      FileStatus file_status(source_clean, OsStyle::Current);
-      int result = sendfile(output_fd, input_fd, 0, file_status.FileSize(), nullptr, nullptr, 0);
-      copy_succeeded = (result != -1);
-#elif defined(__linux__)
       off_t bytesCopied = 0;
       FileStatus file_status(source_clean, OsStyle::Current);
       int result = sendfile(output_fd, input_fd, &bytesCopied, file_status.FileSize());
       copy_succeeded = (result != -1);
-#else
-      FileStatus file_status(source_clean, OsStyle::Current);
-      void *mem = mmap(NULL, file_status.FileSize(), PROT_READ, MAP_SHARED, input_fd, 0);
-      if(mem != MAP_FAILED)
-      {
-        ssize_t written_bytes = write(output_fd, mem, file_status.FileSize());
-        copy_succeeded = (written_bytes == file_status.FileSize());
-        munmap(mem, file_status.FileSize());
-      }
-      else
-        copy_succeeded = false;
-#endif
       close(input_fd);
       close(output_fd);
       return copy_succeeded;
-#endif // WIN32
     }
 
     bool DeleteDir(const std::string& source, OsStyle input_path_style)
     {
       std::string clean_path = ToNativeSeperators(CleanPath(source, input_path_style), input_path_style);
 
-#if defined(WIN32)
-      
-      std::wstring w_clean_path = StrConvert::Utf8ToWide(source);
-
-      // Abuse the internal buffer of the string to make a double-null-
-      // terminated-string as requested by the Win32 API.
-      // This is safe as C++11 demands that the data of an std string is in
-      // continuous memory.
-      w_clean_path += L'\0';
-      w_clean_path += L'\0';
-
-      // Using the Win32 Shell API is the recommended way to delete non-empty directories on Window
-      SHFILEOPSTRUCTW file_op = {
-        NULL                                                // hwnd
-        , FO_DELETE                                         // wFunc
-        , w_clean_path.data()                               // pFrom
-        , L""                                               // pTo
-        , FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT   // fFlags
-        , false                                             // fAnyOperationsAborted
-        , 0                                                 // hNameMappings
-        , L""                                               // lpszProgressTitle
-      };
-      int error = SHFileOperationW(&file_op);
-      return (error == 0);
-
-#elif defined(__QNXNTO__)
-      // TODO: Find an alternative to traverse directories on QNX operating system that does not use fts
-      return false;
-#else // WIN32
       
       // This code has been taken from the open-bsd rm sourcecode:
       // http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/bin/rm/rm.c?rev=1.27
@@ -478,7 +337,6 @@ namespace EcalUtils
       fts_close(fts);
       
       return success;
-#endif // WIN32
     }
 
     std::string GetAbsoluteRoot(const std::string& path, OsStyle input_path_style)
@@ -708,32 +566,16 @@ namespace EcalUtils
 
     std::string CurrentWorkingDir()
     {
-#ifdef _WIN32
-      wchar_t working_dir[MAX_PATH];
-      bool success (_wgetcwd(working_dir, MAX_PATH) != nullptr);
-
-      if (success)
-        return StrConvert::WideToUtf8(working_dir);
-      else
-        return "";
-#else
       char working_dir[PATH_MAX];
       return (getcwd(working_dir, PATH_MAX) ? working_dir : std::string(""));
-#endif
     }
 
     std::string ApplicationDir()
     {
-#ifdef _WIN32
-      wchar_t w_app_path_buffer[MAX_PATH];
-      std::wstring w_app_path { std::wstring(w_app_path_buffer, static_cast<std::size_t>(GetModuleFileNameW(NULL, w_app_path_buffer, MAX_PATH))) };
-      std::string app_path = StrConvert::WideToUtf8(w_app_path);
-#else
       char app_path_buffer[PATH_MAX];
       ssize_t count { readlink("/proc/self/exe", app_path_buffer, PATH_MAX) };
       if (count < 0) return {};
       auto app_path{ std::string(app_path_buffer, static_cast<std::size_t>(count)) };
-#endif
       return app_path.substr(0, app_path.find_last_of(separator));
     }
 

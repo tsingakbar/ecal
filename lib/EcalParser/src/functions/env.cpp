@@ -40,11 +40,7 @@ namespace EcalParser
 
   std::string FunctionEnv::ParameterExample() const
   {
-#ifdef WIN32
-    return "userprofile";
-#else // WIN32
     return "HOME";
-#endif // WIN32
   }
 
   std::string FunctionEnv::Description     () const { return "Environment variable"; }

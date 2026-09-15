@@ -90,17 +90,6 @@ int main(int argc, char *argv[])
 
   cmd.setOutput(&advanced_tclap_output);
 
-#ifdef WIN32
-  auto utf8_argv_vector = EcalUtils::CommandLine::GetUtf8Argv();
-  try
-  {
-    cmd.parse(utf8_argv_vector);
-  }
-  catch (TCLAP::ArgException& e)
-  {
-    std::cerr << "Error parsing command line: " << e.what() << std::endl;
-  }
-#else
   try
   {
     cmd.parse(argc, argv);
@@ -109,7 +98,6 @@ int main(int argc, char *argv[])
   {
     std::cerr << "Error parsing command line: " << e.what() << std::endl;
   }
-#endif // WIN32
 
   QApplication a(argc, argv);
 
@@ -135,18 +123,7 @@ int main(int argc, char *argv[])
       advanced_tclap_output.version(cmd);
     }
 
-#ifdef WIN32
-    // On Windows we display the command line help as GUI window. That approach
-    // is somehow standard on Windows, as Windows will not print the
-    // stdout/stderr streams to the console the app was started from.
-
-    HelpWindow w(tclap_output_stream.str());
-
-    w.show();
-    return a.exec();
-#else // WIN32
     return 0;
-#endif // WIN32
   }
 
 

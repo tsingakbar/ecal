@@ -31,65 +31,6 @@
 #include <chrono>
 #include <thread>
 
-#ifdef ECAL_OS_WINDOWS
-
-#include "ecal_win_main.h"
-
-namespace eCAL
-{
-  bool gOpenEvent(EventHandleT* event_, const std::string& event_name_, bool)
-  {
-    if(event_ == nullptr) return(false);
-    EventHandleT event;
-    event.name   = event_name_;
-    event.handle = ::CreateEvent(nullptr, false, false, event_name_.c_str());
-    if(event.handle != nullptr)
-    {
-      *event_ = event;
-      return(true);
-    }
-    return(false);
-  }
-
-  bool gCloseEvent(const EventHandleT& event_)
-  {
-    if(!event_.handle) return(false);
-    return(::CloseHandle(event_.handle) != 0);
-  }
-
-  bool gSetEvent(const EventHandleT& event_)
-  {
-    if(!event_.handle) return(false);
-    return(::SetEvent(event_.handle) != 0);
-  }
-
-  bool gWaitForEvent(const EventHandleT& event_, const long timeout_)
-  {
-    if(!event_.handle) return(false);
-    if(timeout_ < 0)
-    {
-      return(::WaitForSingleObject(event_.handle, INFINITE) == WAIT_OBJECT_0);
-    }
-    else
-    {
-      return(::WaitForSingleObject(event_.handle, timeout_) == WAIT_OBJECT_0);
-    }
-  }
-
-  bool gInvalidateEvent(EventHandleT* event_)
-  {
-    if(event_ == nullptr) return(false);
-    if(event_->handle == nullptr) return(false);
-    event_->handle = nullptr;
-    return(true);
-  }
-
-  bool gEventIsValid(const EventHandleT& event_)
-  {
-    return(event_.handle != nullptr);
-  }
-}
-#endif /* ECAL_OS_WINDOWS */
 
 #ifdef ECAL_OS_LINUX
 
@@ -140,9 +81,7 @@ namespace
     pthread_condattr_t  shattr;
     pthread_condattr_init(&shattr);
     pthread_condattr_setpshared(&shattr, PTHREAD_PROCESS_SHARED);
-#ifndef ECAL_OS_MACOS
     pthread_condattr_setclock(&shattr, CLOCK_MONOTONIC);
-#endif // ECAL_OS_MACOS
     named_event_t* evt = static_cast<named_event_t*>(mmap(nullptr, sizeof(named_event_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     ::close(fd);
 
@@ -218,11 +157,7 @@ namespace
         // wait with timeout for unlock signal
         if (ts_)
         {
-#ifndef ECAL_OS_MACOS
             ret = pthread_cond_timedwait(&evt_->cvar, &evt_->mtx, ts_);
-#else
-            ret = pthread_cond_timedwait_relative_np(&evt_->cvar, &evt_->mtx, ts_);
-#endif
         }
         // blocking wait for unlock signal
         else

@@ -43,12 +43,6 @@
 #pragma warning(pop)
 #endif
 
-#ifdef ECAL_OS_WINDOWS
-#include <windows.h>
-#include <conio.h>
-#include <direct.h>
-#include <TlHelp32.h>
-#else
 #include <csignal>
 #include <cstdlib>
 #include <errno.h>
@@ -59,7 +53,7 @@
 #include <string>
 #include <sys/ioctl.h>
 #include <sys/select.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -96,7 +90,6 @@ int _getch(void)
   tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
   return ch;
 }
-#endif  // ECAL_OS_WINDOWS
 
 bool PadString(std::string& str, char padding_char, size_t max_size)
 {
@@ -119,12 +112,9 @@ int main(int argc, char** argv)
 {
   std::list<std::string> processes_names;
 
-#ifdef ECAL_OS_WINDOWS
-  processes_names.push_back("ecal_mma.exe");
-#endif // ECAL_OS_WINDOWS
 #ifdef ECAL_OS_LINUX
   processes_names.push_back("ecal_mma");
-#endif // ECAL_OS_LINUX
+#endif /* ECAL_OS_LINUX */
 
   if (ZombieInstanceKiller::KillZombieInstance(processes_names))
   {

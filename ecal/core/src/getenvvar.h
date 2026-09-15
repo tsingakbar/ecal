@@ -32,20 +32,9 @@
 
 inline std::string getEnvVar(const std::string& key, const std::string& def = "")
 {
-#if _WIN32
-  wchar_t*  val(nullptr);
-  size_t len(0);
-  errno_t err = _wdupenv_s(&val, &len, EcalUtils::StrConvert::Utf8ToWide(key).c_str());
-  if (err)            return def;
-  if (val == nullptr) return def;
-  std::string ret = EcalUtils::StrConvert::WideToUtf8(val);
-  free(val);
-  return ret;
-#else
   char* val = std::getenv(key.c_str());
   if (val == nullptr) return def;
   return std::string(val);
-#endif
 }
 
 inline std::vector<std::string> splitPaths(const std::string& paths_value)
@@ -53,11 +42,7 @@ inline std::vector<std::string> splitPaths(const std::string& paths_value)
   std::vector<std::string> tokens;
   std::string token;
   std::istringstream token_stream(paths_value);
-#ifdef _WIN32
-  const char delimiter{ ';' };
-#else
   const char delimiter{ ':' };
-#endif
   while (std::getline(token_stream, token, delimiter))
   {
     tokens.push_back(token);

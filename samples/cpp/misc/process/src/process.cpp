@@ -19,11 +19,7 @@
 
 #include <ecal/ecal.h>
 
-#ifdef ECAL_OS_WINDOWS
-const char* proc_name = "notepad.exe";
-#else  // ECAL_OS_WINDOWS
 const char* proc_name = "gedit";
-#endif // ECAL_OS_WINDOWS
 
 int main(int argc, char **argv)
 {

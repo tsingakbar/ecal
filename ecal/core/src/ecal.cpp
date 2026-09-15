@@ -128,18 +128,6 @@ namespace eCAL
       if (g_unit_name.empty())
       {
         g_unit_name = Process::GetProcessName();
-#ifdef ECAL_OS_WINDOWS
-        size_t p = g_unit_name.rfind('\\');
-        if (p != std::string::npos)
-        {
-          g_unit_name = g_unit_name.substr(p+1);
-        }
-        p = g_unit_name.rfind('.');
-        if (p != std::string::npos)
-        {
-          g_unit_name = g_unit_name.substr(0, p);
-        }
-#endif
 #ifdef ECAL_OS_LINUX
         size_t p = g_unit_name.rfind('/');
         if (p != std::string::npos)

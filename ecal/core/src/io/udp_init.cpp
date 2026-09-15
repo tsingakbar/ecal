@@ -26,10 +26,6 @@
 #include <stdio.h>
 #include <atomic>
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_socket.h"
-#endif /* ECAL_OS_WINDOWS */
-
 static std::atomic<int> g_socket_init_refcnt(0);
 
 namespace eCAL
@@ -41,33 +37,6 @@ namespace eCAL
       g_socket_init_refcnt++;
       if(g_socket_init_refcnt == 1)
       {
-#ifdef ECAL_OS_WINDOWS
-        WORD wVersionRequested = MAKEWORD(2, 2);
-
-        WSADATA wsaData;
-        int err = WSAStartup(wVersionRequested, &wsaData);
-        if (err != 0)
-        {
-          /* Tell the user that we could not find a usable */
-          /* Winsock DLL.                                  */
-          printf("WSAStartup failed with error: %d\n", err);
-          return(-1);
-        }
-
-        /* Confirm that the WinSock DLL supports 2.2.*/
-        /* Note that if the DLL supports versions greater    */
-        /* than 2.2 in addition to 2.2, it will still return */
-        /* 2.2 in wVersion since that is the version we      */
-        /* requested.                                        */
-
-        if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-        {
-          /* Tell the user that we could not find a usable */
-          /* WinSock DLL.                                  */
-          printf("Could not find a usable version of Winsock.dll\n");
-          WSACleanup();
-        }
-#endif /* ECAL_OS_WINDOWS */
       }
       return(0);
     }
@@ -79,9 +48,6 @@ namespace eCAL
       g_socket_init_refcnt--;
       if(g_socket_init_refcnt == 0)
       {
-#ifdef ECAL_OS_WINDOWS
-        WSACleanup();
-#endif /* ECAL_OS_WINDOWS */
       }
 
       return(0);

@@ -44,28 +44,8 @@ namespace EcalParser
       }
       else
       {
-#if defined _WIN32 || defined _WIN64
-        if (os == "win" || os == "windows")
-          break;
-#elif __ANDROID__ 
-        if (os == "android")
-          break;
-#elif __linux__ 
         if (os == "linux")
           break;
-#elif __APPLE__ && __MACH__
-        if (os == "mac" || os == "macos")
-          break;
-#elif __FreeBSD__
-        if (os == "freebsd")
-          break;
-#elif __NetBSD__
-        if (os == "netbsd")
-          break;
-#elif __OpenBSD__
-        if (os == "openbsd")
-          break;
-#endif
       }
     
       os_index += 2;

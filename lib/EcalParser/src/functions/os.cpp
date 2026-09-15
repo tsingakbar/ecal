@@ -25,21 +25,7 @@ namespace EcalParser
 {
   std::string FunctionOs::Evaluate(const std::string& /*parameters*/, std::chrono::system_clock::time_point /*time*/) const
   {
-#if defined _WIN32 || defined _WIN64
-    return "Windows";
-#elif __ANDROID__ 
-    return "Android";
-#elif __linux__ 
     return "Linux";
-#elif __APPLE__ && __MACH__
-    return "MacOS";
-#elif __FreeBSD__
-    return "FreeBSD";
-#elif __NetBSD__
-    return "NetBSD";
-#elif __OpenBSD__
-    return "OpenBSD";
-#endif
   }
 
   std::string FunctionOs::ParameterUsage   () const { return ""; }

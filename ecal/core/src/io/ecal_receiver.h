@@ -26,10 +26,6 @@
 #include <ecal/ecal.h>
 #include "ecal_def.h"
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_socket.h"
-#endif
-
 #ifdef ECAL_OS_LINUX
 #include <sys/types.h>
 #include <sys/socket.h>

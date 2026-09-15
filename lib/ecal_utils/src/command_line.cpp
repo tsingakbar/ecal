@@ -19,12 +19,6 @@
 
 #include "ecal_utils/command_line.h"
 
-#ifdef WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #define NOMINMAX
-  #include <Windows.h>
-  #include <shellapi.h>
-#endif // WIN32
 
 #include <ecal_utils/str_convert.h>
 #include <iostream>
@@ -34,37 +28,6 @@ namespace EcalUtils
   namespace CommandLine
   {
 
-#ifdef WIN32
-    std::vector<std::string> GetUtf8Argv()
-    {
-      int commandline_w_argc(0);
-
-      std::vector<std::string> utf8_argv_vector;
-
-      LPWSTR* wstring_arg_list_ptr = CommandLineToArgvW(GetCommandLineW(), &commandline_w_argc);
-      if (wstring_arg_list_ptr == nullptr)
-      {
-        std::cerr << "CommandLineToArgvW failed" << std::endl;
-      }
-      else
-      {
-        // Fill the vector with UTF8 conversions of Windows wide-strings
-        utf8_argv_vector.reserve(commandline_w_argc);
-        for (int i = 0; i < commandline_w_argc; i++)
-        {
-          utf8_argv_vector.push_back(EcalUtils::StrConvert::WideToUtf8(std::wstring(wstring_arg_list_ptr[i])));
-        }
-        LocalFree(wstring_arg_list_ptr);
-      }
-
-      return utf8_argv_vector;
-    }
-
-    std::string GetUtf8CommandLine()
-    {
-      return EcalUtils::StrConvert::WideToUtf8(GetCommandLineW());
-    }
-#endif
 
   }
 }

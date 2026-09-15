@@ -30,21 +30,11 @@
 #include <vector>
 #include <sstream>
 
-#ifdef _WIN32
-#if defined(_MSC_VER) && defined(__clang__) && !defined(CINTERFACE)
-#define CINTERFACE
-#endif
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <direct.h>
-#else
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
-#endif  // _WIN32
 
 #include "string.h"
 
@@ -179,30 +169,16 @@ namespace EcalUtils
     **/
     inline void MakeAbsolute(std::string& path)
     {
-#ifdef _WIN32
-      // make the absolute path to the executable
-      char abs_path[MAX_PATH];
-      if (_fullpath(abs_path, path.c_str(), MAX_PATH) != nullptr)
-      {
-        path = abs_path;
-      }
-#else
       // absolute path is created only by cutting "." and ".." from the path
       char abs_path[PATH_MAX];
       if (realpath(path.c_str(), abs_path) != nullptr)
       {
         path = abs_path;
       }
-#endif
     }
 
-    #ifdef _WIN32                                                                              
-    const std::string separator = "\\";
-    const std::string last_folder = "..\\";
-    #else      
     const std::string separator = "/";
     const std::string last_folder = "../";
-    #endif // _WIN32  
 
     inline std::string GetRelativePath(const std::string& path, const std::string& base)
     {
@@ -251,9 +227,6 @@ namespace EcalUtils
       {
         switch (input[n])
         {
-#ifdef _WIN32
-        case '%':
-#endif
         case '$':
         {
           enum eBracket
@@ -261,20 +234,10 @@ namespace EcalUtils
             Bracket_None,
             Bracket_Normal = ')',
             Bracket_Curly = '}',
-#ifdef _WIN32
-            Bracket_Windows = '%',
-#endif
             Bracket_Max
           };
           eBracket bracket;
 
-#ifdef _WIN32
-          if (input[n] == '%')
-          {
-            bracket = Bracket_Windows;
-          }
-          else
-#endif
             if (n == input.length() - 1)
             {
               bracket = Bracket_None;
@@ -314,9 +277,6 @@ namespace EcalUtils
           else
           {
             // variable doesn't exist => don't change anything
-#ifdef _WIN32
-            if (bracket != Bracket_Windows)
-#endif
               if (bracket != Bracket_None)
               {
                 output += input[n - 1];

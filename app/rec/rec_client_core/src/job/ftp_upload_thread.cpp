@@ -33,17 +33,6 @@
 #include <ecal_utils/filesystem.h>
 #include <ecal_utils/str_convert.h>
 
-#ifdef WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #define NOMINMAX
-  #include <Windows.h>
-  #include <WinSock2.h>
-
-  #include <cctype>
-#elif __linux__
-  #include <unistd.h>
-#endif
-
 #include <rec_client_core/ecal_rec_logger.h>
 
 namespace eCAL
@@ -78,10 +67,6 @@ namespace eCAL
       for(size_t i = 0; i < skip_files_.size(); i++)
       {
         skip_files_[i] = EcalUtils::Filesystem::CleanPath(local_root_dir_ + "/" + skip_files_[i]);
-#ifdef WIN32
-        // On windows we lower-case-compare files
-        std::transform(skip_files_[i].begin(), skip_files_[i].end(), skip_files_[i].begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
-#endif // WIN32
       }
     }
 
@@ -110,10 +95,6 @@ namespace eCAL
         files_to_upload.remove_if([this](const std::pair<std::string, uint64_t>& file_pair_to_upload) -> bool
         {
           std::string normalized_file_to_upload = EcalUtils::Filesystem::CleanPath(local_root_dir_ + "/" + file_pair_to_upload.first);
-#ifdef WIN32
-          // On windows we lower-case-compare files
-          std::transform(normalized_file_to_upload.begin(), normalized_file_to_upload.end(), normalized_file_to_upload.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
-#endif // WIN32
 
           return (std::find(skip_files_.begin(), skip_files_.end(), normalized_file_to_upload) != skip_files_.end());
         });
@@ -175,12 +156,7 @@ namespace eCAL
 
         // Open the local file
         std::ifstream file;
-#ifdef WIN32
-        std::wstring w_native_path = EcalUtils::StrConvert::Utf8ToWide(EcalUtils::Filesystem::ToNativeSeperators(local_complete_file_path));
-        file.open(w_native_path, std::ios::binary);
-#else
         file.open(EcalUtils::Filesystem::ToNativeSeperators(local_complete_file_path), std::ios::binary);
-#endif // WIN32
 
         bool abort_uploading = false;
 
@@ -373,19 +349,6 @@ namespace eCAL
       time_t time_t_now = std::chrono::system_clock::to_time_t(now);
       char time_char[64];
       strftime(time_char, 64, "%F_%H-%M-%S", localtime(&time_t_now));
-
-#ifdef WIN32
-      WORD wVersionRequested = MAKEWORD(2, 2);
-
-      WSADATA wsaData;
-      int err = WSAStartup(wVersionRequested, &wsaData);
-      if (err != 0)
-      {
-        /* Tell the user that we could not find a usable */
-        /* Winsock DLL.                                  */
-        printf("WSAStartup failed with error: %d\n", err);
-      }
-#endif // WIN32
 
       char hostname_char[1024] = { 0 };
       gethostname(hostname_char, 1024);

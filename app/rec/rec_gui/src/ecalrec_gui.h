@@ -31,12 +31,6 @@
 
 #include <QIcon>
 
-#ifdef WIN32
-#include <QWinTaskbarButton>
-#include <QWinThumbnailToolBar>
-#include <QWinThumbnailToolButton>
-#include <QIcon>
-#endif // WIN32
 
 class EcalRecGui : public QMainWindow
 {
@@ -146,31 +140,4 @@ private:
   QStyle*    initial_style_;
   QString    initial_style_sheet_;
 
-#ifdef WIN32
-////////////////////////////////////////////
-// Windows specific
-////////////////////////////////////////////
-private:
-  void registerTaskbarButtons();
-
-private slots:
-  void showConsole(bool show);
-  void updateTaskbarButton(const eCAL::rec_server::RecorderStatusMap_T& recorder_statuses);
-
-private:
-  QWinTaskbarButton* taskbar_button_;
-  QWinThumbnailToolBar* thumbnail_toolbar_;
-  QWinThumbnailToolButton* taskbar_activate_button_;
-  QWinThumbnailToolButton* taskbar_record_button_;
-  QWinThumbnailToolButton* taskbar_save_buffer_button_;
-
-  QIcon taskbar_activate_icon_;
-  QIcon taskbar_deactivate_icon_;
-
-  QIcon taskbar_record_icon_;
-  QIcon taskbar_record_icon_disabled_;
-
-  QIcon taskbar_save_buffer_icon_;
-  QIcon taskbar_save_buffer_icon_disabled_;
-#endif // WIN32
 };

@@ -29,21 +29,6 @@
 
 #include <atomic>
 
-#ifdef ECAL_OS_WINDOWS
-
-#include "ecal_win_main.h"
-
-typedef int       (__cdecl *etime_initialize)           (void);
-typedef int       (__cdecl *etime_finalize)             (void);
-typedef long long (__cdecl *etime_get_nanoseconds)      (void);
-typedef int       (__cdecl *etime_set_nanoseconds)      (long long time_);
-typedef int       (__cdecl *etime_is_synchronized)      (void);
-typedef int       (__cdecl *etime_is_master)            (void);
-typedef int       (__cdecl *etime_sleep_for_nanoseconds)(long long duration_nsecs_);
-typedef void      (__cdecl *etime_get_status)           (int*, char*, const int);
-
-#endif // ECAL_OS_WINDOWS
-
 #ifdef ECAL_OS_LINUX
 typedef int       (*etime_initialize)           (void);
 typedef int       (*etime_finalize)             (void);
@@ -111,12 +96,7 @@ namespace eCAL
       {
       }
 
-#ifdef ECAL_OS_WINDOWS
-      HINSTANCE                   module_handle;
-#else // ECAL_OS_WINDOWS
       void*                       module_handle;
-#endif // ECAL_OS_WINDOWS
-
       std::string                 module_name;
       etime_initialize            etime_initialize_ptr;
       etime_finalize              etime_finalize_ptr;

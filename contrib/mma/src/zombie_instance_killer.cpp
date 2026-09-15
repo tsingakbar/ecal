@@ -21,13 +21,6 @@
 #include <list>
 #include <string>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <algorithm>
-#include <direct.h>
-#include <TlHelp32.h>
-#endif
-
 #ifdef __linux__
 #include <csignal>
 #include <string.h>
@@ -53,64 +46,7 @@ bool ZombieInstanceKiller::KillZombieInstance(const std::list<std::string>& proc
 }
 
 
-#ifdef _WIN32
-bool ZombieInstanceKiller::KillZombie(const std::string& process_name)
-{
-  bool ret_state = false;
-  HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-  if (hSnapshot)
-  {
-    PROCESSENTRY32 pe32;
-    pe32.dwSize = sizeof(PROCESSENTRY32);
-    if (Process32First(hSnapshot, &pe32))
-    {
-      do
-      {
-#ifdef _UNICODE
-        std::wstring pname     = pe32.szExeFile;
-        std::wstring wpid_name = String2WString(process_name);
-        DWORD        pid       = pe32.th32ProcessID;
-        // cause warning C4244 with VS2017
-        //std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
-        std::transform(pname.begin(), pname.end(), pname.begin(),
-          [](char c) {return static_cast<char>(::tolower(c)); });
-        if (pname == wpid_name)
-#else /* _UNICODE */
-        std::string  pname = pe32.szExeFile;
-        DWORD        pid   = pe32.th32ProcessID;
-        // cause warning C4244 with VS2017
-        //std::transform(pname.begin(), pname.end(), pname.begin(), ::tolower);
-        std::transform(pname.begin(), pname.end(), pname.begin(),
-          [](char c) {return static_cast<char>(::tolower(c)); });
-        if (pname == process_name)
-#endif /* _UNICODE */
-        {
-          if (pid != GetCurrentProcessId())
-          {
-            eCAL::Process::StopProcess(pid);
-            ret_state = true;
-          }
-        }
-      } while (Process32Next(hSnapshot, &pe32));
-    }
-    CloseHandle(hSnapshot);
-  }
-  return(ret_state);
-}
-
-std::wstring ZombieInstanceKiller::String2WString(const std::string& s)
-{
-  int len;
-  int slength = (int)s.length() + 1;
-  len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-  wchar_t* buf = new wchar_t[len];
-  MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-  std::wstring r(buf);
-  delete[] buf;
-  return r;
-}
-
-#elif defined(__linux__)
+#ifdef __linux__
 bool ZombieInstanceKiller::KillZombie(const std::string& pid_name)
 {
   bool return_value = false;
@@ -152,11 +88,5 @@ bool ZombieInstanceKiller::KillZombie(const std::string& pid_name)
   }
 
   return return_value;
-}
-
-#else
-bool ZombieInstanceKiller::KillZombie(const std::string& pid_name)
-{
-  return false;
 }
 #endif

@@ -33,13 +33,6 @@
 
 #include <iostream>
 
-#ifdef WIN32
-#include <QWinTaskbarButton>
-#include <QWinTaskbarProgress>
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#endif // WIN32
 
 #include <widgets/about_dialog/about_dialog.h>
 #include <widgets/license_dialog/license_dialog.h>
@@ -53,14 +46,6 @@ EcalRecGui::EcalRecGui(QWidget *parent)
   , connect_to_ecal_action_state_is_connect_           (true)
   , record_action_state_is_record_                     (true)
   , first_show_event_                                  (true)
-#ifdef WIN32
-  , taskbar_activate_icon_                             (":/ecalicons/TASKBAR_POWER_ON")
-  , taskbar_deactivate_icon_                           (":/ecalicons/TASKBAR_POWER_OFF")
-  , taskbar_record_icon_                               (":/ecalicons/TASKBAR_RECORD")
-  , taskbar_record_icon_disabled_                      (":/ecalicons/TASKBAR_RECORD_DISABLED")
-  , taskbar_save_buffer_icon_                          (":/ecalicons/TASKBAR_SAVE_BUFFER")
-  , taskbar_save_buffer_icon_disabled_                 (":/ecalicons/TASKBAR_SAVE_BUFFER_DISABLED")
-#endif // WIN32
 
 {
   // TODO: Add an add / Remove recorder action to the menu
@@ -196,51 +181,8 @@ EcalRecGui::EcalRecGui(QWidget *parent)
   /////////////////////////////////////////////
   // Debug console
   /////////////////////////////////////////////
-#ifdef WIN32
-  ui_.action_debug_console->setChecked(GetConsoleWindow());
-  connect(ui_.action_debug_console, &QAction::triggered, [this](bool checked) {showConsole(checked); });
-#else // WIN32
   ui_.action_debug_console->setVisible(false);
-#endif // WIN32
 
-#ifdef WIN32
-  /////////////////////////////////////////////
-  // Windows taskbar
-  /////////////////////////////////////////////
-  taskbar_button_ = new QWinTaskbarButton(this);
-
-  connect(QEcalRec::instance(), &QEcalRec::recordingStateChangedSignal,       this, [this]() { updateTaskbarButton(QEcalRec::instance()->recorderStatuses()); });
-  connect(QEcalRec::instance(), &QEcalRec::connectedToEcalStateChangedSignal, this, [this]() { updateTaskbarButton(QEcalRec::instance()->recorderStatuses()); });
-  connect(QEcalRec::instance(), &QEcalRec::recorderStatusUpdateSignal,        this,
-          [this](const eCAL::rec_server::RecorderStatusMap_T& rec_statuses, const std::list<eCAL::rec_server::JobHistoryEntry>& /*job_history*/)
-          {
-            updateTaskbarButton(rec_statuses);
-          });
-
-  thumbnail_toolbar_          = new QWinThumbnailToolBar(this);
-  taskbar_activate_button_    = new QWinThumbnailToolButton(thumbnail_toolbar_);
-  taskbar_record_button_      = new QWinThumbnailToolButton(thumbnail_toolbar_);
-  taskbar_save_buffer_button_ = new QWinThumbnailToolButton(thumbnail_toolbar_);
-
-  taskbar_activate_button_    ->setToolTip(tr("Activate / Prepare"));
-  taskbar_activate_button_    ->setIcon(taskbar_activate_icon_);
-
-  taskbar_record_button_      ->setToolTip("Record");
-  taskbar_record_button_      ->setIcon(taskbar_record_icon_disabled_);
-  taskbar_record_button_      ->setEnabled(false);
-
-  taskbar_save_buffer_button_ ->setToolTip("Save pre-buffer");
-  taskbar_save_buffer_button_ ->setIcon(taskbar_save_buffer_icon_disabled_);
-  taskbar_save_buffer_button_ ->setEnabled(false);
-
-  connect(taskbar_activate_button_,    &QWinThumbnailToolButton::clicked, this,                 &EcalRecGui::activateActionTriggered);
-  connect(taskbar_record_button_,      &QWinThumbnailToolButton::clicked, this,                 &EcalRecGui::recordActionTriggered);
-  connect(taskbar_save_buffer_button_, &QWinThumbnailToolButton::clicked, QEcalRec::instance(), []() { QEcalRec::instance()->savePreBufferedData(); });
-
-  thumbnail_toolbar_->addButton(taskbar_activate_button_);
-  thumbnail_toolbar_->addButton(taskbar_record_button_);
-  thumbnail_toolbar_->addButton(taskbar_save_buffer_button_);
-#endif // WIN32
 
   /////////////////////////////////////////////
   // Reset layout
@@ -389,9 +331,6 @@ void EcalRecGui::showEvent(QShowEvent* /*event*/)
 {
   if (first_show_event_)
   {
-#ifdef WIN32
-    registerTaskbarButtons();
-#endif // WIN32
 
     saveInitialLayout();
 
@@ -590,10 +529,6 @@ void EcalRecGui::updateActivateActionAndAdvancedMenu()
     ui_.action_activate->setToolTip(tr("Activate clients and start pre-buffering"));
     activate_action_state_is_activate_ = true;
 
-#ifdef WIN32
-    taskbar_activate_button_->setIcon(taskbar_activate_icon_);
-    taskbar_activate_button_->setToolTip(tr("Activate / Prepare"));
-#endif // WIN32
   }
   else if ((QEcalRec::instance()->connectionToClientsActive() && QEcalRec::instance()->connectedToEcal())
     && activate_action_state_is_activate_)
@@ -603,10 +538,6 @@ void EcalRecGui::updateActivateActionAndAdvancedMenu()
     ui_.action_activate->setToolTip(tr("De-activate clients and stop pre-buffering"));
     activate_action_state_is_activate_ = false;
 
-#ifdef WIN32
-    taskbar_activate_button_->setIcon(taskbar_deactivate_icon_);
-    taskbar_activate_button_->setToolTip(tr("De-activate"));
-#endif // WIN32
   }
 
   ui_.action_activate->setEnabled                 (!QEcalRec::instance()->recording());
@@ -651,11 +582,6 @@ void EcalRecGui::updateRecordAction()
     ui_.action_start_recording->setEnabled(true);
     record_action_state_is_record_ = false;
 
-#ifdef WIN32
-    taskbar_record_button_->setIcon(QIcon(":/ecalicons/TASKBAR_STOP"));
-    taskbar_record_button_->setToolTip(tr("Stop recording"));
-    taskbar_record_button_->setEnabled(true);
-#endif // WIN32
   }
   else if (!QEcalRec::instance()->recording())
   {
@@ -666,18 +592,10 @@ void EcalRecGui::updateRecordAction()
       ui_.action_start_recording->setToolTip(tr("Start recording"));
       record_action_state_is_record_ = true;
 
-#ifdef WIN32
-      taskbar_record_button_->setIcon(QIcon(":/ecalicons/TASKBAR_RECORD"));
-      taskbar_record_button_->setToolTip(tr("Start recording"));
-#endif // WIN32
     }
 
     bool enabled = (QEcalRec::instance()->enabledRecClients().size() > 0);
     ui_.action_start_recording->setEnabled(enabled);
-#ifdef WIN32
-    taskbar_record_button_->setEnabled(enabled);
-    taskbar_record_button_->setIcon(enabled ? taskbar_record_icon_ : taskbar_record_icon_disabled_);
-#endif // WIN32
   }
 }
 
@@ -689,10 +607,6 @@ void EcalRecGui::updateSaveBufferAction()
     && QEcalRec::instance()->enabledRecClients().size() > 0);
 
   ui_.action_save_pre_buffer->setEnabled(enabled);
-#ifdef WIN32
-  taskbar_save_buffer_button_->setEnabled(enabled);
-  taskbar_save_buffer_button_->setIcon(enabled ? taskbar_save_buffer_icon_ : taskbar_save_buffer_icon_disabled_);
-#endif // WIN32
 }
 
 void EcalRecGui::updateBufferingEnabledAction(bool enabled)
@@ -972,33 +886,11 @@ void EcalRecGui::addToRecentFileList(const std::string& path)
   QFileInfo config_file_info(QString::fromStdString(path));
   QString normalized_path = config_file_info.absoluteFilePath();
 
-#ifdef WIN32
-  normalized_path.replace("/", "\\");
-
-  // Remove duplicates
-  auto recent_file_it = recent_file_list_.begin();
-  while (recent_file_it != recent_file_list_.end())
-  {
-    if (recent_file_it->compare(normalized_path, Qt::CaseInsensitive) == 0)
-    {
-      recent_file_it = recent_file_list_.erase(recent_file_it);
-    }
-    else
-    {
-      ++recent_file_it;
-    }
-  }
-
-  // Add the config
-  recent_file_list_.push_front(normalized_path);
-
-#else
   // Remove duplicates
   recent_file_list_.removeAll(normalized_path);
 
   // Add the config
   recent_file_list_.push_front(normalized_path);
-#endif // WIN32
 
   // trim the list to 10 elements
   while (recent_file_list_.size() > 10)
@@ -1103,84 +995,3 @@ void EcalRecGui::showUploadSettingsDialog()
   }
 }
 
-#ifdef WIN32
-////////////////////////////////////////////
-// Windows specific
-////////////////////////////////////////////
-void EcalRecGui::registerTaskbarButtons()
-{
-  taskbar_button_   ->setWindow(this->windowHandle());
-  thumbnail_toolbar_->setWindow(this->windowHandle());
-}
-
-void EcalRecGui::showConsole(bool show)
-{
-  if (show)
-  {
-    if (AllocConsole())
-    {
-      if (!freopen("CONIN$", "r", stdin))
-      {
-        std::cerr << "Could not open console stdin stream" << std::endl;
-      }
-      if (!freopen("CONOUT$", "w", stdout))
-      {
-        std::cerr << "Could not open console stdout stream" << std::endl;
-      }
-      if (!freopen("CONOUT$", "w", stderr))
-      {
-        std::cerr << "Could not open console stderr stream" << std::endl;
-      }
-    }
-  }
-  else
-  {
-    FreeConsole();
-  }
-
-  ui_.action_debug_console->blockSignals(true);
-  ui_.action_debug_console->setChecked(GetConsoleWindow());
-  ui_.action_debug_console->blockSignals(false);
-}
-
-void EcalRecGui::updateTaskbarButton(const eCAL::rec_server::RecorderStatusMap_T& recorder_statuses)
-{
-  if (QEcalRec::instance()->recording())
-  {
-    taskbar_button_->setOverlayIcon(QIcon(":/ecalicons/TASKBAR_RECORD"));
-  }
-  else
-  {
-    bool anybody_flushing = false;
-    for (const auto& recorder_status : recorder_statuses)
-    {
-      for (const auto& job_status : recorder_status.second.first.job_statuses_)
-      {
-        if (job_status.state_ == eCAL::rec::JobState::Flushing)
-        {
-          anybody_flushing = true;
-          goto endloop;
-        }
-      }
-    }
-    endloop:
-    
-    if (anybody_flushing)
-    {
-      taskbar_button_->setOverlayIcon(QIcon(":/ecalicons/TASKBAR_SAVE_BUFFER"));
-    }
-    else
-    {
-      if (QEcalRec::instance()->connectedToEcal())
-      {
-        taskbar_button_->setOverlayIcon(QIcon(":/ecalicons/TASKBAR_POWER_ON"));
-      }
-      else
-      {
-        taskbar_button_->clearOverlayIcon();
-      }
-    }
-  }
-}
-
-#endif // WIN32

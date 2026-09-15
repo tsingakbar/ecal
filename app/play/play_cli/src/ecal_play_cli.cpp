@@ -35,10 +35,6 @@
 #include <ecal_utils/str_convert.h>
 #include <ecal_utils/command_line.h>
 
-#ifdef WIN32
-#define NOMINMAX
-#endif // WIN32
-
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4800 )
@@ -49,9 +45,6 @@
 #endif //_MSC_VER
 
 
-#ifdef ECAL_OS_WINDOWS
-#include <conio.h>
-#else // ECAL_OS_WINDOWS
 #include <stdio.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -94,7 +87,6 @@ int _getch(void)
   tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
   return ch;
 }
-#endif  // ECAL_OS_WINDOWS
 
 std::string UsageString(const TCLAP::Arg& arg)
 {
@@ -211,11 +203,7 @@ void printMeasurementInformation(std::shared_ptr<EcalPlay> ecal_player)
   }
 }
 
-#ifdef WIN32
-int main()
-#else
 int main(int argc, char *argv[])
-#endif // WIN32
 {
   TCLAP::CmdLine cmd("eCAL Player", ' ', EcalPlayGlobals::VERSION_STRING);
   
@@ -261,18 +249,7 @@ int main(int argc, char *argv[])
     cmd.add(*arg_iterator);
   }
  
-#ifdef WIN32
-  auto utf8_argv_vector = EcalUtils::CommandLine::GetUtf8Argv();
-  try
-  {
-    cmd.parse(utf8_argv_vector);
-  }
-  catch (TCLAP::ArgException& e)
-  {
-    std::cerr << "Error parsing command line: " << e.what() << std::endl;
-  }
-#else
-  try
+try
   {
     cmd.parse(argc, argv);
   }
@@ -280,7 +257,6 @@ int main(int argc, char *argv[])
   {
     std::cerr << "Error parsing command line: " << e.what() << std::endl;
   }
-#endif // WIN32
 
   
   //////////////////////////////////////////////////////////////////////////////

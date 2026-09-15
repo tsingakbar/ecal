@@ -28,7 +28,6 @@ public:
   ~PipeHandler();
 
   bool StartProcess(const std::string& executable_path);
-  bool StartProcess(const std::wstring& executable_path);
 
   bool WriteLine(const std::string& line);
   std::string ReadLine();
@@ -43,21 +42,13 @@ private:
   
 private:
   std::string input_residue_;
-#ifdef WIN32
-  void* child_stdin_rd_;
-  void* child_stdin_wr_;
-  void* child_stdout_rd_;
-  void* child_stdout_wr_;
 
-  mutable void *process_;
-#else
   static const int PIPE_READ  = 0;
   static const int PIPE_WRITE = 1;
-  
+
   int child_stdin_pipe_fd_[2];
   int child_stdout_pipe_fd_[2];
 
   mutable int pid_;
-#endif
 };
 

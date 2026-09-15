@@ -30,12 +30,6 @@ public:
   ResourceBar(QWidget *parent = Q_NULLPTR) : QWidget(parent) 
   { 
     setupUi(this); 
-#ifdef WIN32
-    // On Windows, the progress bar is green. The default white text is very hard to read, so we modify that color.
-    QPalette pal = bar->palette();
-    pal.setColor(QPalette::HighlightedText, pal.color(QPalette::Text));
-    bar->setPalette(pal);
-#endif
   }
   ~ResourceBar() {}
 

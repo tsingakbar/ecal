@@ -47,9 +47,6 @@
 #include <QUrl>
 #include <QStyleFactory>
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
 
 EcalsysGui::EcalsysGui(QWidget *parent)
   : QMainWindow(parent)
@@ -169,12 +166,7 @@ EcalsysGui::EcalsysGui(QWidget *parent)
   connect(ui_.action_group_collapse,               &QAction::triggered, [=]() {ui_.groups_dockwidget->raise(); group_widget_->collapseGroups(); });
 
   // Special show-console button for Windows
-#ifdef WIN32
-  ui_.action_show_console->setChecked(GetConsoleWindow());
-  connect(ui_.action_show_console, &QAction::triggered, [this](bool checked) {showConsole(checked); });
-#else //WIN32
   ui_.action_show_console->setVisible(false);
-#endif // WIN32
 
 
   // Perform startup checks after a few seconds
@@ -957,30 +949,6 @@ void EcalsysGui::menuHelpLicensesTriggered()
   license_dialog.exec();
 }
 
-#ifdef WIN32
-#pragma warning(push)
-#pragma warning (disable : 4996)
-void EcalsysGui::showConsole(bool show)
-{
-  if (show)
-  {
-    AllocConsole();
-    if (!freopen("CONOUT$", "w", stdout))
-    {
-      std::cerr << "Could not open console stdout stream" << std::endl;
-    }
-    if (!freopen("CONOUT$", "w", stderr))
-    {
-      std::cerr << "Could not open console stderr stream" << std::endl;
-    }
-  }
-  else
-  {
-    FreeConsole();
-  }
-}
-#pragma warning(pop)
-#endif // WIN32
 
 
 void EcalsysGui::openFile(QString path, bool append)
@@ -1226,31 +1194,11 @@ void EcalsysGui::updateHostActions(QMenu* menu)
 
 void EcalsysGui::updateRecentFiles(const QString& new_config_file)
 {
-#ifdef WIN32
-  QString config_file = new_config_file;
-  config_file.replace("/", "\\");
-
-  // Remove duplicates
-  QList<QString> new_last_config_list;
-  for (const QString& last_config : last_config_list)
-  {
-    if (config_file.compare(last_config, Qt::CaseInsensitive) != 0)
-    {
-      new_last_config_list.push_back(last_config);
-    }
-  }
-  last_config_list = new_last_config_list;
-
-  // Add the config
-  last_config_list.push_front(config_file);
-
-#else
   // Remove duplicates
   last_config_list.removeAll(new_config_file);
 
   // Add the config
   last_config_list.push_front(new_config_file);
-#endif // WIN32
 
   // trim the list to 10 elements
   while (last_config_list.size() > 10)

@@ -35,10 +35,6 @@
 
 #include <ecal_utils/filesystem.h>
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_main.h"
-#endif
-
 #ifdef ECAL_OS_LINUX
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,9 +46,6 @@
 
 namespace
 {
-#ifdef ECAL_OS_WINDOWS
-  const char path_sep('\\');
-#endif /* ECAL_OS_WINDOWS */
 #ifdef ECAL_OS_LINUX
   const char path_sep('/');
 #endif /* ECAL_OS_LINUX */
@@ -109,18 +102,6 @@ namespace
   std::string eCALDataSystemPath()
   {
     std::string system_data_path;
-#ifdef ECAL_OS_WINDOWS
-    system_data_path = getEnvVar("ProgramData");
-    if (!system_data_path.empty())
-    {
-      if (system_data_path.back() != path_sep)
-      {
-        system_data_path += path_sep;
-      }
-      system_data_path += std::string("eCAL") + path_sep;
-    }
-#endif /* ECAL_OS_WINDOWS */
-
 #ifdef ECAL_OS_LINUX
     system_data_path = "/etc/ecal/";
 #endif /* ECAL_OS_LINUX */
@@ -153,20 +134,6 @@ namespace eCAL
     ECAL_API std::string GeteCALHomePath()
     {
       std::string home_path;
-
-#ifdef ECAL_OS_WINDOWS
-      // check ECAL_HOME
-      home_path = getEnvVar("ECAL_HOME");
-      if (!home_path.empty())
-      {
-        if (*home_path.rbegin() != path_sep) home_path += path_sep;
-      }
-      if (!std::string(ECAL_HOME_PATH_WINDOWS).empty()) //-V815
-      {
-        home_path += path_sep;
-        home_path += ECAL_HOME_PATH_WINDOWS;
-      }
-#endif /* ECAL_OS_WINDOWS */
 
 #ifdef ECAL_OS_LINUX
       const char *hdir;
@@ -223,10 +190,6 @@ namespace eCAL
     ECAL_API std::string GeteCALUserSettingsPath()
     {
       std::string settings_path;
-#ifdef ECAL_OS_WINDOWS
-      settings_path = GeteCALConfigPath();
-#endif /* ECAL_OS_WINDOWS */
-
 #ifdef ECAL_OS_LINUX
       settings_path = GeteCALHomePath();
 #endif /* ECAL_OS_LINUX */
@@ -244,10 +207,6 @@ namespace eCAL
     ECAL_API std::string GeteCALLogPath()
     {
       std::string log_path;
-#ifdef ECAL_OS_WINDOWS
-      log_path = GeteCALConfigPath();
-#endif /* ECAL_OS_WINDOWS */
-
 #ifdef ECAL_OS_LINUX
       log_path = GeteCALHomePath();
 #endif /* ECAL_OS_LINUX */

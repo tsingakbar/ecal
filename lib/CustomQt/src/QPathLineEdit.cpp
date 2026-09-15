@@ -53,11 +53,7 @@ QPathLineEdit::QPathLineEdit(const QString &contents, QWidget *parent)
           }
 
           QString root_path;
-#ifdef WIN32
-          if (text.endsWith('\\') || text.endsWith('/'))
-#else //WIN32
           if (text.endsWith('/'))
-#endif //WIN32
           {
             root_path = text;
             // Usually, the completer disappears, when typing a directory

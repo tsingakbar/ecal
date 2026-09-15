@@ -24,10 +24,5 @@ namespace EcalUtils
 {
   namespace CommandLine
   {
-#ifdef WIN32
-    std::vector<std::string> GetUtf8Argv();
-
-    std::string GetUtf8CommandLine();
-#endif // WIN32
   }
 }

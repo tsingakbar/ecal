@@ -39,10 +39,6 @@
 
 #include "ecal_play_logger.h"
 
-#ifdef WIN32
-#include <QWinTaskbarButton>
-#endif //WIN32
-
 QEcalPlay::QEcalPlay()
   : ecal_play_()
   , scenarios_modified_(false)
@@ -674,10 +670,8 @@ bool QEcalPlay::initializePublishers(bool suppress_error_dialog)
                               std::cout << "An unknown error occured while initializing eCAL publishers." << std::endl;
                             }
 
-#ifndef WIN32
                             if (!success.first)
                               success.second += "\n\nTip: If you are on a Linux-like OS and receive a \"too many ope files\" error, you may want to increase the limit of open file descriptors for eCAL Play!";
-#endif //!WIN32
                           });
 
   while (!success_future.isFinished())

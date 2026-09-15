@@ -19,31 +19,14 @@
 
 #include "username.h"
 
-#ifdef WIN32
-  #include <windows.h>
-  #include <Lmcons.h>
-#elif __linux__
   #include <unistd.h>
   #include <pwd.h>
-#else
-  #include <cstdlib>
-#endif
 
 
 namespace EcalParser
 {
   std::string FunctionUsername::Evaluate(const std::string& /*parameters*/, std::chrono::system_clock::time_point /*time*/) const
   {
-#if defined _WIN32 || defined _WIN64
-    char username[UNLEN+1];
-    DWORD username_len = UNLEN+1;
-
-    if (GetUserName(username, &username_len))
-      return std::string(username);
-    else
-      return "";
-
-#elif __linux__ 
     uid_t uid = geteuid ();
     struct passwd *pw = getpwuid (uid);
 
@@ -52,17 +35,6 @@ namespace EcalParser
     else
       return "";
 
-#else // Let's hope that the USER variable is set. Should work for many Unix Style OSs
-    const char* env_var = std::getenv("USER");
-    if (env_var)
-    {
-      return std::string(env_var);
-    }
-    else
-    {
-      return "";
-    }
-#endif 
   }
 
   std::string FunctionUsername::ParameterUsage   () const { return ""; }

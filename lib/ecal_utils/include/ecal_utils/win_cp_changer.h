@@ -17,31 +17,3 @@
 * ========================= eCAL LICENSE =================================
 */
 
-#ifdef WIN32
-
-namespace EcalUtils
-{
-  // RAII Class for changing the Console Codepage
-  class WinCpChanger
-  {
-  public:
-    // Constructor
-    WinCpChanger(const int target_cp);
-
-    // Copy (Delted -> no copy constructor)
-    WinCpChanger(const WinCpChanger&)            = delete;
-    WinCpChanger& operator=(const WinCpChanger&) = delete;
-
-    // Move
-    WinCpChanger& operator=(WinCpChanger&&)      = default;
-    WinCpChanger(WinCpChanger&&)                 = default;
-
-    // Destructor
-    ~WinCpChanger();
-
-  private:
-    int initial_cp;
-  };
-}
-
-#endif

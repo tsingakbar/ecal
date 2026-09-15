@@ -24,11 +24,7 @@
 #include "eh5_meas_dir.h"
 #include "escape.h"
 
-#ifdef WIN32
-#include <windows.h>
-#else
 #include <dirent.h>
-#endif //WIN32
 
 #include <string.h>
 #include <string>
@@ -384,36 +380,6 @@ void eCAL::eh5::HDF5MeasDir::DisconnectPreSplitCallback()
 std::list<std::string> eCAL::eh5::HDF5MeasDir::GetHdfFiles(const std::string& path) const
 {
   std::list<std::string> paths;
-#ifdef WIN32
-  std::string dpath = path + "/*.*";
-  std::wstring dpath_w = EcalUtils::StrConvert::Utf8ToWide(dpath);
-
-  WIN32_FIND_DATAW fd;
-  HANDLE hFind = ::FindFirstFileW(dpath_w.c_str(), &fd);
-  if (hFind != INVALID_HANDLE_VALUE)
-  {
-    do {
-      std::wstring file_name_w(fd.cFileName);
-      std::string file_name_utf8 = EcalUtils::StrConvert::WideToUtf8(file_name_w);
-
-      if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-      {
-        if (HasHdf5Extension(file_name_utf8) == true)
-        {
-          paths.push_back(path + "/" + std::string(file_name_utf8.begin(), file_name_utf8.end()));
-        }
-      }
-      else
-      {
-        if (file_name_utf8 != "." && file_name_utf8 != "..")
-        {
-          paths.splice(paths.end(), GetHdfFiles(path + "/" + std::string(file_name_utf8.begin(), file_name_utf8.end())));
-        }
-      }
-    } while (::FindNextFileW(hFind, &fd));
-    ::FindClose(hFind);
-  }
-#else
   struct dirent* de = nullptr;
   DIR* dir = nullptr;
 
@@ -441,7 +407,6 @@ std::list<std::string> eCAL::eh5::HDF5MeasDir::GetHdfFiles(const std::string& pa
     }
     closedir(dir);
 }
-#endif  //  WIN32
   return paths;
 }
 

@@ -38,24 +38,12 @@
 
 
 
-#ifdef WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <signal.h>
-
-/** Win32 Console Handler (CTRL+C, Close Window) */
-BOOL WINAPI ConsoleHandler(DWORD);
-
-#else // WIN32
 
 #include <signal.h>
 
 /** POSIX signal handler */
 void SignalHandler(int s);
 
-#endif // WIN32
 
 /** Global eCAL Rec instance */
 std::shared_ptr<eCAL::rec::EcalRec> ecal_rec;
@@ -69,11 +57,7 @@ std::chrono::steady_clock::time_point ctrl_exit_until(std::chrono::steady_clock:
 bool                                  ctrl_exit_event(false);
 
 
-#ifdef WIN32
-int main()
-#else
 int main(int argc, char** argv)
-#endif // WIN32
 {
   TCLAP::CmdLine cmd("eCAL Recorder", ' ', ECAL_REC_VERSION_STRING);
   
@@ -129,12 +113,7 @@ int main(int argc, char** argv)
  
   try
   {
-#ifdef WIN32
-    auto utf8_args_vector = EcalUtils::CommandLine::GetUtf8Argv();
-    cmd.parse(utf8_args_vector);
-#else
     cmd.parse(argc, argv);
-#endif // WIN32
   }
   catch (TCLAP::ArgException& e)
   {
@@ -306,29 +285,6 @@ int main(int argc, char** argv)
   header_ss                                                                                      << std::endl;
 
   // Signal handling for Ctrl+C
-#ifdef WIN32
-
-  std::string attention_string1 = "!! Attention !!";
-  std::string attention_string2 = "Closing the console with the [X] button may lead to incomplete measurements";
-  EcalUtils::String::CenterString(attention_string1, ' ', 73);
-  EcalUtils::String::CenterString(attention_string2, ' ', 73);
-
-  header_ss << std::endl;
-  header_ss << attention_string1 << std::endl;
-  header_ss << attention_string2 << std::endl;
-
-  header_ss << std::endl;
-
-  if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE))
-  {
-    header_ss << "Press Ctrl+C to exit" << std::endl;
-  }
-  else
-  {
-    std::cerr << "Unable to set Ctrl+C handler" << std::endl;
-  }
-
-#else // WIN32
   struct sigaction sigIntHandler;
 
   sigIntHandler.sa_handler = SignalHandler;
@@ -345,7 +301,6 @@ int main(int argc, char** argv)
     std::cerr << "Unable to set signal handler: " << strerror(errno) << std::endl;    
   }
      
-#endif
   
   header_ss << std::endl;
   header_ss << "-------------------------------------------------------------------------------" << std::endl;
@@ -508,39 +463,6 @@ void UpdateEcalState()
   }
 }
 
-#ifdef WIN32
-BOOL WINAPI ConsoleHandler(DWORD dwType)
-{
-  if (dwType == CTRL_C_EVENT)
-  {
-    std::lock_guard<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-    ctrl_exit_event = true;
-    return TRUE;
-  }
-  else if (dwType == CTRL_BREAK_EVENT)
-  {
-    std::lock_guard<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-
-    ctrl_exit_until = std::chrono::steady_clock::now(); // Exit immediatelly
-    ctrl_exit_event = true;
-
-    return TRUE;
-  }
-  else if (dwType == CTRL_CLOSE_EVENT)
-  {
-    std::unique_lock<decltype(ecal_rec_exit_mutex_)> ecal_rec_exit_lock(ecal_rec_exit_mutex_);
-
-    ctrl_exit_event = true;
-    ctrl_exit_until = std::chrono::steady_clock::now() + std::chrono::seconds(3); // Give it 3 seconds to finish, kill it otherwise
-
-    ecal_rec_exit_cv_.wait(ecal_rec_exit_lock);
-
-    return TRUE;
-  }
-
-  return FALSE;
-}
-#else // WIN32
 
 void SignalHandler(int s)
 {
@@ -557,4 +479,3 @@ void SignalHandler(int s)
   }
 }
 
-#endif //WIN32

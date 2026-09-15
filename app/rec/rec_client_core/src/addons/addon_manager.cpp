@@ -40,15 +40,11 @@ namespace eCAL
     {
       std::vector<std::string> addon_dirs;
       auto default_addon_dir = EcalUtils::Filesystem::ApplicationDir();
-#ifdef WIN32
-      default_addon_dir += std::string(1, EcalUtils::Filesystem::NativeSeparator()) + "ecalrec_addons";
-#else
       default_addon_dir += std::string(1, EcalUtils::Filesystem::NativeSeparator()) + ".."
                          + std::string(1, EcalUtils::Filesystem::NativeSeparator()) + "lib"
                          + std::string(1, EcalUtils::Filesystem::NativeSeparator()) + "ecal"
                          + std::string(1, EcalUtils::Filesystem::NativeSeparator()) + "addons"
                          + std::string(1, EcalUtils::Filesystem::NativeSeparator()) + "rec";
-#endif
       
       addon_dirs.push_back(default_addon_dir);
 
@@ -56,15 +52,10 @@ namespace eCAL
       if (additional_addon_dirs != nullptr)
       {
         auto dir_delimiter
-#ifdef WIN32
-        { ";" };
-#else
         { ":" };
-#endif
         EcalUtils::String::Split(std::string(additional_addon_dirs), dir_delimiter, addon_dirs);
       }
 
-#ifndef WIN32
       // Add the actually installed plugin directory (which may be a multiarch lib dir!)
 
       std::string installed_plugin_dir;
@@ -85,7 +76,6 @@ namespace eCAL
       installed_plugin_dir += "/ecal/addons/rec";
 
       addon_dirs.push_back(installed_plugin_dir);
-#endif
 
       return addon_dirs;
     }

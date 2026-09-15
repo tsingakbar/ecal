@@ -143,9 +143,6 @@ private slots:
   void menuHelpAboutTriggered();
   void menuHelpLicensesTriggered();
 
-#ifdef WIN32
-  void showConsole(bool show);
-#endif // WIN32
 
 
   void performStartupChecks();

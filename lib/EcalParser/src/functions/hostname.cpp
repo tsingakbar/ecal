@@ -19,14 +19,7 @@
 
 #include "hostname.h"
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#include <WinSock2.h>
-#else // WIN32
 #include <unistd.h>
-#endif // WIN32
 
 namespace EcalParser
 {
@@ -36,18 +29,6 @@ namespace EcalParser
     
     if (hostname.empty())
     {
-#ifdef WIN32
-      WORD wVersionRequested = MAKEWORD(2, 2);
-
-      WSADATA wsaData;
-      int err = WSAStartup(wVersionRequested, &wsaData);
-      if (err != 0)
-      {
-        /* Tell the user that we could not find a usable */
-        /* Winsock DLL.                                  */
-        printf("WSAStartup failed with error: %d\n", err);
-      }
-#endif // WIN32
 
       char hostname_char[1024] = { 0 };
       if (gethostname(hostname_char, 1024) == 0)

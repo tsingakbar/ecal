@@ -30,13 +30,6 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
-#ifdef WIN32
-#include <QWinTaskbarButton>
-#include <QWinTaskbarProgress>
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#endif // WIN32
 
 #include "q_ecal_play.h"
 
@@ -53,18 +46,6 @@ EcalplayGui::EcalplayGui(QWidget *parent)
   , measurement_loaded_                     (false)
   , measurement_boundaries_                 (eCAL::Time::ecal_clock::time_point(eCAL::Time::ecal_clock::duration(0)), eCAL::Time::ecal_clock::time_point(eCAL::Time::ecal_clock::duration(0)))
   , measurement_frame_count_                (0)
-#ifdef WIN32
-  , taskbar_play_icon_                      (":ecalicons/TASKBAR_PLAY")
-  , taskbar_play_icon_disabled_             (":ecalicons/TASKBAR_PLAY_DISABLED")
-  , taskbar_pause_icon_                     (":ecalicons/TASKBAR_PAUSE")
-  , taskbar_pause_icon_disabled_            (":ecalicons/TASKBAR_PAUSE_DISABLED")
-  , taskbar_stop_icon_                      (":ecalicons/TASKBAR_STOP")
-  , taskbar_stop_icon_disabled_             (":ecalicons/TASKBAR_STOP_DISABLED")
-  , taskbar_step_icon_                      (":ecalicons/TASKBAR_PLAY_NEXT")
-  , taskbar_step_icon_disabled_             (":ecalicons/TASKBAR_PLAY_NEXT_DISABLED")
-  , taskbar_step_channel_icon_              (":ecalicons/TASKBAR_FORWARD_TO")
-  , taskbar_step_channel_icon_disabled_     (":ecalicons/TASKBAR_FORWARD_TO_DISABLED")
-#endif // WIN32
 {
   ui_.setupUi(this);
   splitDockWidget(ui_.scenario_dockwidget, ui_.description_dockwidget, Qt::Orientation::Vertical);
@@ -226,60 +207,7 @@ EcalplayGui::EcalplayGui(QWidget *parent)
   //////////////////////////////////////////////////////////////////////////////
   connect(ui_.menu_recent_measurement, &QMenu::aboutToShow, this, &EcalplayGui::populateRecentMeasurementsMenu);
 
-#ifdef WIN32
-  //////////////////////////////////////////////////////////////////////////////
-  //// Windows Taskbar                                                      ////
-  //////////////////////////////////////////////////////////////////////////////
-  taskbar_button_ = new QWinTaskbarButton(this);
-  connect(QEcalPlay::instance(), &QEcalPlay::playStateChangedSignal,           this, &EcalplayGui::updateTaskbarProgress);
-  connect(QEcalPlay::instance(), &QEcalPlay::publishersInitStateChangedSignal, this, [this]() { EcalplayGui::updateTaskbarProgress(QEcalPlay::instance()->currentPlayState()); });
-
-  thumbnail_toolbar_             = new QWinThumbnailToolBar(this);
-  thumbnail_play_pause_button_   = new QWinThumbnailToolButton(thumbnail_toolbar_);
-  thumbnail_stop_button_         = new QWinThumbnailToolButton(thumbnail_toolbar_);
-  thumbnail_step_button_         = new QWinThumbnailToolButton(thumbnail_toolbar_);
-  thumbnail_step_channel_button_ = new QWinThumbnailToolButton(thumbnail_toolbar_);
-
-  thumbnail_play_pause_button_  ->setToolTip("Play");
-  thumbnail_play_pause_button_  ->setIcon(taskbar_play_icon_disabled_);
-  thumbnail_play_pause_button_  ->setEnabled(false);
-
-
-  thumbnail_stop_button_        ->setToolTip("Stop");
-  thumbnail_stop_button_        ->setIcon(taskbar_stop_icon_disabled_);
-  thumbnail_stop_button_        ->setEnabled(false);
-
-  thumbnail_step_button_        ->setToolTip("Step frame");
-  thumbnail_step_button_        ->setIcon(taskbar_play_icon_disabled_);
-  thumbnail_step_button_        ->setEnabled(false);
-
-  thumbnail_step_channel_button_->setToolTip("Step Channel");
-  thumbnail_step_channel_button_->setIcon(taskbar_step_channel_icon_disabled_);
-  thumbnail_step_channel_button_->setEnabled(false);
-
-  connect(thumbnail_play_pause_button_, &QWinThumbnailToolButton::clicked,
-      [this]()
-      {
-        if (play_pause_button_state_is_play_)
-          QEcalPlay::instance()->play();
-        else
-          QEcalPlay::instance()->pause();
-      });
-  connect(thumbnail_stop_button_,         &QWinThumbnailToolButton::clicked, QEcalPlay::instance(), &QEcalPlay::stop);
-  connect(thumbnail_step_button_,         &QWinThumbnailToolButton::clicked, QEcalPlay::instance(), []() {QEcalPlay::instance()->stepForward(); });
-  connect(thumbnail_step_channel_button_, &QWinThumbnailToolButton::clicked, QEcalPlay::instance(), []() {QEcalPlay::instance()->stepChannel(); });
-
-  thumbnail_toolbar_->addButton(thumbnail_play_pause_button_);
-  thumbnail_toolbar_->addButton(thumbnail_stop_button_);
-  thumbnail_toolbar_->addButton(thumbnail_step_button_);
-  thumbnail_toolbar_->addButton(thumbnail_step_channel_button_);
-
-  // Special show-console button for Windows
-  ui_.action_debug_console->setChecked(GetConsoleWindow());
-  connect(ui_.action_debug_console, &QAction::triggered, [this](bool checked) {showConsole(checked); });
-#else //WIN32
   ui_.action_debug_console->setVisible(false);
-#endif // WIN32
 
   //////////////////////////////////////////////////////////////////////////////
   //// Initial layout                                                       ////
@@ -308,10 +236,6 @@ void EcalplayGui::showEvent(QShowEvent* /*event*/)
 {
   if (first_show_event_)
   {
-#ifdef WIN32
-  taskbar_button_   ->setWindow(this->windowHandle());
-  thumbnail_toolbar_->setWindow(this->windowHandle());
-#endif // WIN32
 
     saveInitialLayout();
 
@@ -368,18 +292,6 @@ void EcalplayGui::measurementLoaded(const QString& path)
   measurement_path_label_->setText(" " + QDir::toNativeSeparators(path) + " ");
   addRecentMeasurement(path);
 
-#ifdef WIN32
-  thumbnail_play_pause_button_      ->setEnabled(true);
-  thumbnail_play_pause_button_      ->setIcon(play_pause_button_state_is_play_ ? taskbar_play_icon_ : taskbar_pause_icon_);
-
-  thumbnail_stop_button_            ->setEnabled(true);
-  thumbnail_stop_button_            ->setIcon(taskbar_stop_icon_);
-
-  thumbnail_step_button_            ->setEnabled(true);
-  thumbnail_step_button_            ->setIcon(taskbar_step_icon_);
-
-  updateTaskbarProgressRange();
-#endif //WIN32
 }
 
 void EcalplayGui::measurementClosed()
@@ -403,18 +315,6 @@ void EcalplayGui::measurementClosed()
   setWindowFilePath("");
   measurement_path_label_->setText(tr(" No measurement loaded "));
 
-#ifdef WIN32
-  thumbnail_play_pause_button_      ->setEnabled(false);
-  thumbnail_play_pause_button_      ->setIcon(play_pause_button_state_is_play_ ? taskbar_play_icon_disabled_ : taskbar_pause_icon_disabled_);
-
-  thumbnail_stop_button_            ->setEnabled(false);
-  thumbnail_stop_button_            ->setIcon(taskbar_stop_icon_disabled_);
-
-  thumbnail_step_button_            ->setEnabled(false);
-  thumbnail_step_button_            ->setIcon(taskbar_step_icon_disabled_);
-
-  updateTaskbarProgressRange();
-#endif //WIN32
 }
 
 void EcalplayGui::publishersInitStateChanged(bool publishers_initialized)
@@ -493,11 +393,6 @@ void EcalplayGui::stepReferenceChannelChanged(const QString& step_reference_chan
   {
     ui_.action_step_channel->setText("Step channel");
     ui_.action_step_channel->setEnabled(false);
-#ifdef WIN32
-    thumbnail_step_channel_button_->setEnabled(false);
-    thumbnail_step_channel_button_->setToolTip("Step channel");
-    thumbnail_step_channel_button_->setIcon(taskbar_step_channel_icon_disabled_);
-#endif //WIN32
   }
   else
   {
@@ -508,24 +403,14 @@ void EcalplayGui::stepReferenceChannelChanged(const QString& step_reference_chan
     {
       QString description = tr("Step") + " \"" + target_channel_it->second.c_str() + "\"";
       ui_.action_step_channel->setText(tr("Step") + " \"" + target_channel_it->second.c_str() + "\"");
-#ifdef WIN32
-      thumbnail_step_channel_button_->setToolTip(description);
-#endif //WIN32
     }
     else
     {
       QString description = tr("Step") + " \"" + step_reference_channel + "\"";
       ui_.action_step_channel->setText(description);
-#ifdef WIN32
-      thumbnail_step_channel_button_->setToolTip(description);
-#endif //WIN32
     }
 
     ui_.action_step_channel->setEnabled(true);
-#ifdef WIN32
-    thumbnail_step_channel_button_->setEnabled(true);
-    thumbnail_step_channel_button_->setIcon(taskbar_step_channel_icon_);
-#endif //WIN32
   }
 }
 
@@ -564,10 +449,6 @@ void EcalplayGui::setPlayPauseActionToPlay()
     ui_.action_play->setIcon(QPixmap(":/ecalicons/START"));
     play_pause_button_state_is_play_ = true;
 
-#ifdef WIN32
-    thumbnail_play_pause_button_->setToolTip("Play");
-    thumbnail_play_pause_button_->setIcon(thumbnail_play_pause_button_->isEnabled() ? taskbar_play_icon_ : taskbar_pause_icon_disabled_);
-#endif // WIN32
   }
 }
 
@@ -579,10 +460,6 @@ void EcalplayGui::setPlayPauseActionToPause()
     ui_.action_play->setIcon(QPixmap(":/ecalicons/PAUSE"));
     play_pause_button_state_is_play_ = false;
 
-#ifdef WIN32
-    thumbnail_play_pause_button_->setToolTip("Pause");
-    thumbnail_play_pause_button_->setIcon(thumbnail_play_pause_button_->isEnabled() ? taskbar_pause_icon_ : taskbar_pause_icon_disabled_);
-#endif // WIN32
   }
 }
 
@@ -935,71 +812,3 @@ void EcalplayGui::dropEvent(QDropEvent* event)
   QWidget::dropEvent(event);
 }
 
-#ifdef WIN32
-////////////////////////////////////////////////////////////////////////////////
-//// Windows Taskbar                                                        ////
-////////////////////////////////////////////////////////////////////////////////
-
-void EcalplayGui::updateTaskbarProgress(const EcalPlayState& current_state)
-{
-  QWinTaskbarProgress* progress = taskbar_button_->progress();
-  progress->setPaused(!current_state.playing_);
-  progress->setValue(std::chrono::duration_cast<std::chrono::milliseconds>(current_state.current_frame_timestamp - measurement_boundaries_.first).count());
-
-  if (measurement_loaded_ && QEcalPlay::instance()->isInitialized())
-  {
-    if (current_state.playing_)
-    {
-      taskbar_button_->setOverlayIcon(QIcon(":/ecalicons/TASKBAR_PLAY"));
-    }
-    else
-    {
-      taskbar_button_->setOverlayIcon(QIcon(":/ecalicons/TASKBAR_PAUSE"));
-    }
-  }
-  else
-  {
-    taskbar_button_->clearOverlayIcon();
-  }
-}
-
-void EcalplayGui::updateTaskbarProgressRange()
-{
-  QWinTaskbarProgress* progress = taskbar_button_->progress();
-  progress->setVisible(measurement_loaded_);
-
-  progress->setMinimum(0);
-  progress->setMaximum(std::chrono::duration_cast<std::chrono::milliseconds>(measurement_boundaries_.second - measurement_boundaries_.first).count());
-}
-
-void EcalplayGui::showConsole(bool show)
-{
-  if (show)
-  {
-    if (AllocConsole())
-    {
-      if (!freopen("CONIN$", "r", stdin))
-      {
-        std::cerr << "Could not open console stdin stream" << std::endl;
-      }
-      if (!freopen("CONOUT$", "w", stdout))
-      {
-        std::cerr << "Could not open console stdout stream" << std::endl;
-      }
-      if (!freopen("CONOUT$", "w", stderr))
-      {
-        std::cerr << "Could not open console stderr stream" << std::endl;
-      }
-    }
-  }
-  else
-  {
-    FreeConsole();
-  }
-
-  ui_.action_debug_console->blockSignals(true);
-  ui_.action_debug_console->setChecked(GetConsoleWindow());
-  ui_.action_debug_console->blockSignals(false);
-}
-
-#endif // WIN32

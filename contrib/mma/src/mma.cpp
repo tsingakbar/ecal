@@ -19,20 +19,12 @@
 
 #include "../include/mma.h"
 
-#ifdef _WIN32
-#include "../include/windows/mma_windows.h"
-#endif // _WIN32
-
 #ifdef __unix__
 #include "linux/mma_linux.h"
 #endif // __unix__
 
 MMA::MMA()
 {
-#ifdef _WIN32
-  pImpl = new MMAWindows();
-#endif // _WIN32
-
 #ifdef __unix__
   pImpl = new MMALinux();
 #endif // __unix__

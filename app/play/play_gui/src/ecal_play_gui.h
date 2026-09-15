@@ -21,11 +21,6 @@
 
 #include <QtWidgets/QMainWindow>
 
-#ifdef WIN32
-#include <QWinTaskbarButton>
-#include <QWinThumbnailToolBar>
-#include <QWinThumbnailToolButton>
-#endif // WIN32
 
 #include <QActionGroup>
 
@@ -138,33 +133,4 @@ private:
   bool askToSaveScenarios();
 
 
-#ifdef WIN32
-////////////////////////////////////////////////////////////////////////////////
-//// Windows specific                                                        ////
-////////////////////////////////////////////////////////////////////////////////
-private slots:
-  void updateTaskbarProgress(const EcalPlayState& current_state);
-  void showConsole(bool show);
-
-private:
-  QWinTaskbarButton* taskbar_button_;
-  QWinThumbnailToolBar* thumbnail_toolbar_;
-  QWinThumbnailToolButton* thumbnail_play_pause_button_;
-  QWinThumbnailToolButton* thumbnail_stop_button_;
-  QWinThumbnailToolButton* thumbnail_step_button_;
-  QWinThumbnailToolButton* thumbnail_step_channel_button_;
-
-  QIcon taskbar_play_icon_;
-  QIcon taskbar_play_icon_disabled_;
-  QIcon taskbar_pause_icon_;
-  QIcon taskbar_pause_icon_disabled_;
-  QIcon taskbar_stop_icon_;
-  QIcon taskbar_stop_icon_disabled_;
-  QIcon taskbar_step_icon_;
-  QIcon taskbar_step_icon_disabled_;
-  QIcon taskbar_step_channel_icon_;
-  QIcon taskbar_step_channel_icon_disabled_;
-
-  void updateTaskbarProgressRange();
-#endif // WIN32
 };

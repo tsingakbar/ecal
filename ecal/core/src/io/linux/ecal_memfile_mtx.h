@@ -67,9 +67,7 @@ namespace
     pthread_condattr_t shattr;
     pthread_condattr_init(&shattr);
     pthread_condattr_setpshared(&shattr, PTHREAD_PROCESS_SHARED);
-#ifndef ECAL_OS_MACOS
     pthread_condattr_setclock(&shattr, CLOCK_MONOTONIC);
-#endif // ECAL_OS_MACOS
 
 
     // map them into shared memory
@@ -138,11 +136,7 @@ namespace
         // wait with timeout for unlock signal
         if (ts_)
         {
-#ifndef ECAL_OS_MACOS
           ret = pthread_cond_timedwait(&mtx_->cvar, &mtx_->mtx, ts_);
-#else
-          ret = pthread_cond_timedwait_relative_np(&mtx_->cvar, &mtx_->mtx, ts_);
-#endif
         }
         // blocking wait for unlock signal
         else

@@ -363,43 +363,12 @@ namespace eCAL
 
     const auto ecal_time_plugin_paths = splitPaths(getEnvVar("ECAL_TIME_PLUGIN_PATH"));
 
-#ifdef _WIN32
-  #ifndef NDEBUG
-      module_name += "d";
-  #endif // !NDEBUG
-      // set extension
-      module_name += ".dll";
-#endif //_WIN32
-
 #ifdef __linux__
       module_name = "lib" + module_name + ".so";
 #endif
 
     if (!interface_.module_handle)
     {
-#ifdef _WIN32
-      // try to load plugin from paths that are specified in the time plugin environment variable
-      for (const auto& ecal_time_plugin_path : ecal_time_plugin_paths)
-      {
-        const auto module_path = ecal_time_plugin_path + "\\" + module_name;
-        interface_.module_handle = LoadLibrary(module_path.c_str());
-        if (interface_.module_handle) break;
-      }
-
-      // try to load plugin in standard path
-      if (!interface_.module_handle)
-      {
-        const auto module_path = module_name;
-        interface_.module_handle = LoadLibrary(module_path.c_str());
-      }
-
-      // try to load plugin from sub folder "ecal_time_plugin_dir"
-      if (!interface_.module_handle)
-      {
-        const auto module_path = std::string(ecal_time_plugin_dir) + "\\" + module_name;
-        interface_.module_handle = LoadLibrary(module_path.c_str());
-      }
-#endif
 #ifdef __linux__
       // try to load plugin from paths that are specified in the time plugin environment variable
       for (const auto& ecal_time_plugin_path : ecal_time_plugin_paths)
@@ -424,17 +393,6 @@ namespace eCAL
       }
       else
       {
-#ifdef _WIN32
-        interface_.module_name               = module_name;
-        interface_.etime_initialize_ptr      = (etime_initialize)                  GetProcAddress(interface_.module_handle, etime_initialize_name);
-        interface_.etime_finalize_ptr        = (etime_finalize)                    GetProcAddress(interface_.module_handle, etime_finalize_name);
-        interface_.etime_get_nanoseconds_ptr = (etime_get_nanoseconds)             GetProcAddress(interface_.module_handle, etime_get_nanoseconds_name);
-        interface_.etime_set_nanoseconds_ptr = (etime_set_nanoseconds)             GetProcAddress(interface_.module_handle, etime_set_nanoseconds_name);
-        interface_.etime_is_synchronized_ptr = (etime_is_synchronized)             GetProcAddress(interface_.module_handle, etime_is_synchronized_name);
-        interface_.etime_is_master_ptr       = (etime_is_master)                   GetProcAddress(interface_.module_handle, etime_is_master_name);
-        interface_.etime_sleep_for_nanoseconds_ptr = (etime_sleep_for_nanoseconds) GetProcAddress(interface_.module_handle, etime_sleep_for_nanoseconds_name);
-        interface_.etime_get_status_ptr       = (etime_get_status)                 GetProcAddress(interface_.module_handle, etime_get_status_name);
-#endif // _WIN32
 #ifdef __linux__
         interface_.module_name               = module_name;
         interface_.etime_initialize_ptr      = (etime_initialize)                  dlsym(interface_.module_handle, etime_initialize_name);

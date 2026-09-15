@@ -35,11 +35,7 @@ namespace EcalUtils
       Windows  = 1,
       Unix     = 2,
 
-#if defined _WIN32
-      Current  = Windows,
-#else
       Current  = Unix,
-#endif
     };
 
     enum Type : int
@@ -81,11 +77,7 @@ namespace EcalUtils
     private:
       std::string path_;
       bool is_ok_;
-#ifdef WIN32
-      struct __stat64 file_status_;
-#else // WIN32
       struct stat file_status_;
-#endif 
     };
 
     Type GetType(const std::string& path, OsStyle input_path_style = OsStyle::Combined);

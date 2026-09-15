@@ -19,26 +19,3 @@
 
 #include <ecal_utils/win_cp_changer.h>
 
-#ifdef WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-
-namespace EcalUtils
-{
-  // Constructor
-  WinCpChanger::WinCpChanger(const int target_cp)
-  {
-    initial_cp = GetConsoleOutputCP();
-    SetConsoleOutputCP(target_cp);
-  }
-
-  // Destructor
-  WinCpChanger::~WinCpChanger()
-  {
-    SetConsoleOutputCP(initial_cp);
-  }
-}
-
-#endif // WIN32

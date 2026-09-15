@@ -219,9 +219,6 @@ namespace eCAL
     {
       bool operator() (const std::string& a, const std::string& b) const
       {
-#ifdef ECAL_OS_WINDOWS
-        return _stricmp(a.c_str(), b.c_str()) < 0;
-#endif
 #ifdef ECAL_OS_LINUX
         return strcasecmp(a.c_str(), b.c_str()) < 0;
 #endif

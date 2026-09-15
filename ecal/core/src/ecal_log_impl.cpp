@@ -55,27 +55,6 @@
 #pragma warning(pop)
 #endif
 
-#ifdef ECAL_OS_WINDOWS
-#include "ecal_win_main.h"
-#include <ecal_utils/filesystem.h>
-
-static bool isDirectory(const std::string& path_)
-{
-  if (path_.empty()) return false;
-
-  return EcalUtils::Filesystem::IsDir(path_, EcalUtils::Filesystem::Current);
-}
-
-static std::string get_time_str()
-{
-  auto t = std::time(nullptr);
-  auto tm = *std::localtime(&t);
-  std::stringstream tstream;
-  tstream << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S");
-  return(tstream.str());
-}
-#endif
-
 #ifdef ECAL_OS_LINUX
 #include <sys/stat.h>
 #include <sys/time.h>

@@ -37,9 +37,6 @@
 
 #include <thread>
 
-#ifdef WIN32
-#include <ecal_utils/command_line.h>
-#endif // WIN32
 
 
 int main(int argc, char *argv[])
@@ -89,12 +86,7 @@ int main(int argc, char *argv[])
  
   try
   {
-#ifdef WIN32
-    auto utf8_args_vector = EcalUtils::CommandLine::GetUtf8Argv();
-    cmd.parse(utf8_args_vector);
-#else
     cmd.parse(argc, argv);
-#endif // WIN32
   }
   catch (TCLAP::ArgException& e)
   {
@@ -125,18 +117,7 @@ int main(int argc, char *argv[])
       advanced_tclap_output.version(cmd);
     }
 
-#ifdef WIN32
-    // On Windows we display the command line help as GUI window. That approach
-    // is somehow standard on Windows, as Windows will not print the
-    // stdout/stderr streams to the console the app was started from.
-
-    HelpWindow w(tclap_output_stream.str());
-
-    w.show();
-    return a.exec();
-#else // WIN32
     return 0;
-#endif // WIN32
   }
 
   //////////////////////////////////////////////////////////////////////////////

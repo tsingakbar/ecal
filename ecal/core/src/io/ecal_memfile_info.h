@@ -28,15 +28,6 @@
 #include <ecal/ecal_os.h>
 #include "ecal_memfile_mtx.h"
 
-#ifdef ECAL_OS_WINDOWS
-
-#include "ecal_win_main.h"
-
-typedef HANDLE  MemFileT;
-typedef HANDLE  MapRegionT;
-
-#endif /* ECAL_OS_WINDOWS */
-
 #ifdef ECAL_OS_LINUX
 
 typedef int  MemFileT;

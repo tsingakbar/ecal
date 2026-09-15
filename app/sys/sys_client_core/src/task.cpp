@@ -57,12 +57,7 @@ namespace eCAL
 
         if (!is_absolute && !task_dir.empty())
         {
-#ifdef WIN32
-          if (task_dir.back() == '/' || task_dir.back() == '\\'
-            || (!task_path.empty() && (task_path.front() == '/' || task_path.front() == '\\')))
-#else // WIN32
           if (task_dir.back() == '/')
-#endif // WIN32
           {
             task_path = task_dir + task_path;
           }
@@ -135,12 +130,7 @@ namespace eCAL
 
         if (!is_absolute && !working_dir.empty())
         {
-#ifdef WIN32
-          if (working_dir.back() == '/' || working_dir.back() == '\\'
-            || (!executable_path.empty() && (executable_path.front() == '/' || executable_path.front() == '\\')))
-#else // WIN32
           if (working_dir.back() == '/')
-#endif // WIN32
           {
             executable_path = working_dir + executable_path;
           }

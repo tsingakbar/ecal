@@ -24,9 +24,6 @@
 #include "ecalsys_util.h"
 #include <iostream>
 
-#ifdef ECAL_OS_WINDOWS
-#include <conio.h>
-#else
 #include <stdio.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -69,7 +66,6 @@ int _getch(void)
   tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
   return ch;
 }
-#endif  // ECAL_OS_WINDOWS
 
 bool WaitForClients(std::shared_ptr<EcalSys> ecalsys_inst)
 {

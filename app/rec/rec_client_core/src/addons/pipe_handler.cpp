@@ -19,250 +19,6 @@
 
 #include "pipe_handler.h"
 
-#ifdef WIN32
-// https://docs.microsoft.com/de-de/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output?redirectedfrom=MSDN
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#include <atlconv.h>
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <locale>
-
-PipeHandler::PipeHandler(): child_stdin_rd_(nullptr)
-  , child_stdin_wr_(nullptr)
-  , child_stdout_rd_(nullptr)
-  , child_stdout_wr_(nullptr)
-  , process_{ nullptr }
-{}
-
-
-PipeHandler::~PipeHandler()
-{
-  StopProcess();
-}
-
-bool PipeHandler::StartProcess(const std::string& executable_path)
-{
-  std::wstring w_executable_path;
-  w_executable_path.reserve(executable_path.size());
-
-  auto& f2 = std::use_facet<std::ctype<wchar_t>>(std::locale());
-
-  for (const char c : executable_path)
-  {
-    w_executable_path.push_back(f2.widen(c));
-  }
-
-  return StartProcess(w_executable_path);
-}
-
-bool PipeHandler::StartProcess(const std::wstring& executable_path)
-{
-  if (process_ != nullptr)
-  {
-    StopProcess();
-    process_ = nullptr;
-  }
-  // Create Security attributes instance and set the inherit handle flag, so we can get the child's pipe handles
-  SECURITY_ATTRIBUTES sec_attributes;
-  sec_attributes.nLength              = sizeof(SECURITY_ATTRIBUTES);
-  sec_attributes.bInheritHandle       = true;
-  sec_attributes.lpSecurityDescriptor = nullptr;
-
-  // Create a pipe for the child process's stdout, but don't inherit the read handle
-  if (!CreatePipe(&child_stdout_rd_, &child_stdout_wr_, &sec_attributes, 0))
-  {
-    std::cerr << "Error creating stdout_rd pipe" << std::endl;
-    return false;
-  }
-  if (!SetHandleInformation(child_stdout_rd_, HANDLE_FLAG_INHERIT, 0))
-  {
-    std::cerr << "Error setting stdout pipe handle information." << std::endl;
-    return false;
-  }
-
-  // Create a pipe for the child process's stdin, but don't inherit the write handle
-  if (!CreatePipe(&child_stdin_rd_, &child_stdin_wr_, &sec_attributes, 0))
-  {
-    std::cerr << "Error creating stdin pipe." << std::endl;
-    return false;
-  }
-  if (!SetHandleInformation(child_stdin_wr_, HANDLE_FLAG_INHERIT, 0))
-  {
-    std::cerr << "Error setting stdin pipe handle information." << std::endl;
-    return false;
-  }
-
-  // Create the child process
-  TCHAR*              command_line;
-  PROCESS_INFORMATION process_info;
-  STARTUPINFO         startup_info;
-
-  ZeroMemory(&process_info, sizeof(PROCESS_INFORMATION));
-  ZeroMemory(&startup_info, sizeof(STARTUPINFO));
-
-  USES_CONVERSION;
-  command_line = W2T(const_cast<wchar_t*>(executable_path.c_str()));
-
-  // Specify stdin and stdout handles for redirection
-  startup_info.cb         = sizeof(STARTUPINFO);
-  startup_info.hStdOutput = child_stdout_wr_;
-  startup_info.hStdInput  = child_stdin_rd_;
-  startup_info.dwFlags   |= STARTF_USESTDHANDLES;
-
-  auto success = CreateProcess(NULL,              // application name
-                               command_line,     // command line 
-                               NULL,             // process security attributes 
-                               NULL,             // primary thread security attributes 
-                               true,             // handles are inherited 
-                               CREATE_NO_WINDOW, // creation flags 
-                               NULL,             // use parent's environment 
-                               NULL,             // use parent's current directory 
-                               &startup_info,    // STARTUPINFO pointer 
-                               &process_info);   // receives PROCESS_INFORMATION
-
-  if (!success)
-  {
-    std::cerr << "Error starting process." << std::endl;
-  }
-  else
-  {
-    process_ = process_info.hProcess;
-    CloseHandle(process_info.hThread);
-  }
-
-  return (process_ != nullptr);
-}
-
-bool PipeHandler::WriteLine(const std::string& message)
-{
-  // Write to stdin of child process
-  DWORD num_bytes_written(0);
-  LPDWORD lp_num_bytes_written = &num_bytes_written;
-  auto write_successs = WriteFile(child_stdin_wr_, message.data(), static_cast<DWORD>(message.size()), lp_num_bytes_written, NULL);
-
-  // Write \r\n
-  if (write_successs)
-    write_successs = WriteFile(child_stdin_wr_, "\r\n", 2, lp_num_bytes_written, NULL);
-
-  if (!write_successs)
-  {
-    std::cerr << "Error sending message to client." << std::endl;
-    return false;
-  }
-
-  // Flush File Buffer
-  if (!FlushFileBuffers(child_stdin_wr_))
-  {
-    std::cerr << "Failed flushing file buffer" << std::endl;
-  }
-
-  return true;
-}
-
-std::string PipeHandler::NativeReadSome()
-{
-  std::string buffer(1024, ' ');
-  DWORD bytes_read;
-
-  auto read_success = ReadFile(child_stdout_rd_, const_cast<char*>(buffer.data()), static_cast<DWORD>(buffer.size()), &bytes_read, nullptr);
-  if (!read_success)
-  {
-    // TODO: determine what should happen with the input_residue_
-    std::cerr << "Error reading response message from client.";
-    return "";
-  }
-
-  buffer.resize(bytes_read);
-
-  return buffer;
-}
-
-bool PipeHandler::IsProcessAlive() const
-{
-  if(process_ != nullptr)
-  {
-    DWORD exit_code;
-    GetExitCodeProcess(process_, &exit_code);
-
-    if (exit_code != STILL_ACTIVE)
-    {
-      CloseHandle(process_);
-      process_ = nullptr;
-    }
-  }
-  return (process_ != nullptr);
-}
-
-bool PipeHandler::StopProcess()
-{
-  if(process_ != nullptr)
-  {
-    auto result = TerminateProcess(process_, 0);
-    CloseHandle(process_);
-    process_ = nullptr;
-#pragma warning( push )
-#pragma warning( disable : 4800 )
-    return static_cast<bool>(result);
-#pragma warning( pop )
-  }
-  else
-    return false;
-}
-
-//bool Plugin::isMessageAvailable()
-//{
-//  if (input_residue_.find('\n') != std::string::npos)
-//  {
-//    // We already have a message ready in the input buffer
-//    return true;
-//  }
-//  else
-//  {
-//    // Check if more data is available from the stream
-//    for (;;)
-//    {
-//      DWORD wait_result = WaitForSingleObject(child_stdout_rd_, 1);
-//      if (wait_result == WAIT_OBJECT_0)
-//      {
-//        std::cout << "Something is available " << std::endl;
-//        // We want to directly read into the input residue buffer
-//        size_t input_residue_old_size = input_residue_.size();
-//        input_residue_.resize(input_residue_old_size + 1024); // Make the buffer 1kb bigger
-//
-//        DWORD bytes_read;
-//
-//        bool read_success = ReadFile(child_stdout_rd_, &input_residue_[input_residue_old_size], input_residue_.size() - input_residue_old_size, &bytes_read, nullptr);
-//        if (!read_success)
-//        {
-//          // TODO: determine what should happen with the input_residue_
-//          std::cerr << "Error reading response message from client.";
-//          return false;
-//        }
-//
-//        input_residue_.resize(input_residue_old_size + bytes_read);
-//
-//        // Now check if we got a line break
-//        if (input_residue_.find('\n', input_residue_old_size) != std::string::npos)
-//        {
-//          return true;
-//        }
-//      }
-//      else
-//      {
-//        std::cout << "Nothing is available" << std::endl;
-//        return false;
-//      }
-//    }
-//  }
-//}
-#else
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -273,13 +29,6 @@ bool PipeHandler::StopProcess()
 
 #include <locale>
 #include <codecvt>
-
-#ifdef __FreeBSD__
-extern "C"
-{
-  extern char **environ;
-}
-#endif
 
 PipeHandler::PipeHandler(): pid_{0}
 {}
@@ -344,11 +93,7 @@ bool PipeHandler::StartProcess(const std::string& executable_path)
     // Run child process image
     char* const argv[] {nullptr};
 
-#ifdef __APPLE__
-    int exec_errorcode = execve(executable_path.c_str(), argv, nullptr);
-#else
     int exec_errorcode = execve(executable_path.c_str(), argv, environ);
-#endif
 
     // If we get here at all, an error occurred, but we are in the child process, so just exit
     perror((std::string("Unable to start \"") + executable_path.c_str() + "\"").c_str());
@@ -463,8 +208,6 @@ bool PipeHandler::StopProcess()
 
   return false;
 }
-
-#endif
 
 std::string PipeHandler::ReadLine()
 {
