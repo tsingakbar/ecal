@@ -52,8 +52,6 @@
 #define  NET_TCP_REC_ENABLED_S            "tcp_rec_enabled"
 #define  NET_INPROC_REC_ENABLED_S         "inproc_rec_enabled"
 
-#define  NET_NPCAP_ENABLED_S              "npcap_enabled"
-
 #define  NET_TCP_PUBSUB_NUM_EXECUTOR_READER_S  "tcp_pubsub_num_executor_reader"
 #define  NET_TCP_PUBSUB_NUM_EXECUTOR_WRITER_S  "tcp_pubsub_num_executor_writer"
 #define  NET_TCP_PUBSUB_MAX_RECONNECTIONS_S    "tcp_pubsub_max_reconnections"

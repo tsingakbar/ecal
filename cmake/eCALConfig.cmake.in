@@ -37,13 +37,6 @@ include("@PACKAGE_eCAL_install_cmake_dir@/helper_functions/ecal_helper_functions
 include("@PACKAGE_eCAL_install_cmake_dir@/helper_functions/ecal_install_functions.cmake")
 include("@PACKAGE_eCAL_install_cmake_dir@/eCALTargets.cmake")
 
-# careful, this is a Windows hack to find protobuf etc. with the eCAL installation
-# To be removed if there is a better solution like Conan e.g.
-#if(WIN32)
-#  list(APPEND CMAKE_MODULE_PATH "${PACKAGE_PREFIX_DIR}/../../../../cmake")
-#  list(APPEND CMAKE_PREFIX_PATH "${PACKAGE_PREFIX_DIR}/../../../../cmake")
-#endif()
-
 find_package(CMakeFunctions REQUIRED)
 
 find_package(Threads REQUIRED)

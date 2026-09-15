@@ -57,8 +57,6 @@ namespace eCAL
     ECAL_API bool              IsTcpRecEnabled                      ();
     ECAL_API bool              IsInprocRecEnabled                   ();
 
-    ECAL_API bool              IsNpcapEnabled                       ();
-
     ECAL_API int               GetTcpPubsubReaderThreadpoolSize     ();
     ECAL_API int               GetTcpPubsubWriterThreadpoolSize     ();
     ECAL_API int               GetTcpPubsubMaxReconnectionAttemps   ();

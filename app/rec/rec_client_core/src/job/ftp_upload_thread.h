@@ -21,8 +21,6 @@
 
 #include <ThreadingUtils/InterruptibleThread.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 #include <curl/curl.h>
 #include <string>
 #include <list>

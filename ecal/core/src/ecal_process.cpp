@@ -212,12 +212,6 @@ namespace eCAL
       sstream << "Layer Mode SHM           : " << LayerMode(Config::IsShmRecEnabled())     << std::endl;
       sstream << "Layer Mode TCP           : " << LayerMode(Config::IsTcpRecEnabled())  << std::endl;
       sstream << "Layer Mode UDP MC        : " << LayerMode(Config::IsUdpMulticastRecEnabled())  << std::endl;
-      sstream << "Npcap UDP Reciever       : " << LayerMode(Config::IsNpcapEnabled());
-      if (Config::IsNpcapEnabled())
-      {
-        sstream << " (Npcap is enabled, but not configured via CMake!)";
-      }
-      sstream << std::endl;
 
 
       // write it into std:string

@@ -81,8 +81,6 @@
 
 #define NET_UDP_MC_REC_ENABLED                      true
 
-#define NET_NPCAP_ENABLED                           false
-
 #define NET_TCP_PUBSUB_NUM_EXECUTOR_READER          4
 #define NET_TCP_PUBSUB_NUM_EXECUTOR_WRITER          4
 #define NET_TCP_PUBSUB_MAX_RECONNECTIONS            5

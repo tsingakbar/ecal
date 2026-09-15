@@ -29,9 +29,6 @@
 
 #include "io/udp_receiver_base.h"
 #include "io/udp_receiver_asio.h"
-#ifdef ECAL_NPCAP_SUPPORT
-#include "io/udp_receiver_npcap.h"
-#endif
 
 namespace eCAL
 {
@@ -40,31 +37,12 @@ namespace eCAL
   ////////////////////////////////////////////////////////
   CUDPReceiver::CUDPReceiver()
     : CReceiver(CReceiver::SType_ReceiverUDP)
-    , m_use_npcap(false)
   {
-#ifdef ECAL_NPCAP_SUPPORT
-    if (Config::IsNpcapEnabled())
-    {
-      m_use_npcap = Udpcap::Initialize(); // Only use NPCAP if we can initialize it (or it has already been initialized successfully)
-      if (!m_use_npcap)
-      {
-        std::cerr << "Npcap is enabled, but cannot be initialized. Using socket fallback mode." << std::endl;
-      }
-    }
-#endif //ECAL_NPCAP_SUPPORT
   }
 
   bool CUDPReceiver::Create(const SReceiverAttr& attr_)
   {
     if (m_socket_impl) return false;
-
-#ifdef ECAL_NPCAP_SUPPORT
-    if (m_use_npcap)
-    {
-      m_socket_impl = std::make_shared<CUDPReceiverPcap>(attr_);
-      return true;
-    }
-#endif // ECAL_NPCAP_SUPPORT
 
     m_socket_impl = std::make_shared<CUDPReceiverAsio>(attr_);
     return(true);

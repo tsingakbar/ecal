@@ -142,18 +142,6 @@ set(ui_files
     src/widgets/visualisation_widget/visualisation_dock_widget.ui
 )
 
-if(ECAL_NPCAP_SUPPORT)
-    set(source_files
-        ${source_files}
-        src/widgets/npcap_status_dialog/npcap_status_dialog.cpp
-        src/widgets/npcap_status_dialog/npcap_status_dialog.h
-    )
-    set(ui_files
-        ${ui_files}
-        src/widgets/npcap_status_dialog/npcap_status_dialog.ui
-    )
-endif(ECAL_NPCAP_SUPPORT)
-
 if(UNIX)
   set_source_files_properties(src/convert_utf.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 endif()
@@ -182,13 +170,6 @@ target_link_libraries (${PROJECT_NAME}
     Qt5::Widgets
     CustomQt
 )
-
-if(ECAL_NPCAP_SUPPORT)
-  add_definitions(-DECAL_NPCAP_SUPPORT)
-  target_link_libraries(${PROJECT_NAME}
-    udpcap
-  )
-endif(ECAL_NPCAP_SUPPORT)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

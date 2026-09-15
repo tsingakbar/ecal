@@ -116,8 +116,6 @@ namespace eCAL
     ECAL_API bool              IsTcpRecEnabled                      () { return eCALPAR(NET, TCP_REC_ENABLED); }
     ECAL_API bool              IsInprocRecEnabled                   () { return eCALPAR(NET, INPROC_REC_ENABLED); }
 
-    ECAL_API bool              IsNpcapEnabled                       () { return eCALPAR(NET, NPCAP_ENABLED); }
-
     ECAL_API int               GetTcpPubsubReaderThreadpoolSize     () { return eCALPAR(NET, TCP_PUBSUB_NUM_EXECUTOR_READER); }
     ECAL_API int               GetTcpPubsubWriterThreadpoolSize     () { return eCALPAR(NET, TCP_PUBSUB_NUM_EXECUTOR_WRITER); }
     ECAL_API int               GetTcpPubsubMaxReconnectionAttemps   () { return eCALPAR(NET, TCP_PUBSUB_MAX_RECONNECTIONS); }
