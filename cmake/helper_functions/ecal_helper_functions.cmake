@@ -28,22 +28,8 @@ endfunction()
 
 # This function will mark the executable as a Windows GUI application on a Windows System
 function(ecal_set_subsystem_windows TARGET_NAME)
-  if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES 
-      LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS"
-      LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS"
-      LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS"
-      LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
-  endif()
 endfunction()
 
 # This function will mark the executable as a Windows console application on a Windows System
 function(ecal_set_subsystem_console TARGET_NAME)
-  if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-      LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
-      LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE"
-      LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE"
-      LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE")
-  endif()
 endfunction()

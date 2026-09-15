@@ -67,9 +67,6 @@ function(ecal_add_app_qt TARGET_NAME)
     VERSION ${eCAL_VERSION_STRING}
     SOVERSION ${eCAL_VERSION_MAJOR}
     OUTPUT_NAME ecal_${TARGET_NAME})
-  if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-  endif()
 endfunction()
 
 function(ecal_add_mon_plugin TARGET_NAME)

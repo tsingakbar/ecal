@@ -30,13 +30,6 @@ SET(CPACK_OUTPUT_FILE_PREFIX _deploy)
   ##configure_file("${ECAL_PROJECT_ROOT}/cpack/custom_template.wxs.in" "${CMAKE_BINARY_DIR}/custom_template.wxi" #@ONLY)
 
 #endif()
-if(WIN32)
-  set(CPACK_GENERATOR "External")
-  set(CPACK_EXTERNAL_ENABLE_STAGING ON)
-  if(CPACK_PACK_WITH_INNOSETUP)
-    set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${ECAL_PROJECT_ROOT}/cpack/innosetup.cmake")
-  endif()
-endif()
 
 
 if(UNIX)

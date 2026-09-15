@@ -19,7 +19,6 @@
 cmake_minimum_required(VERSION 3.13)
 
 include(CMakeDependentOption)
-include("${CMAKE_CURRENT_LIST_DIR}/thirdparty/cmake_functions/qt/qt_msvc_path.cmake")
 
 if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW) # Prevent HDF5 from overwriting our output paths
@@ -31,25 +30,6 @@ list(APPEND CMAKE_MODULE_PATH
 
 project(eCAL)
 set(ECAL_PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}")
-
-# --------------------------------------------------------
-# set msvc specific options
-# --------------------------------------------------------
-if(MSVC)
-  message(STATUS "MSVC detected - Adding flags")
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-  add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /W4")
-  # support Windows 7 and newer
-  add_definitions(-D_WIN32_WINNT=0x0601)
-endif()
-
-# --------------------------------------------------------
-# set mingw specific options
-# --------------------------------------------------------
-if(MINGW)
-  add_definitions(-std=c++14 -DWINVER=0x0601)
-endif()
 
 # --------------------------------------------------------
 # set gcc specific options
@@ -86,7 +66,6 @@ option(BUILD_SAMPLES                           "Build the eCAL samples"         
 option(BUILD_TIME                              "Build the eCAL time interfaces"                                    ON)
 option(BUILD_PY_BINDING                        "Build eCAL python binding"                                         ON)
 option(BUILD_STANDALONE_PY_WHEEL               "Build eCAL python binding as standalone wheel"                    OFF)
-option(BUILD_CSHARP_BINDING                    "Build eCAL C# binding"                                            OFF)
 option(BUILD_ECAL_TESTS                        "Build the eCAL google tests"                                      OFF)
 
 option(ECAL_LAYER_ICEORYX                      "Use iceoryx shared memory as local communication layer"           OFF)
@@ -95,7 +74,6 @@ option(ECAL_INCLUDE_PY_SAMPLES                 "Include python language sample p
 option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
 option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug Workaround"                        OFF)
-option(ECAL_NPCAP_SUPPORT                      "Enable the eCAL Npcap Receiver (i.e. the Win10 performance fix)"  OFF)
 
 # Set option regarding third party library builds
 option(ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS   "Build CMakeFunctions with eCAL"                                    ON)
@@ -109,22 +87,13 @@ option(ECAL_THIRDPARTY_BUILD_RECYCLE           "Build steinwurf::recylce with eC
 # option(ECAL_THIRDPARTY_BUILD_LIBSSH2           "Build libssh2 with eCAL"                                           ON)
 option(ECAL_THIRDPARTY_BUILD_GTEST             "Build gtest with eCAL"                                            OFF)
 
-if(WIN32)
-  option(ECAL_THIRDPARTY_BUILD_PROTOBUF        "Build protobuf with eCAL"                                          ON)
-  option(ECAL_THIRDPARTY_BUILD_CURL            "Build CURL with eCAL"                                              ON)
-  option(ECAL_THIRDPARTY_BUILD_HDF5            "Build HDF5 with eCAL"                                              ON)
-  cmake_dependent_option(ECAL_THIRDPARTY_BUILD_QWT "Build qwt::qwt with eCAL"                                      ON  "HAS_QT5" OFF)
-else()
   option(ECAL_THIRDPARTY_BUILD_PROTOBUF        "Build protobuf with eCAL"                                          OFF)
   option(ECAL_THIRDPARTY_BUILD_CURL            "Build CURL with eCAL"                                              OFF)
   option(ECAL_THIRDPARTY_BUILD_HDF5            "Build HDF5 with eCAL"                                              OFF)
   cmake_dependent_option(ECAL_THIRDPARTY_BUILD_QWT "Build qwt::qwt with eCAL"                                      OFF "HAS_QT5" OFF)
-endif()
 
 # This should be ON, unless build ecal hdf5 for Matlab usage
 option(ECAL_LINK_HDF5_SHARED                   "Link shared libs of HDF5"                                         OFF)
-
-option(CPACK_PACK_WITH_INNOSETUP               "Create Innosetup installer for the Windows build"                 OFF)
 
 set(ECAL_INSTALL_PYTHON_DIR "bin" CACHE PATH "Location to install the Python extension modules. Might be set by setupdtools install.")
 
@@ -154,27 +123,9 @@ file(TO_CMAKE_PATH "${CMAKE_PREFIX_PATH}" CMAKE_PREFIX_PATH)
 message(STATUS "Module Path: ${CMAKE_MODULE_PATH}")
 message(STATUS "Prefix Path: ${CMAKE_PREFIX_PATH}")
 
-if(MSVC)
-  message(STATUS "supress thirdparty warnings for windows platform ..")
-  set(CMAKE_CXX_FLAGS_OLD "${CMAKE_CXX_FLAGS}")
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W0" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
-  endif()
-endif()
-
 # --------------------------------------------------------
 # detect qt library
 # --------------------------------------------------------
-if(MSVC)
-  if (HAS_QT5)
-    find_package(Qt5 COMPONENTS Core QUIET)
-    if (NOT "${Qt5_FOUND}")
-      autodetect_qt5_msvc_dir()
-    endif()
-  endif()
-endif()
 
 # This is a list of subprojects, that might be build with eCAL
 # according to how options ECAL_BUILD_<SUBPROJECT> are set
@@ -223,11 +174,6 @@ foreach (dep IN LISTS possible_subprojects)
   endif ()
 endforeach ()
 
-if(MSVC)
-  message(STATUS "reset thirdparty warnings for windows platform ..")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_OLD}")
-endif()
-
 find_package(CMakeFunctions REQUIRED)
 
 git_revision_information(DEFAULT ${ECAL_BUILD_VERSION})
@@ -242,10 +188,6 @@ include(helper_functions/ecal_helper_functions)
 include(helper_functions/ecal_install_functions)
 include(helper_functions/ecal_python_functions)
 
-if(MSVC)
-  set(eCAL_PLATFORM_TOOLSET ${CMAKE_VS_PLATFORM_TOOLSET})
-endif()
-
 
 
 # --------------------------------------------------------
@@ -255,11 +197,7 @@ set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
   "Installation directory for header files")
-if(WIN32 AND NOT CYGWIN)
-  set(DEF_INSTALL_CMAKE_DIR CMake)
-else()
   set(DEF_INSTALL_CMAKE_DIR lib/CMake/eCAL)
-endif()
 set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for CMake files")
 
@@ -280,22 +218,9 @@ set(eCAL_install_tests_dir         ${CMAKE_INSTALL_BINDIR})
 set(eCAL_config_dir                ${eCAL_BINARY_DIR}/cmake/)
 set(eCAL_config                    ${eCAL_config_dir}/eCALConfig.cmake)
 set(eCAL_config_version            ${eCAL_config_dir}/eCALConfigVersion.cmake)
-if(WIN32)
-  set(eCAL_install_config_dir            cfg)
-  set(eCAL_install_doc_dir               doc)
-  set(eCAL_install_samples_dir           samples/bin/)
-  set(eCAL_install_samples_src_dir       samples/src/)
-  set(eCAL_install_tests_dir             tests)
-endif()
 set(BUILD_DEPLOY_DIRECTORY ${CMAKE_BINARY_DIR}/_deploy)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-
-if(WIN32)
-  set(CMAKE_DEBUG_POSTFIX            d)
-  set(CMAKE_MINSIZEREL_POSTFIX       minsize)
-  set(CMAKE_RELWITHDEBINFO_POSTFIX   reldbg)
-endif()
 
 # --------------------------------------------------------
 # protobuf utilities
@@ -332,9 +257,6 @@ add_subdirectory(lib/ecal_utils)
 if(HAS_QT5)
   add_subdirectory(lib/CustomQt)
 endif()
-if(ECAL_NPCAP_SUPPORT)
-  add_subdirectory(lib/Udpcap)
-endif()
 add_subdirectory(lib/EcalParser)
 if(HAS_QT5)
   add_subdirectory(lib/QEcalParser)
@@ -357,9 +279,6 @@ add_subdirectory(app/rec/rec_addon_dummy)
 # ecal time
 # --------------------------------------------------------
 if(BUILD_TIME)
-  if(WIN32)
-    set(ECAL_TIME_PLUGIN_DIR ecaltime_plugins)
-  endif()
   add_subdirectory(contrib/ecaltime)
 endif()
 
@@ -376,14 +295,6 @@ endif()
 # --------------------------------------------------------
 if(BUILD_PY_BINDING)
   add_subdirectory(lang/python)
-endif()
-
-# --------------------------------------------------------
-# ecal core csharp binding
-# --------------------------------------------------------
-if(BUILD_CSHARP_BINDING AND WIN32)
-  add_subdirectory(lang/csharp/Continental/eCAL/Core/)
-  add_subdirectory(lang/csharp/Continental/eCAL/Protobuf/)
 endif()
 
 # --------------------------------------------------------
@@ -422,11 +333,7 @@ endif()
 if(BUILD_APPS AND HAS_QT5)
   add_subdirectory(app/sys/sys_gui)
   add_subdirectory(app/mon/mon_gui)
-  if(WIN32)
-    set(ECAL_MON_PLUGIN_DIR ecalmon_plugins)
-  else()
     set(ECAL_MON_PLUGIN_DIR ecal/plugins/mon)
-  endif()
   add_subdirectory(app/mon/mon_plugins)
   add_subdirectory(app/util/launcher)
 # --------------------------------------------------------
@@ -550,13 +457,11 @@ message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES
 message(STATUS "BUILD_TIME                                     : ${BUILD_TIME}")
 message(STATUS "BUILD_PY_BINDING                               : ${BUILD_PY_BINDING}")
 message(STATUS "BUILD_STANDALONE_PY_WHEEL                      : ${BUILD_STANDALONE_PY_WHEEL}")
-message(STATUS "BUILD_CSHARP_BINDING                           : ${BUILD_CSHARP_BINDING}")
 message(STATUS "BUILD_ECAL_TESTS                               : ${BUILD_ECAL_TESTS}")
 message(STATUS "ECAL_LAYER_ICEORYX                             : ${ECAL_LAYER_ICEORYX}")
 message(STATUS "ECAL_INCLUDE_PY_SAMPLES                        : ${ECAL_INCLUDE_PY_SAMPLES}")
 message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
-message(STATUS "ECAL_NPCAP_SUPPORT                             : ${ECAL_NPCAP_SUPPORT}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_SPDLOG                   : ${ECAL_THIRDPARTY_BUILD_SPDLOG}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TINYXML2                 : ${ECAL_THIRDPARTY_BUILD_TINYXML2}")
@@ -569,6 +474,5 @@ message(STATUS "ECAL_THIRDPARTY_BUILD_PROTOBUF                 : ${ECAL_THIRDPAR
 message(STATUS "ECAL_THIRDPARTY_BUILD_CURL                     : ${ECAL_THIRDPARTY_BUILD_CURL}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_HDF5                     : ${ECAL_THIRDPARTY_BUILD_HDF5}")
 message(STATUS "ECAL_LINK_HDF5_SHARED                          : ${ECAL_LINK_HDF5_SHARED}")
-message(STATUS "CPACK_PACK_WITH_INNOSETUP                      : ${CPACK_PACK_WITH_INNOSETUP}")
 
 message(STATUS "--------------------------------------------------------------------------------")
