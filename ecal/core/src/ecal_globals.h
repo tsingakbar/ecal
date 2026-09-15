@@ -36,10 +36,8 @@
 #include "service/ecal_servicegate.h"
 #include "service/ecal_clientgate.h"
 
-#ifndef ECAL_LAYER_ICEORYX
 #include "io/ecal_memfile_pool.h"
 #include "io/ecal_memfile_db.h"
-#endif /* !ECAL_LAYER_ICEORYX */
 
 #include <memory>
 
@@ -70,10 +68,8 @@ namespace eCAL
     const std::unique_ptr<CRegistrationProvider>&                         registration_provider()  { return registration_provider_instance; };
     const std::unique_ptr<CDescGate>&                                     descgate()               { return descgate_instance; };
     const std::unique_ptr<CRegistrationReceiver>&                         registration_receiver()  { return registration_receiver_instance; };
-#ifndef ECAL_LAYER_ICEORYX
     const std::unique_ptr<CMemFileThreadPool>&                            memfile_pool()           { return memfile_pool_instance; };
     const std::unique_ptr<CMemFileMap>&                                   memfile_map()            { return memfile_map_instance; };
-#endif /* !ECAL_LAYER_ICEORYX */
 
   private:
     bool                                                                  initialized;
@@ -90,9 +86,7 @@ namespace eCAL
     std::unique_ptr<CRegistrationProvider>                                registration_provider_instance;
     std::unique_ptr<CDescGate>                                            descgate_instance;
     std::unique_ptr<CRegistrationReceiver>                                registration_receiver_instance;
-#ifndef ECAL_LAYER_ICEORYX
     std::unique_ptr<CMemFileThreadPool>                                   memfile_pool_instance;
     std::unique_ptr<CMemFileMap>                                          memfile_map_instance;
-#endif /* !ECAL_LAYER_ICEORYX */
   };
 }

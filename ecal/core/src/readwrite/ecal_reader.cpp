@@ -33,11 +33,7 @@
 
 #include "readwrite/ecal_reader_udp_mc.h"
 
-#ifdef ECAL_LAYER_ICEORYX
-#include "readwrite/ecal_reader_iceoryx.h"
-#else  /* ECAL_LAYER_ICEORYX */
 #include "readwrite/ecal_reader_shm.h"
-#endif /* ECAL_LAYER_ICEORYX */
 
 #include "readwrite/ecal_reader_tcp.h"
 

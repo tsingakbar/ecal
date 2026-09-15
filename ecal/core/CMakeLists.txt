@@ -51,19 +51,17 @@ set(ecal_io_cpp_src
     src/io/udp_sender.cpp
 )
 
-if(NOT ECAL_LAYER_ICEORYX)
-  set(ecal_io_mem_cpp_src
-      src/io/ecal_memfile.cpp
-      src/io/ecal_memfile_db.cpp
-      src/io/ecal_memfile_pool.cpp
-      src/io/ecal_memfile_sync.cpp
+set(ecal_io_mem_cpp_src
+    src/io/ecal_memfile.cpp
+    src/io/ecal_memfile_db.cpp
+    src/io/ecal_memfile_pool.cpp
+    src/io/ecal_memfile_sync.cpp
+)
+if(UNIX)
+  set(ecal_io_mem_cpp_linux_src
+      src/io/linux/ecal_memfile_os.cpp
   )
-  if(UNIX)
-    set(ecal_io_mem_cpp_linux_src
-        src/io/linux/ecal_memfile_os.cpp
-    )
-  endif()
-endif(NOT ECAL_LAYER_ICEORYX)
+endif()
 
 set(ecal_mon_cpp_src
     src/mon/ecal_monitoring_def.cpp
@@ -89,17 +87,10 @@ set(ecal_readwrite_cpp_src
     src/readwrite/ecal_writer_tcp.cpp
 )
 
-if(ECAL_LAYER_ICEORYX)
-  set(ecal_readwrite_shm_cpp_src
-    src/readwrite/ecal_reader_iceoryx.cpp
-    src/readwrite/ecal_writer_iceoryx.cpp
-  )
-else(ECAL_LAYER_ICEORYX)
-  set(ecal_readwrite_shm_cpp_src
-    src/readwrite/ecal_reader_shm.cpp
-    src/readwrite/ecal_writer_shm.cpp
-  )
-endif(ECAL_LAYER_ICEORYX)
+set(ecal_readwrite_shm_cpp_src
+  src/readwrite/ecal_reader_shm.cpp
+  src/readwrite/ecal_writer_shm.cpp
+)
 
 set(ecal_service_cpp_src
     src/service/ecal_clientgate.cpp
@@ -155,23 +146,21 @@ set(ecal_io_header_src
     src/io/udp_sender.h
 )
 
-if(NOT ECAL_LAYER_ICEORYX)
-  set(ecal_io_mem_header_src
-      src/io/ecal_memfile.h
-      src/io/ecal_memfile_db.h
-      src/io/ecal_memfile_info.h
-      src/io/ecal_memfile_mtx.h
-      src/io/ecal_memfile_os.h
-      src/io/ecal_memfile_pool.h
-      src/io/ecal_memfile_sync.h
-  )
+set(ecal_io_mem_header_src
+    src/io/ecal_memfile.h
+    src/io/ecal_memfile_db.h
+    src/io/ecal_memfile_info.h
+    src/io/ecal_memfile_mtx.h
+    src/io/ecal_memfile_os.h
+    src/io/ecal_memfile_pool.h
+    src/io/ecal_memfile_sync.h
+)
 
-  if(UNIX)
-    set(ecal_io_mem_header_linux_src
-        src/io/linux/ecal_memfile_mtx.h
+if(UNIX)
+  set(ecal_io_mem_header_linux_src
+      src/io/linux/ecal_memfile_mtx.h
   )
-  endif()
-endif(NOT ECAL_LAYER_ICEORYX)
+endif()
 
 set(ecal_mon_header_src
     src/mon/ecal_monitoring_def.h
@@ -199,17 +188,10 @@ set(ecal_readwrite_header_src
     src/readwrite/ecal_tcp_pubsub_logger.h
 )
 
-if(ECAL_LAYER_ICEORYX)
-  set(ecal_readwrite_shm_header_src
-      src/readwrite/ecal_reader_iceoryx.h
-      src/readwrite/ecal_writer_iceoryx.h
-  )
-else(ECAL_LAYER_ICEORYX)
-  set(ecal_readwrite_shm_header_src
-      src/readwrite/ecal_reader_shm.h
-      src/readwrite/ecal_writer_shm.h
-  )
-endif(ECAL_LAYER_ICEORYX)
+set(ecal_readwrite_shm_header_src
+    src/readwrite/ecal_reader_shm.h
+    src/readwrite/ecal_writer_shm.h
+)
 
 set(ecal_service_header_src
     src/service/asio_server.h
@@ -365,12 +347,6 @@ target_compile_definitions(${PROJECT_NAME}
     ASIO_STANDALONE
     ASIO_DISABLE_VISIBILITY
   PRIVATE eCAL_EXPORTS)
-
-if(ECAL_LAYER_ICEORYX)
-  find_package(iceoryx_posh REQUIRED)
-  target_link_libraries(${PROJECT_NAME} PRIVATE iceoryx_posh::iceoryx_posh)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ECAL_LAYER_ICEORYX)
-endif()
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE 
