@@ -35,13 +35,7 @@ include_directories(${PROJECT_NAME}
   ../include
 )
 
-if(WIN32)
-  set(ecal_time_simtime_dll_src
-    src/dllmain.cpp
-  )
-endif()
-
-ecal_add_time_plugin(${PROJECT_NAME} SHARED ${ecal_time_simtime_src} ${ecal_time_simtime_header} ${ecal_time_simtime_dll_src})
+ecal_add_time_plugin(${PROJECT_NAME} SHARED ${ecal_time_simtime_src} ${ecal_time_simtime_header})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ECAL_TIME_PLUGIN_API_EXPORT)
 

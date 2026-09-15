@@ -66,10 +66,6 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include>
 )
 
-target_compile_definitions(${PROJECT_NAME}
-  PRIVATE
-    $<$<BOOL:${MSVC}>:_UNICODE>)
-
 target_compile_options(${PROJECT_NAME}
   PRIVATE
     $<$<CXX_COMPILER_ID:GNU>:-Wextra>)

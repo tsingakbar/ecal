@@ -22,23 +22,17 @@ find_package(Threads REQUIRED)
 
 set(ecal_time_localtime_src
   src/ecaltime.cpp
-) 
-
-if(WIN32)
-  set(ecal_time_localtime_dll_src
-    src/dllmain.cpp
-  )
-endif()
+)
 
 set(ecal_time_localtime_header
   ../include/ecaltime.h
 )
 
-ecal_add_time_plugin(${PROJECT_NAME} SHARED ${ecal_time_localtime_src} ${ecal_time_localtime_header} ${ecal_time_localtime_dll_src})
+ecal_add_time_plugin(${PROJECT_NAME} SHARED ${ecal_time_localtime_src} ${ecal_time_localtime_header})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ECAL_TIME_PLUGIN_API_EXPORT)
 
-target_include_directories(${PROJECT_NAME} 
+target_include_directories(${PROJECT_NAME}
   PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)

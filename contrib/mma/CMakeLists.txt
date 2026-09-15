@@ -36,44 +36,16 @@ set(mma_src
   src/query_manager.cpp
   src/zombie_instance_killer.cpp
 )
-if(WIN32)
-  list(APPEND mma_src
-    include/windows/disk.h
-    include/windows/memory.h
-    include/windows/mma_windows.h
-    include/windows/network.h
-    include/windows/process.h
-    include/windows/processes.h
-    include/windows/processor.h
-    include/windows/ressource.h
-    
-    src/windows/disk.cpp
-    src/windows/memory.cpp
-    src/windows/mma_windows.cpp
-    src/windows/network.cpp
-    src/windows/process.cpp
-    src/windows/processes.cpp
-    src/windows/processor.cpp
-    src/windows/ressource.cpp
-  )
-else()
   list(APPEND mma_src
     include/linux/mma_linux.h
     include/linux/pipe_refresher.h
     include/linux/ressource.h
-    
+
     src/linux/mma_linux.cpp
     src/linux/pipe_refresher.cpp
   )
-endif()
 
-if(WIN32)
-  set(mma_win_src
-      src/mma.rc
-  )
-endif()
-
-ecal_add_app_console(${PROJECT_NAME} ${mma_src} ${mma_win_src})
+ecal_add_app_console(${PROJECT_NAME} ${mma_src})
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
@@ -83,16 +55,13 @@ create_targets_protobuf()
 target_link_libraries(${PROJECT_NAME}
   protobuf::libprotobuf
   Threads::Threads
-  eCAL::core eCAL::app_pb
-  $<$<BOOL:${WIN32}>:Pdh>
-  $<$<BOOL:${WIN32}>:wbemuuid.lib>)
+  eCAL::core eCAL::app_pb)
 
 ecal_install_app(${PROJECT_NAME})
 
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"
     FILES
         ${mma_src}
-        ${mma_win_src}
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER contrib)
