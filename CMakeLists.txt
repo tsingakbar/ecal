@@ -67,9 +67,6 @@ option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug W
 
 # Set option regarding third party library builds
 option(ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS   "Build CMakeFunctions with eCAL"                                    ON)
-option(ECAL_THIRDPARTY_BUILD_SPDLOG            "Build spdlog with eCAL"                                            ON)
-option(ECAL_THIRDPARTY_BUILD_TINYXML2          "Build tinyxml2 with eCAL"                                          ON)
-option(ECAL_THIRDPARTY_BUILD_TERMCOLOR         "Build termcolor with eCAL"                                         ON)
 option(ECAL_THIRDPARTY_BUILD_TCP_PUBSUB        "Build tcp_pubsub library with eCAL"                                ON)
 option(ECAL_THIRDPARTY_BUILD_RECYCLE           "Build steinwurf::recylce with eCAL"                                ON)
 option(ECAL_THIRDPARTY_BUILD_GTEST             "Build gtest with eCAL"                                            OFF)
@@ -110,9 +107,6 @@ message(STATUS "Prefix Path: ${CMAKE_PREFIX_PATH}")
 # according to how options ECAL_BUILD_<SUBPROJECT> are set
 set(possible_subprojects
   Protobuf
-  spdlog
-  tinyxml2
-  termcolor
   recycle
   tcp_pubsub
   GTest
@@ -338,9 +332,6 @@ message(STATUS "BUILD_ECAL_TESTS                               : ${BUILD_ECAL_TE
 message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_SPDLOG                   : ${ECAL_THIRDPARTY_BUILD_SPDLOG}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_TINYXML2                 : ${ECAL_THIRDPARTY_BUILD_TINYXML2}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_TERMCOLOR                : ${ECAL_THIRDPARTY_BUILD_TERMCOLOR}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TCP_PUBSUB               : ${ECAL_THIRDPARTY_BUILD_TCP_PUBSUB}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_RECYCLE                  : ${ECAL_THIRDPARTY_BUILD_RECYCLE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_GTEST                    : ${ECAL_THIRDPARTY_BUILD_GTEST}")
