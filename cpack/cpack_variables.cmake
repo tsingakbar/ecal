@@ -36,14 +36,5 @@ set(CPACK_RESOURCE_FILE_LICENSE ${ECAL_PROJECT_ROOT}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README  ${ECAL_PROJECT_ROOT}/README.md)
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
-list(REMOVE_ITEM CPACK_COMPONENTS_ALL
-  #"libprotobuf-lite"
-  #"protobuf-export"
-  #"protobuf-headers"
-  #"protobuf-protos"
-  "tinyxml2_config"
-  "tinyxml2_headers"
-  "tinyxml2_libraries"
-)
 
 include(CPack)

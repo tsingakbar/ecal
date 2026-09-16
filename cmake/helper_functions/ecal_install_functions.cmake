@@ -95,7 +95,7 @@ function(ecal_install_private_shared_library TARGET_NAME)
 endfunction()
 
 # Applications are all APPS that come with the eCAL Installation
-# e.g. the eCAL Monitor, eCAL Player, eCAL recorder
+# e.g. the eCAL Monitor, eCAL Config, eCAL Stop
 #
 function(ecal_install_app TARGET_NAME)
   set(oneValueArgs START_MENU_NAME)
@@ -105,27 +105,6 @@ function(ecal_install_app TARGET_NAME)
   )
   set_property(INSTALL "${eCAL_install_app_dir}/$<TARGET_FILE_NAME:${TARGET_NAME}>"
     PROPERTY CPACK_START_MENU_SHORTCUTS "${ECAL_INSTALL_APP_START_MENU_NAME}"
-  )
-
-  if(UNIX AND (DEFINED ECAL_INSTALL_APP_START_MENU_NAME))
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/appmenu/app.desktop.in"
-                   "${CMAKE_CURRENT_BINARY_DIR}/appmenu/ecal_${TARGET_NAME}.desktop"
-                   @ONLY)
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/appmenu/icon.png"
-                   "${CMAKE_CURRENT_BINARY_DIR}/appmenu/ecal_${TARGET_NAME}.png"
-                   COPYONLY)
-
-   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/appmenu/ecal_${TARGET_NAME}.png"
-           DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps/")
-
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/appmenu/ecal_${TARGET_NAME}.desktop"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/applications/")
-  endif()
-endfunction()
-
-function(ecal_install_gtest TARGET_NAME)
-  install(TARGETS ${TARGET_NAME}
-    RUNTIME DESTINATION  "${eCAL_install_tests_dir}" COMPONENT testing
   )
 endfunction()
 

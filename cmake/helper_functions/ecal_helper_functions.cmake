@@ -16,20 +16,6 @@
 #
 # ========================= eCAL LICENSE =================================
 
-# This function will set the output names of the target according to eCAL conventions.
-function(ecal_get_platform_toolset)
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(eCAL_VS_TOOLSET "x64" PARENT_SCOPE)
-  else()
-    set(eCAL_VS_TOOLSET "Win32" PARENT_SCOPE)
-  endif()
-endfunction()
-
-
-# This function will mark the executable as a Windows GUI application on a Windows System
-function(ecal_set_subsystem_windows TARGET_NAME)
-endfunction()
-
 # This function will mark the executable as a Windows console application on a Windows System
 function(ecal_set_subsystem_console TARGET_NAME)
 endfunction()

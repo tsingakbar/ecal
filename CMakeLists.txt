@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.13)
 include(CMakeDependentOption)
 
 if (POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW) # Prevent HDF5 from overwriting our output paths
+  cmake_policy(SET CMP0077 NEW)
 endif (POLICY CMP0077)
 
 list(APPEND CMAKE_MODULE_PATH
@@ -55,11 +55,9 @@ endif()
 # command line build options
 # use it that way cmake .. -DBUILD_APPS=ON -DBUILD_SAMPLES=ON
 # --------------------------------------------------------
-option(BUILD_DOCS                              "Build the eCAL documentation"                                     OFF)
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
 option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
 option(BUILD_TIME                              "Build the eCAL time interfaces"                                    ON)
-option(BUILD_ECAL_TESTS                        "Build the eCAL google tests"                                      OFF)
 
 option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
@@ -69,7 +67,6 @@ option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug W
 option(ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS   "Build CMakeFunctions with eCAL"                                    ON)
 option(ECAL_THIRDPARTY_BUILD_TCP_PUBSUB        "Build tcp_pubsub library with eCAL"                                ON)
 option(ECAL_THIRDPARTY_BUILD_RECYCLE           "Build steinwurf::recylce with eCAL"                                ON)
-option(ECAL_THIRDPARTY_BUILD_GTEST             "Build gtest with eCAL"                                            OFF)
 
   option(ECAL_THIRDPARTY_BUILD_PROTOBUF        "Build protobuf with eCAL"                                          OFF)
 
@@ -109,7 +106,6 @@ set(possible_subprojects
   Protobuf
   recycle
   tcp_pubsub
-  GTest
   CMakeFunctions
 )
 
@@ -209,8 +205,6 @@ add_subdirectory(ecal/core)
 add_subdirectory(lib/CustomTclap)
 add_subdirectory(lib/ecal_utils)
 
-add_subdirectory(lib/EcalParser)
-
 # --------------------------------------------------------
 # ecal time
 # --------------------------------------------------------
@@ -235,38 +229,9 @@ if(BUILD_SAMPLES)
 endif()
 
 # --------------------------------------------------------
-# unit tests
-# --------------------------------------------------------
-if(BUILD_ECAL_TESTS)
-  enable_testing()
-
-  # ------------------------------------------------------
-  # test contrib
-  # ------------------------------------------------------
-  add_subdirectory(testing/contrib/ecalproto/dynproto_test)
-  add_subdirectory(testing/contrib/ecalproto/ecal_proto_test)
-
-  # ------------------------------------------------------
-  # test ecal
-  # ------------------------------------------------------
-  #add_subdirectory(testing/ecal/clientserver_test)   THIS TEST IS NOT ABLE TO RUN ON GH ACTIONS
-  add_subdirectory(testing/ecal/core_test)
-  add_subdirectory(testing/ecal/event_test)
-  add_subdirectory(testing/ecal/expmap_test)
-  add_subdirectory(testing/ecal/io_memfile_test)
-  add_subdirectory(testing/ecal/pubsub_inproc_test)
-  add_subdirectory(testing/ecal/pubsub_proto_test)
-  add_subdirectory(testing/ecal/pubsub_test)
-endif()
-
-# --------------------------------------------------------
 # configs
 # --------------------------------------------------------
 add_subdirectory(ecal/core/cfg)
-
-if(BUILD_DOCS)
-  add_subdirectory(doc)
-endif()
 
 # --------------------------------------------------------
 # debscripts
@@ -324,17 +289,14 @@ include(cpack/cpack_variables.cmake)
 message(STATUS "Build Options:")
 message(STATUS "--------------------------------------------------------------------------------")
 message(STATUS "CMAKE_EXPORT_COMPILE_COMMANDS                  : ${CMAKE_EXPORT_COMPILE_COMMANDS}")
-message(STATUS "BUILD_DOCS                                     : ${BUILD_DOCS}")
 message(STATUS "BUILD_APPS                                     : ${BUILD_APPS}")
 message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES}")
 message(STATUS "BUILD_TIME                                     : ${BUILD_TIME}")
-message(STATUS "BUILD_ECAL_TESTS                               : ${BUILD_ECAL_TESTS}")
 message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TCP_PUBSUB               : ${ECAL_THIRDPARTY_BUILD_TCP_PUBSUB}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_RECYCLE                  : ${ECAL_THIRDPARTY_BUILD_RECYCLE}")
-message(STATUS "ECAL_THIRDPARTY_BUILD_GTEST                    : ${ECAL_THIRDPARTY_BUILD_GTEST}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_PROTOBUF                 : ${ECAL_THIRDPARTY_BUILD_PROTOBUF}")
 
 message(STATUS "--------------------------------------------------------------------------------")
