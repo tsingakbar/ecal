@@ -57,13 +57,6 @@
 #define  NET_TCP_PUBSUB_MAX_RECONNECTIONS_S    "tcp_pubsub_max_reconnections"
 
 /////////////////////////////////////
-// time
-/////////////////////////////////////
-#define  TIME_SECTION_S                   "time"
-#define  TIME_SYNC_MOD_RT_S               "timesync_module_rt"
-#define  TIME_SYNC_MOD_REPLAY_S           "timesync_module_replay"
-
-/////////////////////////////////////
 // monitoring
 /////////////////////////////////////
 #define  MON_SECTION_S                    "monitoring"

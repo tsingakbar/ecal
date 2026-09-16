@@ -41,8 +41,8 @@ namespace eCAL
 
     /**
      * @brief  Get the current eCAL Time in microseconds.
-     * 
-     * The timebase depends on the loaded ecaltime plugin.
+     *
+     * The timebase is the local system clock (std::chrono::system_clock).
      *
      * @return  eCAL Time in microseconds
     **/
@@ -51,7 +51,7 @@ namespace eCAL
     /**
      * @brief  Get the current eCAL Time in nanoseconds.
      *
-     * The timebase depends on the loaded ecaltime plugin.
+     * The timebase is the local system clock (std::chrono::system_clock).
      *
      * @return  eCAL Time in nanoseconds
     **/
@@ -134,7 +134,7 @@ namespace eCAL
 
     /* @cond */
     /**
-     * @brief The eCAL Clock which bases it's time on the loaded eCAL Time Adapter.
+     * @brief The eCAL Clock which bases it's time on the local system clock.
     **/
     struct ecal_clock
     {

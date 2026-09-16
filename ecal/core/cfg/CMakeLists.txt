@@ -16,14 +16,6 @@
 #
 # ========================= eCAL LICENSE =================================
 
-# Merge all ecaltime config files
-# -> The ecaltime.ini will only contain valid settings for the time modules that were actually compiled.
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ecaltime.ini "")
-foreach(ECALTIME_CONFIG ${ECALTIME_CONFIG_FILES})
-  file(READ ${ECALTIME_CONFIG} CONTENTS)
-  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/ecaltime.ini "${CONTENTS}")
-endforeach()
-
 # Select the correct ecal config directory on Linux and Windows
 if(UNIX)
   set(ECAL_SHARED_CONFIG ${eCAL_install_config_dir})
@@ -43,15 +35,6 @@ if(ECAL_SHARED_CONFIG AND NOT CMAKE_CROSSCOMPILING)
       ${ECAL_SHARED_CONFIG}
     COMPONENT configuration
   )
-  if(BUILD_TIME)
-    install(
-      FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/ecaltime.ini
-      DESTINATION
-        ${ECAL_SHARED_CONFIG}
-      COMPONENT configuration        
-    )
-  endif()
 endif()
 
 install(

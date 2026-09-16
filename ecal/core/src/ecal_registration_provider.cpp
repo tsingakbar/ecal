@@ -223,31 +223,16 @@ namespace eCAL
     process_sample_mutable_process->set_dataread(google::protobuf::int64(Process::GetRBytes()));
     process_sample_mutable_process->mutable_state()->set_severity(eCAL::pb::eProcessSeverity(g_process_severity));
     process_sample_mutable_process->mutable_state()->set_info(g_process_info);
-    if (!g_timegate())
+    if (g_timegate() && g_timegate()->IsSynchronized())
     {
-      process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_none);
+      process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_realtime);
     }
     else
     {
-      if (!g_timegate()->IsSynchronized())
-      {
-        process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_none);
-      }
-      else
-      {
-        switch (g_timegate()->GetSyncMode())
-        {
-        case CTimeGate::eTimeSyncMode::realtime:
-          process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_realtime);
-          break;
-        case CTimeGate::eTimeSyncMode::replay:
-          process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_replay);
-          break;
-        default:
-          process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_none);
-          break;
-        }
-      }
+      process_sample_mutable_process->set_tsync_state(eCAL::pb::eTSyncState::tsync_none);
+    }
+    if (g_timegate())
+    {
       process_sample_mutable_process->set_tsync_mod_name(g_timegate()->GetName());
     }
 

@@ -121,12 +121,6 @@ namespace eCAL
     ECAL_API int               GetTcpPubsubMaxReconnectionAttemps   () { return eCALPAR(NET, TCP_PUBSUB_MAX_RECONNECTIONS); }
 
     /////////////////////////////////////
-    // time
-    /////////////////////////////////////
-    
-    ECAL_API std::string       GetTimesyncModuleName                () { return eCALPAR(TIME, SYNC_MOD_RT); }
-
-    /////////////////////////////////////
     // process
     /////////////////////////////////////
 

@@ -57,7 +57,6 @@ endif()
 # --------------------------------------------------------
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
 option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
-option(BUILD_TIME                              "Build the eCAL time interfaces"                                    ON)
 
 option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
@@ -206,13 +205,6 @@ add_subdirectory(lib/CustomTclap)
 add_subdirectory(lib/ecal_utils)
 
 # --------------------------------------------------------
-# ecal time
-# --------------------------------------------------------
-if(BUILD_TIME)
-  add_subdirectory(contrib/ecaltime)
-endif()
-
-# --------------------------------------------------------
 # console applications
 # --------------------------------------------------------
 if(BUILD_APPS)
@@ -291,7 +283,6 @@ message(STATUS "----------------------------------------------------------------
 message(STATUS "CMAKE_EXPORT_COMPILE_COMMANDS                  : ${CMAKE_EXPORT_COMPILE_COMMANDS}")
 message(STATUS "BUILD_APPS                                     : ${BUILD_APPS}")
 message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES}")
-message(STATUS "BUILD_TIME                                     : ${BUILD_TIME}")
 message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")

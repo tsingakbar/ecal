@@ -26,14 +26,6 @@ function(ecal_add_app_console TARGET_NAME)
     OUTPUT_NAME ecal_${TARGET_NAME})
 endfunction()
 
-function(ecal_add_time_plugin TARGET_NAME)
-  add_library(${TARGET_NAME} MODULE ${ARGN})
-  set_target_properties(${TARGET_NAME} PROPERTIES
-    VERSION ${eCAL_VERSION_STRING}
-    SOVERSION ${eCAL_VERSION_MAJOR}
-  )
-endfunction()
-
 # this appends the 64 / 32 suffix (required for the eCAL Core libraries)
 function(ecal_add_ecal_shared_library TARGET_NAME)
   add_library(${TARGET_NAME} SHARED ${ARGN})
