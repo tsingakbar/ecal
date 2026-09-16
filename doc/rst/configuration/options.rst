@@ -148,9 +148,7 @@ The network setting drive how and which ...
 
    Available modules are:
    
-   - ecaltime-localtime    local system time without synchronization        
-   - ecaltime-linuxptp     For PTP / gPTP synchronization over ethernet on Linux (device configuration in ecaltime.ini)
-   - ecaltime-simtime      Simulation time as published by the eCAL Player.
+   - ecaltime-localtime    local system time without synchronization
 
 [process]
 ---------
