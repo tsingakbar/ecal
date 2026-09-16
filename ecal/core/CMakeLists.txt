@@ -239,7 +239,6 @@ set(ecal_header_cmn
     include/ecal/ecal_monitoring.h
     include/ecal/ecal_os.h
     include/ecal/ecal_process.h
-    include/ecal/ecal_process_mode.h
     include/ecal/ecal_process_severity.h
     include/ecal/ecal_publisher.h
     include/ecal/ecal_qos.h
@@ -396,17 +395,3 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.8.0")
     ${ecal_header_msg}
   )
 endif()
-
-# eCAL Process stub
-if(UNIX)
-    set(PROJECT_NAME_PROCESS_STUB process_stub)
-
-    ecal_add_app_console(${PROJECT_NAME_PROCESS_STUB}
-        src/ecal_process_stub.cpp
-        src/ecal_process_stub.h
-    )
-
-    ecal_install_app(${PROJECT_NAME_PROCESS_STUB})
-
-    set_property(TARGET ${PROJECT_NAME_PROCESS_STUB} PROPERTY FOLDER ecal/core)
-endif(UNIX)

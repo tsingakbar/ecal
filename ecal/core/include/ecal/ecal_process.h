@@ -28,7 +28,6 @@
 #include <string>
 
 #include <ecal/ecal_os.h>
-#include <ecal/ecal_process_mode.h>
 #include <ecal/ecal_process_severity.h>
 #include <ecal/ecal_callback.h>
 
@@ -228,38 +227,6 @@ namespace eCAL
     * @return  Zero if succeeded.
     **/
     ECAL_API int RemRegistrationCallback(enum eCAL_Registration_Event event_);
-
-    /**
-     * @brief  Start specified process (windows only). 
-     *
-     * @param proc_name_       Process name. 
-     * @param proc_args_       Process argument string. 
-     * @param working_dir_     Working directory. 
-     * @param create_console_  Start process in own console window (Windows only). 
-     * @param process_mode_    Start process normal, hidden, minimized, maximized (Windows only). 
-     * @param block_           Block until process finished. 
-     *
-     * @return  Process id or zero if failed. 
-    **/
-    ECAL_API int StartProcess(const char* proc_name_, const char* proc_args_, const char* working_dir_, bool create_console_, eCAL_Process_eStartMode process_mode_, bool block_);
-
-    /**
-     * @brief  Stop specified process (windows only). 
-     *
-     * @param proc_name_  Process name. 
-     *
-     * @return  True if successful. 
-    **/
-    ECAL_API bool StopProcess(const char* proc_name_);
-
-    /**
-     * @brief  Stop specified process (windows only). 
-     *
-     * @param proc_id_    Process id. 
-     *
-     * @return  True if successful. 
-    **/
-    ECAL_API bool StopProcess(int proc_id_);
   }
   /** @example process.cpp
   * This is an example how functions from the eCAL::Process namespace may be used.

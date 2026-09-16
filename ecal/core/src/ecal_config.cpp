@@ -129,8 +129,6 @@ namespace eCAL
     /////////////////////////////////////
     // process
     /////////////////////////////////////
-    
-    ECAL_API std::string       GetTerminalEmulatorCommand           () { return eCALPAR(PROCESS, TERMINAL_EMULATOR); }
 
     /////////////////////////////////////
     // monitoring

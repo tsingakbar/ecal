@@ -64,12 +64,6 @@
 #define  TIME_SYNC_MOD_REPLAY_S           "timesync_module_replay"
 
 /////////////////////////////////////
-// process
-/////////////////////////////////////
-#define  PROCESS_SECTION_S                 "process"
-#define  PROCESS_TERMINAL_EMULATOR_S       "terminal_emulator"
-
-/////////////////////////////////////
 // monitoring
 /////////////////////////////////////
 #define  MON_SECTION_S                    "monitoring"
