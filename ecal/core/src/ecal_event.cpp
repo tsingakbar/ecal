@@ -44,8 +44,6 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
-#include <mutex>
-#include <condition_variable>
 
 namespace
 {
@@ -196,42 +194,92 @@ namespace
 
 namespace eCAL
 {
+  // Use pthread calls with CLOCK_MONOTONIC instead of std::condition_variable:
+  // due to a gcc9 bug, wait_for/wait_until is bound to CLOCK_REALTIME and
+  // cannot be switched to a monotonic clock.
   class CEvent
   {
   public:
-    CEvent() : m_sigcount(0) { }
+    CEvent() : m_sigcount(0)
+    {
+      pthread_mutexattr_t mtx_attr;
+      pthread_mutexattr_init(&mtx_attr);
+
+      pthread_condattr_t cond_attr;
+      pthread_condattr_init(&cond_attr);
+      pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
+
+      pthread_mutex_init(&m_mutex, &mtx_attr);
+      pthread_cond_init(&m_cond, &cond_attr);
+
+      pthread_mutexattr_destroy(&mtx_attr);
+      pthread_condattr_destroy(&cond_attr);
+    }
+
+    ~CEvent()
+    {
+      pthread_cond_destroy(&m_cond);
+      pthread_mutex_destroy(&m_mutex);
+    }
+
+    CEvent(const CEvent&)            = delete;
+    CEvent& operator=(const CEvent&) = delete;
 
     void set()
     {
-      std::unique_lock< std::mutex > lock(m_mutex);
+      pthread_mutex_lock(&m_mutex);
       ++m_sigcount;
-      m_condition.notify_one();
+      pthread_cond_signal(&m_cond);
+      pthread_mutex_unlock(&m_mutex);
     }
 
     bool wait()
     {
-      std::unique_lock< std::mutex > lock(m_mutex);
-      m_condition.wait(lock,[&]()->bool{ return m_sigcount>0; });
+      pthread_mutex_lock(&m_mutex);
+      while (m_sigcount == 0)
+      {
+        pthread_cond_wait(&m_cond, &m_mutex);
+      }
       --m_sigcount;
+      pthread_mutex_unlock(&m_mutex);
       return true;
     }
 
-    template< typename R,typename P >
+    template< typename R, typename P >
     bool wait(const std::chrono::duration<R,P>& timeout_)
     {
-      std::unique_lock< std::mutex > lock(m_mutex);
-      if (!m_condition.wait_for(lock, timeout_, [&]()->bool{ return m_sigcount>0; }))
+      // absolute deadline on the monotonic clock
+      struct timespec abstime;
+      clock_gettime(CLOCK_MONOTONIC, &abstime);
+
+      constexpr int64_t ns_per_sec = 1000000000;
+      const int64_t timeout_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_).count();
+      abstime.tv_sec  += static_cast<time_t>(timeout_ns / ns_per_sec);
+      abstime.tv_nsec += static_cast<int64_t>(timeout_ns % ns_per_sec);
+      if (abstime.tv_nsec >= ns_per_sec)
       {
-        return false;
+        abstime.tv_nsec -= ns_per_sec;
+        abstime.tv_sec++;
       }
-      --m_sigcount;
-      return true;
+
+      pthread_mutex_lock(&m_mutex);
+      int ret = 0;
+      while (m_sigcount == 0 && ret == 0)
+      {
+        // returns 0 on signal/spurious wakeup, ETIMEDOUT on timeout;
+        // either way the mutex is re-acquired before returning
+        ret = pthread_cond_timedwait(&m_cond, &m_mutex, &abstime);
+      }
+      const bool signaled = (m_sigcount > 0);
+      if (signaled) --m_sigcount;
+      pthread_mutex_unlock(&m_mutex);
+      return signaled;
     }
 
   private:
-    unsigned int             m_sigcount;
-    std::mutex               m_mutex;
-    std::condition_variable  m_condition;
+    unsigned int    m_sigcount;
+    pthread_mutex_t m_mutex;
+    pthread_cond_t  m_cond;
   };
 
   class CNamedEvent
