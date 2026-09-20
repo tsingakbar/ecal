@@ -18,9 +18,6 @@
 
 @PACKAGE_INIT@
 
-# Set some build relevant variables to build samples appropriately
-set(eCAL_install_samples_dir "@eCAL_install_samples_dir@")
-
 set(eCAL_VERSION_MAJOR  @eCAL_VERSION_MAJOR@)
 set(eCAL_VERSION_MINOR  @eCAL_VERSION_MINOR@)
 set(eCAL_VERSION_PATCH  @eCAL_VERSION_PATCH@)

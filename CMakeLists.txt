@@ -56,9 +56,6 @@ endif()
 # use it that way cmake .. -DBUILD_APPS=ON -DBUILD_SAMPLES=ON
 # --------------------------------------------------------
 option(BUILD_APPS                              "Build the eCAL applications"                                       ON)
-option(BUILD_SAMPLES                           "Build the eCAL samples"                                           OFF)
-
-option(ECAL_INSTALL_SAMPLE_SOURCES             "Install the sources of eCAL samples"                              OFF)
 
 option(ECAL_JOIN_MULTICAST_TWICE               "Specific Multicast Network Bug Workaround"                        OFF)
 
@@ -172,8 +169,6 @@ set(eCAL_install_config_dir        ${CMAKE_INSTALL_SYSCONFDIR}/ecal)
 set(eCAL_install_doc_dir           ${CMAKE_INSTALL_DOCDIR})
 set(eCAL_install_include_dir       ${CMAKE_INSTALL_INCLUDEDIR})
 set(eCAL_install_lib_dir           ${CMAKE_INSTALL_LIBDIR})
-set(eCAL_install_samples_dir       ${CMAKE_INSTALL_BINDIR})
-set(eCAL_install_samples_src_dir   ${CMAKE_INSTALL_DATADIR}/ecal/samples/)
 set(eCAL_install_tests_dir         ${CMAKE_INSTALL_BINDIR})
 
 set(eCAL_config_dir                ${eCAL_BINARY_DIR}/cmake/)
@@ -201,7 +196,6 @@ add_subdirectory(ecal/core)
 # --------------------------------------------------------
 # custom libs
 # --------------------------------------------------------
-add_subdirectory(lib/CustomTclap)
 add_subdirectory(lib/ecal_utils)
 
 # --------------------------------------------------------
@@ -211,13 +205,6 @@ if(BUILD_APPS)
   add_subdirectory(app/mon/mon_cli)
   add_subdirectory(app/util/config)
   add_subdirectory(app/util/stop)
-endif()
-
-# --------------------------------------------------------
-# samples
-# --------------------------------------------------------
-if(BUILD_SAMPLES)
-  add_subdirectory(samples)
 endif()
 
 # --------------------------------------------------------
@@ -267,12 +254,6 @@ install(EXPORT eCALCoreTargets
   COMPONENT sdk
 )
 
-if(ECAL_INSTALL_SAMPLE_SOURCES)
-  install(DIRECTORY samples/
-    DESTINATION ${eCAL_install_samples_src_dir}
-  )
-endif()
-
 # --------------------------------------------------------
 # create package
 # --------------------------------------------------------
@@ -282,8 +263,6 @@ message(STATUS "Build Options:")
 message(STATUS "--------------------------------------------------------------------------------")
 message(STATUS "CMAKE_EXPORT_COMPILE_COMMANDS                  : ${CMAKE_EXPORT_COMPILE_COMMANDS}")
 message(STATUS "BUILD_APPS                                     : ${BUILD_APPS}")
-message(STATUS "BUILD_SAMPLES                                  : ${BUILD_SAMPLES}")
-message(STATUS "ECAL_INSTALL_SAMPLE_SOURCES                    : ${ECAL_INSTALL_SAMPLE_SOURCES}")
 message(STATUS "ECAL_JOIN_MULTICAST_TWICE                      : ${ECAL_JOIN_MULTICAST_TWICE}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS          : ${ECAL_THIRDPARTY_BUILD_CMAKE_FUNCTIONS}")
 message(STATUS "ECAL_THIRDPARTY_BUILD_TCP_PUBSUB               : ${ECAL_THIRDPARTY_BUILD_TCP_PUBSUB}")
