@@ -41,7 +41,6 @@
 #include <ecal/ecal_service_info.h>
 #include <ecal/ecal_subscriber.h>
 #include <ecal/ecal_time.h>
-#include <ecal/ecal_timer.h>
 #include <ecal/ecal_tlayer.h>
 #include <ecal/ecal_util.h>
 

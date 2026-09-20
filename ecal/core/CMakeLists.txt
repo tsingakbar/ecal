@@ -121,7 +121,6 @@ set(ecal_cmn_cpp_src
     src/ecal_thread.cpp
     src/ecal_time.cpp
     src/ecal_timegate.cpp
-    src/ecal_timer.cpp
     src/ecal_util.cpp
     src/sys_usage.cpp
     src/uniq_id_generator.cpp
@@ -247,8 +246,6 @@ set(ecal_header_cmn
     include/ecal/ecal_service_info.h
     include/ecal/ecal_subscriber.h
     include/ecal/ecal_time.h
-    include/ecal/ecal_timed_cb.h
-    include/ecal/ecal_timer.h
     include/ecal/ecal_tlayer.h
     include/ecal/ecal_util.h
     include/ecal/ecalc_types.h
